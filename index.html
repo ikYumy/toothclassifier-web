@@ -310,6 +310,9 @@ async function handleFiles(event) {
     const totalElements = H * W * B;
     let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
 
+    // 重排: BIL/BIP → BSQ pixel-major (与 Python read_envi_image 一致)
+    rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
+
     status.textContent = `预处理中...`;
 
     // 3. 波段裁剪 (256→244)
@@ -415,6 +418,44 @@ function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
       throw new Error(`不支持的数据类型: ${dataType}`);
   }
   return result;
+}
+
+// ENVI 数据重排：将 BIL/BIP 转为 BSQ (pixel-major)
+// Python read_envi_image 的等价实现
+function reorderToBSQ(data, h, w, bands, interleave) {
+  switch (interleave) {
+    case 'bil':
+      // BIL: raw is [line][band][sample] → we want [line][sample][band]
+      const reordered = new Float32Array(h * w * bands);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          for (let b = 0; b < bands; b++) {
+            // BIL index: y * (bands * w) + b * w + x
+            const srcIdx = y * bands * w + b * w + x;
+            // BSQ index: pixel-major: (y * w + x) * bands + b
+            const dstIdx = (y * w + x) * bands + b;
+            reordered[dstIdx] = data[srcIdx];
+          }
+        }
+      }
+      return reordered;
+    case 'bip':
+      // BIP: raw is [line][sample][band]
+      const reordered2 = new Float32Array(h * w * bands);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          for (let b = 0; b < bands; b++) {
+            const srcIdx = y * w * bands + x * bands + b;
+            const dstIdx = (y * w + x) * bands + b;
+            reordered2[dstIdx] = data[srcIdx];
+          }
+        }
+      }
+      return reordered2;
+    case 'bsq':
+    default:
+      return data;  // 已经是 pixel-major: [band][line][sample] → 即 [band * H * W]
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -588,6 +629,9 @@ async function handleFile(event) {
 
     const totalElements = H * W * B;
     let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
+
+    // 重排: BIL/BIP → BSQ pixel-major (与 Python read_envi_image 一致)
+    rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
 
     status.textContent = `预处理中...`;
 
