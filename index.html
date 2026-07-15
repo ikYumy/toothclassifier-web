@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>ToothClassifier — 高光谱牙齿组织推理</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #e3b341;
+    --red: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh; padding: 16px;
+  }
+  .container { max-width: 600px; width: 100%; }
+  h1 { font-size: 1.5rem; text-align: center; margin-bottom: 16px; }
+  h1 span { color: var(--muted); font-weight: 400; font-size: 0.9rem; display: block; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  }
+  .card h2 { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  select, button, input[type=file] {
+    width: 100%; padding: 10px 14px; border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--border);
+    margin-top: 6px;
+  }
+  select:focus, button:focus { outline: none; border-color: var(--accent); }
+
+  button {
+    background: var(--accent); color: #fff; font-weight: 600;
+    cursor: pointer; border: none; margin-top: 10px;
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+
+  .status {
+    font-size: 0.85rem; color: var(--muted); text-align: center;
+    min-height: 20px; margin: 8px 0;
+  }
+  .status.ok { color: var(--green); }
+  .status.err { color: var(--red); }
+
+  canvas {
+    width: 100%; border-radius: 8px;
+    border: 1px solid var(--border);
+    image-rendering: pixelated;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    height: 4px; background: var(--border); border-radius: 2px;
+    margin-top: 8px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  .stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 8px;
+  }
+  .stat {
+    background: var(--bg); border-radius: 8px; padding: 10px;
+    text-align: center;
+  }
+  .stat .value { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+  .stat .label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;
+    font-size: 0.75rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  .warning {
+    background: rgba(227,179,65,0.1); border: 1px solid var(--yellow);
+    border-radius: 8px; padding: 10px; font-size: 0.8rem;
+    color: var(--yellow); margin-bottom: 12px; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🦷 ToothClassifier
+    <span>高光谱牙齿组织分类 · 边缘推理</span>
+  </h1>
+
+  <div class="warning" id="safariWarning" style="display:none">
+    ⚠️ 检测到非 Safari 浏览器。推荐使用 <b>Safari</b> 以获得最佳 WebAssembly 性能。
+  </div>
+
+  <!-- 模型选择 -->
+  <div class="card">
+    <h2>模型</h2>
+    <select id="modelSelect">
+      <option value="resnet_original" selected>ResNet-1D original (★推荐 OA≈0.944)</option>
+      <option value="resnet_deriv">ResNet-1D deriv</option>
+      <option value="resnet_original_se">ResNet-1D original + SE</option>
+      <option value="resnet_deriv_se">ResNet-1D deriv + SE</option>
+      <option value="efficientnet_original">EfficientNet-1D original</option>
+      <option value="efficientnet_deriv">EfficientNet-1D deriv</option>
+      <option value="simple_original">SimpleCNN original</option>
+      <option value="vgg_original">VGG-1D original</option>
+    </select>
+    <div class="status" id="modelStatus">点击"加载模型"开始</div>
+  </div>
+
+  <!-- 操作 -->
+  <div class="card">
+    <h2>操作</h2>
+    <button id="loadModelBtn" onclick="loadModel()">加载模型</button>
+    <button id="runBtn" class="secondary" onclick="selectFiles()" disabled>选择 HDR + .dat 文件并推理</button>
+    <input type="file" id="fileInput" accept=".hdr,.dat,.img" multiple style="display:none" onchange="handleFiles(event)">
+    <div class="progress-bar" id="progressBar" style="display:none">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="card" id="resultsCard" style="display:none">
+    <h2>推理结果</h2>
+    <canvas id="resultCanvas"></canvas>
+    <div class="stats" id="stats"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#000"></div>背景</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>釉质</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>早期龋</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>进展龋</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>牙结石</div>
+    </div>
+    <button class="secondary" onclick="saveResult()" style="margin-top:10px">保存结果到相册</button>
+  </div>
+</div>
+
+<!-- ONNX Runtime Web -->
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.webgpu.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  全局状态
+// ═══════════════════════════════════════════════════════════
+let ortSession = null;
+let currentModel = '';
+let modelData = null;  // 预加载的模型二进制
+
+const BANDS = 244;
+const NOISE_START = 6;
+const NOISE_END = 6;
+const NUM_CLASSES = 5;
+const BATCH_SIZE = 1024;
+
+const GLOBAL_MEAN = 0.330996;
+const GLOBAL_STD  = 0.201596;
+
+const COLOR_MAP = [
+  [0,   0,   0],   // background
+  [255, 0,   0],   // enamel
+  [0,   139, 0],   // early lesion
+  [0,   0,   255], // developed lesion
+  [255, 255, 0],   // calculus
+];
+
+const MODEL_CONFIGS = {
+  resnet_original:    { channels: 1, deriv: false },
+  resnet_original_se: { channels: 1, deriv: false },
+  resnet_deriv:       { channels: 3, deriv: true },
+  resnet_deriv_se:    { channels: 3, deriv: true },
+  efficientnet_original:    { channels: 1, deriv: false },
+  efficientnet_deriv:       { channels: 3, deriv: true },
+  simple_original:    { channels: 1, deriv: false },
+  vgg_original:       { channels: 1, deriv: false },
+};
+
+
+// ═══════════════════════════════════════════════════════════
+//  初始化
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (!isSafari) {
+    document.getElementById('safariWarning').style.display = 'block';
+  }
+  // 确保 WebGL/WebGPU 可用
+  checkORT();
+});
+
+async function checkORT() {
+  const status = document.getElementById('modelStatus');
+  try {
+    const available = typeof ort !== 'undefined';
+    status.textContent = available ? 'ONNX Runtime Web 已就绪 ✓' : '正在加载 ONNX Runtime...';
+    status.className = available ? 'status ok' : 'status';
+  } catch(e) {
+    status.textContent = 'ONNX Runtime 加载失败: ' + e.message;
+    status.className = 'status err';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  模型加载
+// ═══════════════════════════════════════════════════════════
+async function loadModel() {
+  const select = document.getElementById('modelSelect');
+  const modelName = select.value;
+  const status = document.getElementById('modelStatus');
+  const btn = document.getElementById('loadModelBtn');
+
+  btn.disabled = true;
+  status.textContent = `正在加载 ${modelName}...`;
+  status.className = 'status';
+
+  try {
+    // 从同一目录加载 .onnx 文件
+    const resp = await fetch(`onnx_models/${modelName}.onnx`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const buffer = await resp.arrayBuffer();
+    modelData = new Uint8Array(buffer);
+
+    // 创建 ONNX Runtime 会话
+    // 使用 webgl 后端（iOS Safari 只支持 WebGL，不支持 WebGPU）
+    ortSession = await ort.InferenceSession.create(modelData, {
+      executionProviders: ['webgl', 'wasm'],
+      graphOptimizationLevel: 'all',
+    });
+    currentModel = modelName;
+
+    status.textContent = `✓ ${modelName} 已加载 (${MODEL_CONFIGS[modelName].channels}通道)`;
+    status.className = 'status ok';
+    document.getElementById('runBtn').disabled = false;
+  } catch(e) {
+    status.textContent = `加载失败: ${e.message}`;
+    status.className = 'status err';
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  文件选择（一次选 .hdr + .dat）
+// ═══════════════════════════════════════════════════════════
+function selectFiles() {
+  document.getElementById('fileInput').click();
+}
+
+async function handleFiles(event) {
+  const files = event.target.files;
+  if (!files || files.length < 2) {
+    alert('请同时选择 .hdr 文件和对应的 .dat/.img 数据文件');
+    return;
+  }
+
+  // 分离 .hdr 和二进制文件
+  let hdrFile = null, datFile = null;
+  for (const f of files) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    if (ext === 'hdr') hdrFile = f;
+    else if (ext === 'dat' || ext === 'img') datFile = f;
+  }
+
+  if (!hdrFile) { alert('未找到 .hdr 文件'); return; }
+  if (!datFile) { alert('未找到 .dat/.img 二进制数据文件'); return; }
+
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+
+  status.textContent = '正在读取 HDR 文件...';
+  status.className = 'status';
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+
+  try {
+    const tStart = performance.now();
+
+    // 1. 解析 .hdr
+    const hdrText = await hdrFile.text();
+    const hdr = parseHDRHeader(hdrText);
+    const H = hdr.lines, W = hdr.samples, B = hdr.bands;
+    if (!H || !W || !B) throw new Error('HDR 文件格式错误：缺少 samples/lines/bands');
+    status.textContent = `图像: ${H}×${W}×${B} 波段`;
+
+    // 2. 读取二进制数据
+    const datBuffer = await datFile.arrayBuffer();
+    const totalElements = H * W * B;
+    let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
+
+    status.textContent = `预处理中...`;
+
+    // 3. 波段裁剪 (256→244)
+    let bandsToUse = B;
+    if (B === 256) {
+      rawData = cropBands(rawData, H, W, B);
+      bandsToUse = 244;
+    } else if (B !== 244) {
+      throw new Error(`不支持的波段数: ${B}（需要 244 或 256）`);
+    }
+
+    // 4. 归一化
+    normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
+
+    // 5. 构建特征
+    const config = MODEL_CONFIGS[currentModel];
+    const nPixels = H * W;
+    const features = buildFeatures(rawData, nPixels, bandsToUse, config.deriv);
+
+    status.textContent = `推理中... ${H}×${W} = ${nPixels.toLocaleString()} 像素`;
+    progressFill.style.width = '0%';
+
+    // 6. 推理
+    const predictions = await batchInference(features, nPixels, config.channels);
+    const elapsed = (performance.now() - tStart) / 1000;
+
+    // 7. 渲染
+    renderResult(predictions, H, W, elapsed, nPixels);
+
+    status.textContent = `✓ 完成！耗时 ${elapsed.toFixed(2)} 秒`;
+    status.className = 'status ok';
+
+  } catch(e) {
+    status.textContent = `错误: ${e.message}`;
+    status.className = 'status err';
+    console.error(e);
+  } finally {
+    progressBar.style.display = 'none';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  HDR 解析
+// ═══════════════════════════════════════════════════════════
+function parseHDRHeader(text) {
+  const info = {};
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith(';')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.substring(0, eq).trim().toLowerCase();
+    const val = trimmed.substring(eq + 1).trim().replace(/[{}]/g, '');
+    info[key] = val;
+  }
+  return {
+    samples:   parseInt(info['samples']) || 0,
+    lines:     parseInt(info['lines']) || 0,
+    bands:     parseInt(info['bands']) || 0,
+    dataType:  parseInt(info['data type'] || '4'),
+    byteOrder: parseInt(info['byte order'] || '0'),
+    interleave: (info['interleave'] || 'bsq').toLowerCase(),
+  };
+}
+
+function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
+  const isBE = (byteOrder === 1);
+  const dv = new DataView(buffer);
+  const result = new Float32Array(totalElements);
+
+  switch (dataType) {
+    case 1: // uint8
+      const u8 = new Uint8Array(buffer);
+      for (let i = 0; i < totalElements; i++) result[i] = u8[i];
+      break;
+    case 2: // int16
+      for (let i = 0; i < totalElements; i++) {
+        result[i] = dv.getInt16(i * 2, !isBE);
+      }
+      break;
+    case 3: // int32
+      for (let i = 0; i < totalElements; i++) {
+        result[i] = dv.getInt32(i * 4, !isBE);
+      }
+      break;
+    case 4: // float32
+      for (let i = 0; i < totalElements; i++) {
+        result[i] = dv.getFloat32(i * 4, !isBE);
+      }
+      break;
+    case 5: // float64
+      for (let i = 0; i < totalElements; i++) {
+        result[i] = dv.getFloat64(i * 8, !isBE);
+      }
+      break;
+    case 12: // uint16
+      for (let i = 0; i < totalElements; i++) {
+        result[i] = dv.getUint16(i * 2, !isBE);
+      }
+      break;
+    default:
+      throw new Error(`不支持的数据类型: ${dataType}`);
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  预处理
+// ═══════════════════════════════════════════════════════════
+function cropBands(data, h, w, bands) {
+  const keep = bands - NOISE_START - NOISE_END; // 244
+  const result = new Float32Array(h * w * keep);
+  const totalPixels = h * w;
+  for (let p = 0; p < totalPixels; p++) {
+    const srcBase = p * bands + NOISE_START;
+    const dstBase = p * keep;
+    for (let b = 0; b < keep; b++) {
+      result[dstBase + b] = data[srcBase + b];
+    }
+  }
+  return result;
+}
+
+function normalize(data, mean, std) {
+  const invStd = 1.0 / std;
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (data[i] - mean) * invStd;
+  }
+}
+
+// Savitzky-Golay 系数（窗口5，2阶多项式，1阶导数）
+// 与 Python scipy.signal.savgol_filter 等价
+const SG_COEFFS_1ST = [-0.2, -0.1, 0.0, 0.1, 0.2];
+const SG_COEFFS_2ND = [0.142857, -0.071429, -0.142857, -0.071429, 0.142857];
+const SG_HALF = 2;
+
+function sgDerivative1D(spectrum, coeffs) {
+  const n = spectrum.length;
+  const result = new Float32Array(n);
+  const w = coeffs.length;
+  const half = (w - 1) / 2;
+  for (let i = 0; i < n; i++) {
+    let sum = 0;
+    for (let j = 0; j < w; j++) {
+      let idx = i + j - half;
+      if (idx < 0) idx = 0;
+      if (idx >= n) idx = n - 1;
+      sum += spectrum[idx] * coeffs[j];
+    }
+    result[i] = sum;
+  }
+  return result;
+}
+
+function buildFeatures(normalizedData, nPixels, bands, useDeriv) {
+  // 输出格式: [N, channels, bands] (row-major for ONNX: N*channels*bands)
+  const channels = useDeriv ? 3 : 1;
+  const features = new Float32Array(nPixels * channels * bands);
+
+  for (let p = 0; p < nPixels; p++) {
+    const base = p * bands;
+    const spec = normalizedData.slice(base, base + bands);
+
+    if (useDeriv) {
+      const d1 = sgDerivative1D(spec, SG_COEFFS_1ST);
+      const d2 = sgDerivative1D(spec, SG_COEFFS_2ND);
+      // ONNX row-major: [channel][band]
+      for (let b = 0; b < bands; b++) {
+        features[(p * 3 + 0) * bands + b] = spec[b];  // raw
+        features[(p * 3 + 1) * bands + b] = d1[b];    // 1st deriv
+        features[(p * 3 + 2) * bands + b] = d2[b];    // 2nd deriv
+      }
+    } else {
+      for (let b = 0; b < bands; b++) {
+        features[p * bands + b] = spec[b];
+      }
+    }
+  }
+  return features;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  ONNX 推理
+// ═══════════════════════════════════════════════════════════
+async function batchInference(features, nPixels, channels) {
+  const bands = 244;
+  const predictions = new Int32Array(nPixels);
+  const session = ortSession;
+
+  for (let start = 0; start < nPixels; start += BATCH_SIZE) {
+    const end = Math.min(start + BATCH_SIZE, nPixels);
+    const count = end - start;
+
+    // 提取 batch
+    const batchData = new Float32Array(count * channels * bands);
+    for (let p = 0; p < count; p++) {
+      const srcOff = (start + p) * channels * bands;
+      const dstOff = p * channels * bands;
+      for (let i = 0; i < channels * bands; i++) {
+        batchData[dstOff + i] = features[srcOff + i];
+      }
+    }
+
+    // 构建 ONNX tensor
+    const tensor = new ort.Tensor('float32', batchData, [count, channels, bands]);
+    const feeds = { spectrum: tensor };
+    const results = await session.run(feeds);
+    const logits = results.logits.data;  // [count, 5]
+
+    // argmax
+    for (let p = 0; p < count; p++) {
+      let maxVal = -Infinity, maxIdx = 0;
+      for (let c = 0; c < NUM_CLASSES; c++) {
+        const val = logits[p * NUM_CLASSES + c];
+        if (val > maxVal) { maxVal = val; maxIdx = c; }
+      }
+      predictions[start + p] = maxIdx;
+    }
+
+    // 更新进度条
+    const progress = (end / nPixels) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+  }
+  return predictions;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  主流程
+// ═══════════════════════════════════════════════════════════
+async function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+
+  status.textContent = '正在读取 HDR 文件...';
+  status.className = 'status';
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+
+  try {
+    const tStart = performance.now();
+
+    // 1. 读取 .hdr 文本
+    const hdrText = await file.text();
+    const hdr = parseHDRHeader(hdrText);
+    const H = hdr.lines, W = hdr.samples, B = hdr.bands;
+    status.textContent = `图像: ${H}×${W}×${B} 波段`;
+
+    // 2. 读取二进制数据
+    // 需要同名 .dat 文件。让用户同时选择 .dat
+    // 简化: 假设用户通过拖拽或二次选择提供 .dat
+    const datInput = document.createElement('input');
+    datInput.type = 'file';
+    datInput.accept = '.dat,.img';
+    datInput.style.display = 'none';
+    document.body.appendChild(datInput);
+
+    // 用 Promise 等待 .dat 文件
+    const datFile = await new Promise((resolve, reject) => {
+      datInput.onchange = (e) => resolve(e.target.files[0]);
+      datInput.oncancel = () => reject(new Error('未选择数据文件'));
+      // 自动弹出文件选择器
+      setTimeout(() => {
+        alert('请选择对应的 .dat 二进制数据文件');
+        datInput.click();
+      }, 200);
+    });
+
+    const datBuffer = await datFile.arrayBuffer();
+    document.body.removeChild(datInput);
+
+    const totalElements = H * W * B;
+    let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
+
+    status.textContent = `预处理中...`;
+
+    // 3. 波段裁剪
+    let bandsToUse = B;
+    if (B === 256) {
+      rawData = cropBands(rawData, H, W, B);
+      bandsToUse = 244;
+    } else if (B !== 244) {
+      throw new Error(`不支持的波段数: ${B}（需要 244 或 256）`);
+    }
+
+    // 4. 归一化
+    normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
+
+    // 5. 构建特征
+    const config = MODEL_CONFIGS[currentModel];
+    const nPixels = H * W;
+    const features = buildFeatures(rawData, nPixels, bandsToUse, config.deriv);
+
+    status.textContent = `推理中... ${H}×${W} = ${nPixels.toLocaleString()} 像素`;
+    progressFill.style.width = '0%';
+
+    // 6. 推理
+    const predictions = await batchInference(features, nPixels, config.channels);
+    const elapsed = (performance.now() - tStart) / 1000;
+
+    // 7. 渲染
+    renderResult(predictions, H, W, elapsed, nPixels);
+
+    status.textContent = `✓ 完成！耗时 ${elapsed.toFixed(2)} 秒`;
+    status.className = 'status ok';
+
+  } catch(e) {
+    status.textContent = `错误: ${e.message}`;
+    status.className = 'status err';
+    console.error(e);
+  } finally {
+    progressBar.style.display = 'none';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  结果渲染
+// ═══════════════════════════════════════════════════════════
+function renderResult(predictions, H, W, elapsed, nPixels) {
+  // Canvas
+  const canvas = document.getElementById('resultCanvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(W, H);
+
+  for (let i = 0; i < nPixels; i++) {
+    const label = predictions[i];
+    const [r, g, b] = COLOR_MAP[label] || [0,0,0];
+    const off = i * 4;
+    imgData.data[off] = r;
+    imgData.data[off+1] = g;
+    imgData.data[off+2] = b;
+    imgData.data[off+3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  // 统计
+  const counts = new Array(5).fill(0);
+  for (let i = 0; i < nPixels; i++) counts[predictions[i]]++;
+  const names = ['背景','釉质','早期龋','进展龋','牙结石'];
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">推理耗时</div></div>
+    <div class="stat"><div class="value">${nPixels.toLocaleString()}</div><div class="label">总像素</div></div>
+    <div class="stat"><div class="value">${counts[1]+counts[2]+counts[3]+counts[4]}</div><div class="label">牙体像素</div></div>
+    <div class="stat"><div class="value">${((counts[2]+counts[3])/nPixels*100).toFixed(1)}%</div><div class="label">龋坏比例</div></div>
+  `;
+
+  document.getElementById('resultsCard').style.display = 'block';
+}
+
+function saveResult() {
+  const canvas = document.getElementById('resultCanvas');
+  const link = document.createElement('a');
+  link.download = 'tooth_prediction.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+</script>
+</body>
+</html>
