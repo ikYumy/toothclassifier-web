@@ -441,11 +441,10 @@ function normalize(data, mean, std) {
   }
 }
 
-// Savitzky-Golay 系数（窗口5，2阶多项式，1阶导数）
-// 与 Python scipy.signal.savgol_filter 等价
-const SG_COEFFS_1ST = [-0.2, -0.1, 0.0, 0.1, 0.2];
-const SG_COEFFS_2ND = [0.142857, -0.071429, -0.142857, -0.071429, 0.142857];
-const SG_HALF = 2;
+// Savitzky-Golay 系数（窗口5，2阶多项式）
+// 与 scipy.signal.savgol_coeffs(5, 2, deriv=1/2) 完全一致
+const SG_COEFFS_1ST = [ 0.2,  0.1,  0.0, -0.1, -0.2];
+const SG_COEFFS_2ND = [ 0.285714, -0.142857, -0.285714, -0.142857,  0.285714];
 
 function sgDerivative1D(spectrum, coeffs) {
   const n = spectrum.length;
