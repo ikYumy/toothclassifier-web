@@ -29,49 +29,22 @@ let roiP=[],curP=[],drawing=false,roiM=null;
 let testImages=[],selTest=null;
 
 // ═══════════════════════ Init ═══════════════════════
-const device = {os:'unknown',browser:'unknown',brand:'',memoryGB:null,isTouch:false,isLowMemory:false,isIPad:false};
-function detectDevice(){const ua=navigator.userAgent,p=navigator.platform||'';
-  // ── OS ──
-  if(/iPhone|iPad|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1)){device.os='ios';device.isIPad=!/iPhone|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1)}
-  else if(/Android|HarmonyOS/i.test(ua))device.os='android';
-  else if(/Mac|Macintosh/i.test(ua)||p==='MacIntel')device.os='macos';
-  else if(/Windows|Win/i.test(ua)||/Win/.test(p))device.os='windows';
-  else if(/Linux/i.test(ua))device.os='linux';
-  // ── Browser (check branded browsers first, then generic) ──
-  if(/SamsungBrowser/i.test(ua))device.browser='samsung';
-  else if(/HuaweiBrowser|HBPC/i.test(ua))device.browser='huawei';
-  else if(/OPR|Opera/i.test(ua))device.browser='opera';
-  else if(/Firefox/i.test(ua)&&!/Seamonkey/i.test(ua))device.browser='firefox';
-  else if(/Edg/i.test(ua))device.browser='edge';
-  else if(/CriOS/i.test(ua))device.browser='chrome';
-  else if(/Chrome/i.test(ua))device.browser='chrome';
-  else if(/Safari/i.test(ua))device.browser='safari';
-  // ── Device brand (Android manufacturers) ──
-  if(/Huawei|Honor|HARMONY/i.test(ua))device.brand='Huawei';
-  else if(/OPPO|PAAM|PACM|CPH|RMX/i.test(ua))device.brand='OPPO';
-  else if(/vivo|V1[89]|V2[0-9]/i.test(ua))device.brand='vivo';
-  else if(/Xiaomi|Redmi|Mi |POCO|M20[0-9]/i.test(ua))device.brand='Xiaomi';
-  else if(/Samsung|SM-/i.test(ua))device.brand='Samsung';
-  else if(/OnePlus|LE2|KB2/i.test(ua))device.brand='OnePlus';
-  else if(/Pixel/i.test(ua))device.brand='Pixel';
-  else if(/iPhone|iPad|iPod/i.test(ua))device.brand='Apple';
-  device.isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+const device = {memoryGB:null,isLowMemory:false,isIPad:false,hasWebGL:null};
+function detectDevice(){
   device.memoryGB=navigator.deviceMemory||null;
   device.isLowMemory=device.memoryGB!==null&&device.memoryGB<4;
+  device.isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  // Quick WebGL check: just test context creation, no GPU init
+  try{const c=document.createElement('canvas');const gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:true})||c.getContext('experimental-webgl',{failIfMajorPerformanceCaveat:true});device.hasWebGL=!!gl}catch(e){device.hasWebGL=false}
   return device}
 detectDevice();
 
 function showDeviceInfo(){const label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
-  let devName=device.brand||(device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop'));
-  const items=[];
-  if(device.memoryGB)items.push(device.memoryGB+'GB');
-  items.push(navigator.hardwareConcurrency+' cores');
-  if(device.browser&&device.browser!=='unknown')items.push(device.browser);
-  label.textContent='📱 '+devName+(items.length?' · '+items.join(' · '):'');
-  card.style.borderColor='var(--border)';}
+  label.textContent=device.hasWebGL?'✅ 设备兼容 · WebGL 可用':'❌ 设备不支持 WebGL · 无法运行';
+  card.style.borderColor=device.hasWebGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'}
 
 window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
-function applyDeviceTweaks(){if(device.isLowMemory){window.BATCH_SIZE=512;console.log('Low memory device: batch size 512')}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}if(device.isTouch){document.body.classList.add('touch-device')}}
+function applyDeviceTweaks(){if(device.isLowMemory){BS=512}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}}
 async function checkORT(){const s=document.getElementById('modelStatus');try{const a=typeof ort!=='undefined';s.textContent=a?t('ortReady'):t('ortLoading');s.className=a?'status ok':'status'}catch(e){s.textContent=t('ortFailed')+e.message;s.className='status err'}}
 async function loadManifest(){try{const r=await fetch('test_images/manifest.json');if(!r.ok)throw new Error('HTTP '+r.status);testImages=await r.json();populateTestSelect()}catch(e){console.log('Manifest:',e.message);const s=document.getElementById('testImageSelect');s.innerHTML=`<option value="">${t('manifestFailed')}</option>`}}
 function populateTestSelect(){const s=document.getElementById('testImageSelect');if(testImages.length===0){s.innerHTML=`<option value="">${t('manifestFailed')}</option>`;return}let h=`<option value="">-- ${t('testSelectPlaceholder')} --</option>`;for(const f of testImages)h+=`<option value="${f.name}">${f.name}  (${f.samples}×${f.lines}, ${f.bin_mb}MB)</option>`;s.innerHTML=h}
