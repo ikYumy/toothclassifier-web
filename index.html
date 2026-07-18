@@ -2,14 +2,16 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060b14">
+<meta name="mobile-web-app-capable" content="yes">
 <title>ToothClassifier</title>
 <style>
 :root{--bg:#060b14;--surface:#0d1525;--surface2:#131d30;--border:#1a2d48;--border-light:#263d5c;--text:#e2e8f0;--text-dim:#94a3b8;--muted:#64748b;--accent:#38bdf8;--accent2:#22d3ee;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--purple:#a78bfa;--radius:16px;--radius-sm:10px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','Noto Sans JP',sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at 50% -20%,rgba(56,189,248,0.05) 0%,transparent 55%),radial-gradient(ellipse at 80% 30%,rgba(167,139,250,0.03) 0%,transparent 50%);color:var(--text);min-height:100vh;padding:24px 16px 48px;display:flex;flex-direction:column;align-items:center;line-height:1.5;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','Noto Sans JP','HarmonyOS Sans',sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at 50% -20%,rgba(56,189,248,0.05) 0%,transparent 55%),radial-gradient(ellipse at 80% 30%,rgba(167,139,250,0.03) 0%,transparent 50%);color:var(--text);min-height:100vh;min-height:100dvh;padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;align-items:center;line-height:1.5;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .container{max-width:640px;width:100%}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
 .header h1{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:8px}
@@ -28,6 +30,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 select:focus,input:focus,button:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.12)}
 button{width:100%;padding:11px 15px;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;font-weight:600;cursor:pointer;border:none;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .25s}
 button:active{transform:scale(.97)}button:disabled{opacity:.35;cursor:not-allowed;transform:none}
+@media(hover:none){button:active:not(:disabled){background-blend-mode:overlay;filter:brightness(1.15)}}
+@media(hover:hover){button:hover:not(:disabled){filter:brightness(1.1)}}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#060b14}
 .btn-primary:hover:not(:disabled){box-shadow:0 4px 20px rgba(56,189,248,0.12)}
 .btn-purple{background:var(--purple);color:#fff}
@@ -62,7 +66,8 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
 .info-tag{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;padding:3px 8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .card.fade-in{animation:fadeIn .35s ease-out}
-@media(max-width:420px){body{padding:14px 10px 36px}.card{padding:14px}.header h1{font-size:1.2rem}.lang-selector button{width:28px;height:24px;font-size:.6rem}}
+@media(max-width:420px){body{font-size:15px}.card{padding:14px}.header h1{font-size:1.2rem}.lang-selector button{width:28px;height:24px;font-size:.6rem}}
+@media(min-width:768px){.container{max-width:720px}.stats{grid-template-columns:repeat(4,1fr)}button{padding:13px 18px;font-size:.92rem}select{padding:12px 16px;font-size:.9rem}}
 </style>
 </head>
 <body>
@@ -150,7 +155,8 @@ function switchSource(m){sourceMode=m;const bt=document.querySelectorAll('#sourc
 
 // ═══════════════════════ Global state ═══════════════════
 let ortSession=null,curModel='',modelData=null;
-const BB=244,NS=6,NE=6,NC=5,BS=1024,GM=0.330996,GS=0.201596,TR=639.63,TG=551.00,TB=468.90;
+const BB=244,NS=6,NE=6,NC=5,GM=0.330996,GS=0.201596,TR=639.63,TG=551.00,TB=468.90;
+let BS=1024;
 const CL=[[0,0,0],[255,0,0],[0,139,0],[0,0,255],[255,255,0]];
 const MC={resnet_original:{ch:1,dr:false},resnet_original_se:{ch:1,dr:false},resnet_deriv:{ch:3,dr:true},resnet_deriv_se:{ch:3,dr:true},efficientnet_original:{ch:1,dr:false},efficientnet_deriv:{ch:3,dr:true},simple_original:{ch:1,dr:false},vgg_original:{ch:1,dr:false}};
 let sH=0,sW=0,sB=0,sRD=null,sND=null,sWL=null;
@@ -158,7 +164,28 @@ let roiP=[],curP=[],drawing=false,roiM=null;
 let testImages=[],selTest=null;
 
 // ═══════════════════════ Init ═══════════════════════
-window.addEventListener('DOMContentLoaded',()=>{initLang();const sf=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);if(!sf){document.getElementById('safariWarning').style.display='block';document.getElementById('safariWarning').innerHTML=t('safariWarning')}checkORT();setupDrawCanvas();loadManifest()});
+const device = {os:'unknown',browser:'unknown',memoryGB:null,isTouch:false,isLowMemory:false};
+function detectDevice(){const ua=navigator.userAgent;const p=navigator.platform||'';
+  if(/iPhone|iPad|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1))device.os='ios';
+  else if(/Android/.test(ua)){device.os='android';
+    if(/Huawei|Honor|HUAWEI|HONOR/.test(ua))device.browser='huawei';
+    else if(/OPPO|PAAM|PACM/.test(ua))device.browser='oppo';
+    else if(/vivo|V182|V19|V20/.test(ua))device.browser='vivo';
+    else if(/Miui|Xiaomi|Redmi|MI |MIX/.test(ua))device.browser='xiaomi';
+    else if(/Samsung|SM-/.test(ua))device.browser='samsung';
+  }
+  if(/Safari/.test(ua)&&!/Chrome|CriOS/.test(ua))device.browser='safari';
+  else if(/Chrome|CriOS/.test(ua))device.browser='chrome';
+  else if(/Firefox/.test(ua))device.browser='firefox';
+  device.isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+  device.memoryGB=navigator.deviceMemory||null;
+  device.isLowMemory=device.memoryGB!==null&&device.memoryGB<4;
+  device.isIPad=device.os==='ios'&&(p==='MacIntel'||/iPad/.test(ua));
+  return device}
+detectDevice();
+
+window.addEventListener('DOMContentLoaded',()=>{initLang();const sf=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);if(!sf){document.getElementById('safariWarning').style.display='block';document.getElementById('safariWarning').innerHTML=t('safariWarning')}checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks()});
+function applyDeviceTweaks(){if(device.isLowMemory){window.BATCH_SIZE=512;console.log('Low memory device: batch size 512')}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}if(device.isTouch){document.body.classList.add('touch-device')}}
 async function checkORT(){const s=document.getElementById('modelStatus');try{const a=typeof ort!=='undefined';s.textContent=a?t('ortReady'):t('ortLoading');s.className=a?'status ok':'status'}catch(e){s.textContent=t('ortFailed')+e.message;s.className='status err'}}
 async function loadManifest(){try{const r=await fetch('test_images/manifest.json');if(!r.ok)throw new Error('HTTP '+r.status);testImages=await r.json();populateTestSelect()}catch(e){console.log('Manifest:',e.message);const s=document.getElementById('testImageSelect');s.innerHTML=`<option value="">${t('manifestFailed')}</option>`}}
 function populateTestSelect(){const s=document.getElementById('testImageSelect');if(testImages.length===0){s.innerHTML=`<option value="">${t('manifestFailed')}</option>`;return}let h=`<option value="">-- ${t('testSelectPlaceholder')} --</option>`;for(const f of testImages)h+=`<option value="${f.name}">${f.name}  (${f.samples}×${f.lines}, ${f.bin_mb}MB)</option>`;s.innerHTML=h}
