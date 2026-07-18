@@ -17,6 +17,7 @@
     --green: #3fb950;
     --yellow: #e3b341;
     --red: #f85149;
+    --purple: #bc8cff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -50,6 +51,8 @@
   }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  button.danger { background: var(--red); }
+  button.purple { background: var(--purple); }
 
   .status {
     font-size: 0.85rem; color: var(--muted); text-align: center;
@@ -61,9 +64,30 @@
   canvas {
     width: 100%; border-radius: 8px;
     border: 1px solid var(--border);
-    image-rendering: pixelated;
+    image-rendering: auto;
     margin-top: 8px;
   }
+
+  .canvas-container {
+    position: relative;
+    margin-top: 8px;
+  }
+  .canvas-container canvas {
+    position: absolute;
+    top: 0; left: 0;
+  }
+  .canvas-container canvas#rgbCanvas {
+    position: relative;
+    z-index: 1;
+  }
+  .canvas-container canvas#drawCanvas {
+    z-index: 2;
+  }
+
+  .roi-controls {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .roi-controls button { margin-top: 0; }
 
   .progress-bar {
     height: 4px; background: var(--border); border-radius: 2px;
@@ -98,6 +122,9 @@
     border-radius: 8px; padding: 10px; font-size: 0.8rem;
     color: var(--yellow); margin-bottom: 12px; text-align: center;
   }
+  .hint {
+    font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -131,12 +158,28 @@
   <div class="card">
     <h2>操作</h2>
     <button id="loadModelBtn" onclick="loadModel()">加载模型</button>
-    <button id="runBtn" class="secondary" onclick="selectFiles()" disabled>选择 HDR + .dat 文件并推理</button>
+    <button id="runBtn" class="secondary" onclick="selectFiles()" disabled>选择 HDR + .dat 文件加载图像</button>
+    <button id="inferROIBtn" class="purple" onclick="runROIInference()" disabled style="display:none">推理圈选区域</button>
+    <button id="inferAllBtn" class="secondary" onclick="runFullInference()" disabled style="display:none">推理整幅图像</button>
     <input type="file" id="fileInput" accept=".hdr,.dat,.img" multiple style="display:none" onchange="handleFiles(event)">
     <div class="progress-bar" id="progressBar" style="display:none">
       <div class="progress-fill" id="progressFill"></div>
     </div>
     <div class="status" id="status"></div>
+  </div>
+
+  <!-- RGB 预览 + ROI 圈画 -->
+  <div class="card" id="previewCard" style="display:none">
+    <h2>RGB 预览 (R:639.63 / G:551 / B:468.9 nm) — 圈画需要推理的区域</h2>
+    <div class="canvas-container" id="canvasContainer">
+      <canvas id="rgbCanvas"></canvas>
+      <canvas id="drawCanvas"></canvas>
+    </div>
+    <div class="hint">👆 用手指/鼠标在图上圈画 ROI 区域（可多次绘制）</div>
+    <div class="roi-controls">
+      <button id="clearROIBtn" class="secondary" onclick="clearROI()" style="flex:1">清除选区</button>
+      <button id="undoROIBtn" class="secondary" onclick="undoLastROI()" style="flex:1">撤销最后选区</button>
+    </div>
   </div>
 
   <!-- 结果 -->
@@ -164,7 +207,7 @@
 // ═══════════════════════════════════════════════════════════
 let ortSession = null;
 let currentModel = '';
-let modelData = null;  // 预加载的模型二进制
+let modelData = null;
 
 const BANDS = 244;
 const NOISE_START = 6;
@@ -174,6 +217,10 @@ const BATCH_SIZE = 1024;
 
 const GLOBAL_MEAN = 0.330996;
 const GLOBAL_STD  = 0.201596;
+
+const TARGET_R = 639.63;
+const TARGET_G = 551.00;
+const TARGET_B = 468.90;
 
 const COLOR_MAP = [
   [0,   0,   0],   // background
@@ -194,6 +241,18 @@ const MODEL_CONFIGS = {
   vgg_original:       { channels: 1, deriv: false },
 };
 
+// 存储图像数据供后续推理使用
+let storedH = 0, storedW = 0, storedBands = 0;
+let storedRawData = null;      // 未归一化的原始数据（BSQ pixel-major）
+let storedNormalizedData = null; // 已归一化的数据
+let storedWavelengths = null;   // 波长数组（已裁剪至244）
+
+// ROI 状态
+let roiPolygons = [];     // 存储多个多边形 [{points: [{x,y},...]}]
+let currentPolygon = [];  // 当前正在绘制的多边形
+let isDrawing = false;
+let roiMask = null;       // Uint8Array [nPixels], 1=在ROI内
+
 
 // ═══════════════════════════════════════════════════════════
 //  初始化
@@ -203,8 +262,8 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!isSafari) {
     document.getElementById('safariWarning').style.display = 'block';
   }
-  // 确保 WebGL/WebGPU 可用
   checkORT();
+  setupDrawCanvas();
 });
 
 async function checkORT() {
@@ -234,14 +293,11 @@ async function loadModel() {
   status.className = 'status';
 
   try {
-    // 从同一目录加载 .onnx 文件
     const resp = await fetch(`onnx_models/${modelName}.onnx`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const buffer = await resp.arrayBuffer();
     modelData = new Uint8Array(buffer);
 
-    // 创建 ONNX Runtime 会话
-    // 使用 webgl 后端（iOS Safari 只支持 WebGL，不支持 WebGPU）
     ortSession = await ort.InferenceSession.create(modelData, {
       executionProviders: ['webgl', 'wasm'],
       graphOptimizationLevel: 'all',
@@ -262,7 +318,7 @@ async function loadModel() {
 
 
 // ═══════════════════════════════════════════════════════════
-//  文件选择（一次选 .hdr + .dat）
+//  文件选择
 // ═══════════════════════════════════════════════════════════
 function selectFiles() {
   document.getElementById('fileInput').click();
@@ -275,7 +331,6 @@ async function handleFiles(event) {
     return;
   }
 
-  // 分离 .hdr 和二进制文件
   let hdrFile = null, datFile = null;
   for (const f of files) {
     const ext = f.name.split('.').pop().toLowerCase();
@@ -295,54 +350,71 @@ async function handleFiles(event) {
   progressBar.style.display = 'block';
   progressFill.style.width = '0%';
 
-  try {
-    const tStart = performance.now();
+  // 隐藏之前的结果
+  document.getElementById('resultsCard').style.display = 'none';
 
-    // 1. 解析 .hdr
+  try {
+    // 1. 解析 HDR
     const hdrText = await hdrFile.text();
     const hdr = parseHDRHeader(hdrText);
     const H = hdr.lines, W = hdr.samples, B = hdr.bands;
     if (!H || !W || !B) throw new Error('HDR 文件格式错误：缺少 samples/lines/bands');
     status.textContent = `图像: ${H}×${W}×${B} 波段`;
 
-    // 2. 读取二进制数据
+    // 2. 读取二进制并重排
     const datBuffer = await datFile.arrayBuffer();
     const totalElements = H * W * B;
     let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
-
-    // 重排: BIL/BIP → BSQ pixel-major (与 Python read_envi_image 一致)
     rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
 
-    status.textContent = `预处理中...`;
+    // 3. 保存原始数据（用于 RGB 预览，在裁剪/归一化前）
+    // 对原始数据做深拷贝
+    let rawDataForRGB = new Float32Array(rawData);
 
-    // 3. 波段裁剪 (256→244)
+    // 4. 处理波长
+    let wavelengthsRaw = hdr.wavelengths;
+    let fullBandCount = B;
+
+    // 5. 波段裁剪
     let bandsToUse = B;
     if (B === 256) {
       rawData = cropBands(rawData, H, W, B);
+      rawDataForRGB = cropBands(rawDataForRGB, H, W, B);
+      if (wavelengthsRaw && wavelengthsRaw.length === 256) {
+        wavelengthsRaw = wavelengthsRaw.slice(NOISE_START, NOISE_START + 244);
+      }
       bandsToUse = 244;
     } else if (B !== 244) {
       throw new Error(`不支持的波段数: ${B}（需要 244 或 256）`);
     }
 
-    // 4. 归一化
+    // 保存全局状态
+    storedH = H;
+    storedW = W;
+    storedBands = bandsToUse;
+    storedWavelengths = wavelengthsRaw || null;
+
+    // 6. 显示 RGB 预览（使用原始数据）
+    showRGBPreview(rawDataForRGB, H, W, bandsToUse, storedWavelengths);
+
+    // 7. 归一化原始数据（用于推理）
     normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
+    storedNormalizedData = rawData;
+    storedRawData = rawDataForRGB;
 
-    // 5. 构建特征
-    const config = MODEL_CONFIGS[currentModel];
-    const nPixels = H * W;
-    const features = buildFeatures(rawData, nPixels, bandsToUse, config.deriv);
+    // 显示推理按钮
+    document.getElementById('inferROIBtn').style.display = 'block';
+    document.getElementById('inferAllBtn').style.display = 'block';
+    document.getElementById('inferROIBtn').disabled = false;
+    document.getElementById('inferAllBtn').disabled = false;
 
-    status.textContent = `推理中... ${H}×${W} = ${nPixels.toLocaleString()} 像素`;
-    progressFill.style.width = '0%';
+    // 重置 ROI
+    roiPolygons = [];
+    currentPolygon = [];
+    roiMask = null;
+    redrawAll();
 
-    // 6. 推理
-    const predictions = await batchInference(features, nPixels, config.channels);
-    const elapsed = (performance.now() - tStart) / 1000;
-
-    // 7. 渲染
-    renderResult(predictions, H, W, elapsed, nPixels);
-
-    status.textContent = `✓ 完成！耗时 ${elapsed.toFixed(2)} 秒`;
+    status.textContent = `✓ 图像加载完毕。请在 RGB 预览图上圈画 ROI 区域。`;
     status.className = 'status ok';
 
   } catch(e) {
@@ -356,7 +428,433 @@ async function handleFiles(event) {
 
 
 // ═══════════════════════════════════════════════════════════
-//  HDR 解析
+//  RGB 预览
+// ═══════════════════════════════════════════════════════════
+function showRGBPreview(rawData, H, W, bands, wavelengths) {
+  // 找到 RGB 波段索引
+  let idxR, idxG, idxB;
+
+  if (wavelengths && wavelengths.length === bands) {
+    idxR = findClosestBand(wavelengths, TARGET_R);
+    idxG = findClosestBand(wavelengths, TARGET_G);
+    idxB = findClosestBand(wavelengths, TARGET_B);
+  } else {
+    // 无波长信息时，用默认索引（256→244 裁剪后）
+    idxR = 114; // 639.63 nm
+    idxG = 77;  // 551.00 nm
+    idxB = 42;  // 468.90 nm
+  }
+
+  const nPixels = H * W;
+
+  // 提取 R, G, B 通道值
+  const rChan = new Float32Array(nPixels);
+  const gChan = new Float32Array(nPixels);
+  const bChan = new Float32Array(nPixels);
+
+  for (let p = 0; p < nPixels; p++) {
+    const base = p * bands;
+    rChan[p] = rawData[base + idxR];
+    gChan[p] = rawData[base + idxG];
+    bChan[p] = rawData[base + idxB];
+  }
+
+  // 计算各通道的 2% / 98% 百分位用于对比度拉伸
+  function percentile(arr, pct) {
+    const sorted = new Float32Array(arr).sort();
+    const idx = Math.floor(pct / 100 * (sorted.length - 1));
+    return sorted[idx];
+  }
+
+  const rMin = percentile(rChan, 2), rMax = percentile(rChan, 98);
+  const gMin = percentile(gChan, 2), gMax = percentile(gChan, 98);
+  const bMin = percentile(bChan, 2), bMax = percentile(bChan, 98);
+
+  function scale(val, min, max) {
+    if (max <= min) return 128;
+    return Math.max(0, Math.min(255, (val - min) / (max - min) * 255));
+  }
+
+  // 绘制 RGB
+  const canvas = document.getElementById('rgbCanvas');
+  canvas.width = W;
+  canvas.height = H;
+
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(W, H);
+
+  for (let p = 0; p < nPixels; p++) {
+    const off = p * 4;
+    imgData.data[off]     = scale(rChan[p], rMin, rMax);
+    imgData.data[off + 1] = scale(gChan[p], gMin, gMax);
+    imgData.data[off + 2] = scale(bChan[p], bMin, bMax);
+    imgData.data[off + 3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+
+  // 设置绘图 overlay canvas
+  const drawCanvas = document.getElementById('drawCanvas');
+  drawCanvas.width = W;
+  drawCanvas.height = H;
+
+  // 显示预览卡片
+  document.getElementById('previewCard').style.display = 'block';
+
+  // 更新容器高度
+  updateCanvasContainer();
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  Canvas 容器尺寸
+// ═══════════════════════════════════════════════════════════
+function updateCanvasContainer() {
+  const rgbCanvas = document.getElementById('rgbCanvas');
+  const container = document.getElementById('canvasContainer');
+  if (rgbCanvas.clientHeight > 0) {
+    container.style.height = rgbCanvas.clientHeight + 'px';
+  }
+}
+
+// 延迟更新（等图片渲染完成）
+window.addEventListener('load', () => {
+  setTimeout(updateCanvasContainer, 500);
+});
+window.addEventListener('resize', () => {
+  setTimeout(updateCanvasContainer, 500);
+});
+
+
+// ═══════════════════════════════════════════════════════════
+//  ROI 圈画（绘图 Canvas 事件）
+// ═══════════════════════════════════════════════════════════
+function setupDrawCanvas() {
+  const canvas = document.getElementById('drawCanvas');
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      if (e.touches.length === 0) return null;
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: Math.round((clientX - rect.left) * scaleX),
+      y: Math.round((clientY - rect.top) * scaleY)
+    };
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    const pos = getPos(e);
+    if (!pos) return;
+    isDrawing = true;
+    currentPolygon = [pos];
+    redrawAll();
+  }
+
+  function onMove(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    if (!pos) return;
+    // 避免重复点（简单去重）
+    const last = currentPolygon[currentPolygon.length - 1];
+    if (last && Math.abs(pos.x - last.x) + Math.abs(pos.y - last.y) < 3) return;
+    currentPolygon.push(pos);
+    drawCurrentPolygon();
+  }
+
+  function onEnd(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    isDrawing = false;
+    if (currentPolygon.length >= 3) {
+      roiPolygons.push({ points: [...currentPolygon] });
+      currentPolygon = [];
+      redrawAll();
+    } else {
+      // 点数太少，丢弃
+      currentPolygon = [];
+      redrawAll();
+    }
+    document.getElementById('inferROIBtn').disabled = (roiPolygons.length === 0);
+  }
+
+  canvas.addEventListener('mousedown', onStart);
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('mouseup', onEnd);
+  canvas.addEventListener('mouseleave', onEnd);
+
+  canvas.addEventListener('touchstart', onStart, { passive: false });
+  canvas.addEventListener('touchmove', onMove, { passive: false });
+  canvas.addEventListener('touchend', onEnd, { passive: false });
+}
+
+function drawCurrentPolygon() {
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  // 只 redraw 已完成的多边形 + 当前正在画的
+  redrawAll();
+  if (currentPolygon.length >= 1) {
+    drawPolygon(ctx, currentPolygon, 'rgba(88,166,255,0.4)', 'rgba(88,166,255,0.9)', true);
+  }
+}
+
+function redrawAll() {
+  const canvas = document.getElementById('drawCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (const poly of roiPolygons) {
+    drawPolygon(ctx, poly.points, 'rgba(88,166,255,0.3)', 'rgba(88,166,255,0.85)', false);
+  }
+
+  if (currentPolygon.length >= 1) {
+    drawPolygon(ctx, currentPolygon, 'rgba(88,166,255,0.4)', 'rgba(88,166,255,0.9)', true);
+  }
+}
+
+function drawPolygon(ctx, points, fillColor, strokeColor, isCurrent) {
+  if (points.length < 1) return;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+  if (!isCurrent && points.length >= 3) {
+    ctx.closePath();
+  }
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = 2;
+  ctx.setLineDash(isCurrent ? [4, 4] : []);
+  ctx.stroke();
+  if (!isCurrent && points.length >= 3) {
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+  }
+}
+
+function clearROI() {
+  roiPolygons = [];
+  currentPolygon = [];
+  roiMask = null;
+  redrawAll();
+  document.getElementById('inferROIBtn').disabled = true;
+}
+
+function undoLastROI() {
+  if (roiPolygons.length > 0) {
+    roiPolygons.pop();
+    redrawAll();
+    document.getElementById('inferROIBtn').disabled = (roiPolygons.length === 0);
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  ROI 掩码构建
+// ═══════════════════════════════════════════════════════════
+function buildROIMask() {
+  if (roiPolygons.length === 0) return null;
+  const nPixels = storedH * storedW;
+  const mask = new Uint8Array(nPixels);
+
+  for (const poly of roiPolygons) {
+    const pts = poly.points;
+    if (pts.length < 3) continue;
+
+    // 多边形包围盒
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const p of pts) {
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y;
+      if (p.y > maxY) maxY = p.y;
+    }
+    minX = Math.max(0, Math.floor(minX));
+    maxX = Math.min(storedW - 1, Math.ceil(maxX));
+    minY = Math.max(0, Math.floor(minY));
+    maxY = Math.min(storedH - 1, Math.ceil(maxY));
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        if (pointInPolygon(x, y, pts)) {
+          mask[y * storedW + x] = 1;
+        }
+      }
+    }
+  }
+
+  return mask;
+}
+
+function pointInPolygon(px, py, polygon) {
+  let inside = false;
+  const n = polygon.length;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = polygon[i].x, yi = polygon[i].y;
+    const xj = polygon[j].x, yj = polygon[j].y;
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  推理：仅 ROI 区域
+// ═══════════════════════════════════════════════════════════
+async function runROIInference() {
+  const mask = buildROIMask();
+  if (!mask) {
+    alert('请先在 RGB 预览图上圈画需要推理的区域');
+    return;
+  }
+  const nSelected = mask.reduce((s, v) => s + v, 0);
+  if (nSelected === 0) {
+    alert('选中的区域为空，请重新圈画');
+    return;
+  }
+
+  roiMask = mask;
+  await runMaskedInference(mask);
+}
+
+async function runFullInference() {
+  roiMask = null;
+  await runMaskedInference(null);
+}
+
+async function runMaskedInference(mask) {
+  const H = storedH, W = storedW, bands = storedBands;
+  const nPixels = H * W;
+
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+
+  status.textContent = '准备推理...';
+  status.className = 'status';
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+
+  try {
+    const tStart = performance.now();
+
+    // 收集有效像素（masked）
+    let validIndices;
+    if (mask) {
+      validIndices = [];
+      for (let i = 0; i < nPixels; i++) {
+        if (mask[i]) validIndices.push(i);
+      }
+    } else {
+      validIndices = new Array(nPixels);
+      for (let i = 0; i < nPixels; i++) validIndices[i] = i;
+    }
+
+    const nValid = validIndices.length;
+    if (nValid === 0) throw new Error('没有可推理的像素');
+
+    const config = MODEL_CONFIGS[currentModel];
+    const channels = config.channels;
+    const featureSize = channels * bands;
+
+    // 构建选中像素的特征
+    const features = new Float32Array(nValid * featureSize);
+    for (let i = 0; i < nValid; i++) {
+      const pIdx = validIndices[i];
+      const srcBase = pIdx * bands;
+      const dstBase = i * featureSize;
+      const spec = storedNormalizedData.slice(srcBase, srcBase + bands);
+
+      if (config.deriv) {
+        const d1 = sgDerivative1D(spec, SG_COEFFS_1ST);
+        const d2 = sgDerivative1D(spec, SG_COEFFS_2ND);
+        for (let b = 0; b < bands; b++) {
+          features[(i * 3 + 0) * bands + b] = spec[b];
+          features[(i * 3 + 1) * bands + b] = d1[b];
+          features[(i * 3 + 2) * bands + b] = d2[b];
+        }
+      } else {
+        for (let b = 0; b < bands; b++) {
+          features[dstBase + b] = spec[b];
+        }
+      }
+    }
+
+    status.textContent = `推理中... 选中 ${nValid.toLocaleString()} 像素`;
+    progressFill.style.width = '0%';
+
+    // 推理
+    const validPredictions = new Int32Array(nValid);
+    const session = ortSession;
+
+    for (let start = 0; start < nValid; start += BATCH_SIZE) {
+      const end = Math.min(start + BATCH_SIZE, nValid);
+      const count = end - start;
+
+      const batchData = new Float32Array(count * featureSize);
+      for (let p = 0; p < count; p++) {
+        const srcOff = (start + p) * featureSize;
+        for (let j = 0; j < featureSize; j++) {
+          batchData[p * featureSize + j] = features[srcOff + j];
+        }
+      }
+
+      const tensor = new ort.Tensor('float32', batchData, [count, channels, bands]);
+      const feeds = { spectrum: tensor };
+      const results = await session.run(feeds);
+      const logits = results.logits.data;
+
+      for (let p = 0; p < count; p++) {
+        let maxVal = -Infinity, maxIdx = 0;
+        for (let c = 0; c < NUM_CLASSES; c++) {
+          const val = logits[p * NUM_CLASSES + c];
+          if (val > maxVal) { maxVal = val; maxIdx = c; }
+        }
+        validPredictions[start + p] = maxIdx;
+      }
+
+      const progress = (end / nValid) * 100;
+      progressFill.style.width = progress + '%';
+    }
+
+    // 构建全图预测（非 ROI 区域 = 背景 0）
+    const fullPredictions = new Int32Array(nPixels);
+    for (let i = 0; i < nValid; i++) {
+      fullPredictions[validIndices[i]] = validPredictions[i];
+    }
+
+    const elapsed = (performance.now() - tStart) / 1000;
+    const totalROI = nValid;
+
+    // 渲染
+    renderResult(fullPredictions, H, W, elapsed, totalROI);
+
+    status.textContent = `✓ 完成！ROI ${totalROI.toLocaleString()} 像素，耗时 ${elapsed.toFixed(2)} 秒`;
+    status.className = 'status ok';
+
+  } catch(e) {
+    status.textContent = `错误: ${e.message}`;
+    status.className = 'status err';
+    console.error(e);
+  } finally {
+    progressBar.style.display = 'none';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+//  HDR 解析（增加 wavelength 字段）
 // ═══════════════════════════════════════════════════════════
 function parseHDRHeader(text) {
   const info = {};
@@ -366,9 +864,23 @@ function parseHDRHeader(text) {
     const eq = trimmed.indexOf('=');
     if (eq === -1) continue;
     const key = trimmed.substring(0, eq).trim().toLowerCase();
-    const val = trimmed.substring(eq + 1).trim().replace(/[{}]/g, '');
+    const val = trimmed.substring(eq + 1).trim();
     info[key] = val;
   }
+
+  // 解析 wavelength 数组
+  let wavelengths = null;
+  if (info['wavelength']) {
+    // 波长值可能跨多行，从原始文本中提取
+    const wlMatch = text.match(/wavelength\s*=\s*\{([^}]+)\}/s);
+    if (wlMatch) {
+      wavelengths = wlMatch[1]
+        .split(/[\s,]+/)
+        .map(v => parseFloat(v))
+        .filter(v => !isNaN(v));
+    }
+  }
+
   return {
     samples:   parseInt(info['samples']) || 0,
     lines:     parseInt(info['lines']) || 0,
@@ -376,7 +888,20 @@ function parseHDRHeader(text) {
     dataType:  parseInt(info['data type'] || '4'),
     byteOrder: parseInt(info['byte order'] || '0'),
     interleave: (info['interleave'] || 'bsq').toLowerCase(),
+    wavelengths: wavelengths,
   };
+}
+
+function findClosestBand(wavelengths, target) {
+  let bestIdx = 0, bestDiff = Infinity;
+  for (let i = 0; i < wavelengths.length; i++) {
+    const diff = Math.abs(wavelengths[i] - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIdx = i;
+    }
+  }
+  return bestIdx;
 }
 
 function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
@@ -385,31 +910,31 @@ function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
   const result = new Float32Array(totalElements);
 
   switch (dataType) {
-    case 1: // uint8
+    case 1:
       const u8 = new Uint8Array(buffer);
       for (let i = 0; i < totalElements; i++) result[i] = u8[i];
       break;
-    case 2: // int16
+    case 2:
       for (let i = 0; i < totalElements; i++) {
         result[i] = dv.getInt16(i * 2, !isBE);
       }
       break;
-    case 3: // int32
+    case 3:
       for (let i = 0; i < totalElements; i++) {
         result[i] = dv.getInt32(i * 4, !isBE);
       }
       break;
-    case 4: // float32
+    case 4:
       for (let i = 0; i < totalElements; i++) {
         result[i] = dv.getFloat32(i * 4, !isBE);
       }
       break;
-    case 5: // float64
+    case 5:
       for (let i = 0; i < totalElements; i++) {
         result[i] = dv.getFloat64(i * 8, !isBE);
       }
       break;
-    case 12: // uint16
+    case 12:
       for (let i = 0; i < totalElements; i++) {
         result[i] = dv.getUint16(i * 2, !isBE);
       }
@@ -420,27 +945,22 @@ function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
   return result;
 }
 
-// ENVI 数据重排：将 BIL/BIP 转为 BSQ (pixel-major)
-// Python read_envi_image 的等价实现
 function reorderToBSQ(data, h, w, bands, interleave) {
   switch (interleave) {
-    case 'bil':
-      // BIL: raw is [line][band][sample] → we want [line][sample][band]
+    case 'bil': {
       const reordered = new Float32Array(h * w * bands);
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           for (let b = 0; b < bands; b++) {
-            // BIL index: y * (bands * w) + b * w + x
             const srcIdx = y * bands * w + b * w + x;
-            // BSQ index: pixel-major: (y * w + x) * bands + b
             const dstIdx = (y * w + x) * bands + b;
             reordered[dstIdx] = data[srcIdx];
           }
         }
       }
       return reordered;
-    case 'bip':
-      // BIP: raw is [line][sample][band]
+    }
+    case 'bip': {
       const reordered2 = new Float32Array(h * w * bands);
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
@@ -452,17 +972,19 @@ function reorderToBSQ(data, h, w, bands, interleave) {
         }
       }
       return reordered2;
+    }
     case 'bsq':
     default:
-      return data;  // 已经是 pixel-major: [band][line][sample] → 即 [band * H * W]
+      return data;
   }
 }
+
 
 // ═══════════════════════════════════════════════════════════
 //  预处理
 // ═══════════════════════════════════════════════════════════
 function cropBands(data, h, w, bands) {
-  const keep = bands - NOISE_START - NOISE_END; // 244
+  const keep = bands - NOISE_START - NOISE_END;
   const result = new Float32Array(h * w * keep);
   const totalPixels = h * w;
   for (let p = 0; p < totalPixels; p++) {
@@ -482,8 +1004,6 @@ function normalize(data, mean, std) {
   }
 }
 
-// Savitzky-Golay 系数（窗口5，2阶多项式）
-// 与 scipy.signal.savgol_coeffs(5, 2, deriv=1/2) 完全一致
 const SG_COEFFS_1ST = [ 0.2,  0.1,  0.0, -0.1, -0.2];
 const SG_COEFFS_2ND = [ 0.285714, -0.142857, -0.285714, -0.142857,  0.285714];
 
@@ -505,187 +1025,18 @@ function sgDerivative1D(spectrum, coeffs) {
   return result;
 }
 
-function buildFeatures(normalizedData, nPixels, bands, useDeriv) {
-  // 输出格式: [N, channels, bands] (row-major for ONNX: N*channels*bands)
-  const channels = useDeriv ? 3 : 1;
-  const features = new Float32Array(nPixels * channels * bands);
-
-  for (let p = 0; p < nPixels; p++) {
-    const base = p * bands;
-    const spec = normalizedData.slice(base, base + bands);
-
-    if (useDeriv) {
-      const d1 = sgDerivative1D(spec, SG_COEFFS_1ST);
-      const d2 = sgDerivative1D(spec, SG_COEFFS_2ND);
-      // ONNX row-major: [channel][band]
-      for (let b = 0; b < bands; b++) {
-        features[(p * 3 + 0) * bands + b] = spec[b];  // raw
-        features[(p * 3 + 1) * bands + b] = d1[b];    // 1st deriv
-        features[(p * 3 + 2) * bands + b] = d2[b];    // 2nd deriv
-      }
-    } else {
-      for (let b = 0; b < bands; b++) {
-        features[p * bands + b] = spec[b];
-      }
-    }
-  }
-  return features;
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  ONNX 推理
-// ═══════════════════════════════════════════════════════════
-async function batchInference(features, nPixels, channels) {
-  const bands = 244;
-  const predictions = new Int32Array(nPixels);
-  const session = ortSession;
-
-  for (let start = 0; start < nPixels; start += BATCH_SIZE) {
-    const end = Math.min(start + BATCH_SIZE, nPixels);
-    const count = end - start;
-
-    // 提取 batch
-    const batchData = new Float32Array(count * channels * bands);
-    for (let p = 0; p < count; p++) {
-      const srcOff = (start + p) * channels * bands;
-      const dstOff = p * channels * bands;
-      for (let i = 0; i < channels * bands; i++) {
-        batchData[dstOff + i] = features[srcOff + i];
-      }
-    }
-
-    // 构建 ONNX tensor
-    const tensor = new ort.Tensor('float32', batchData, [count, channels, bands]);
-    const feeds = { spectrum: tensor };
-    const results = await session.run(feeds);
-    const logits = results.logits.data;  // [count, 5]
-
-    // argmax
-    for (let p = 0; p < count; p++) {
-      let maxVal = -Infinity, maxIdx = 0;
-      for (let c = 0; c < NUM_CLASSES; c++) {
-        const val = logits[p * NUM_CLASSES + c];
-        if (val > maxVal) { maxVal = val; maxIdx = c; }
-      }
-      predictions[start + p] = maxIdx;
-    }
-
-    // 更新进度条
-    const progress = (end / nPixels) * 100;
-    document.getElementById('progressFill').style.width = progress + '%';
-  }
-  return predictions;
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  主流程
-// ═══════════════════════════════════════════════════════════
-async function handleFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const status = document.getElementById('status');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
-
-  status.textContent = '正在读取 HDR 文件...';
-  status.className = 'status';
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
-
-  try {
-    const tStart = performance.now();
-
-    // 1. 读取 .hdr 文本
-    const hdrText = await file.text();
-    const hdr = parseHDRHeader(hdrText);
-    const H = hdr.lines, W = hdr.samples, B = hdr.bands;
-    status.textContent = `图像: ${H}×${W}×${B} 波段`;
-
-    // 2. 读取二进制数据
-    // 需要同名 .dat 文件。让用户同时选择 .dat
-    // 简化: 假设用户通过拖拽或二次选择提供 .dat
-    const datInput = document.createElement('input');
-    datInput.type = 'file';
-    datInput.accept = '.dat,.img';
-    datInput.style.display = 'none';
-    document.body.appendChild(datInput);
-
-    // 用 Promise 等待 .dat 文件
-    const datFile = await new Promise((resolve, reject) => {
-      datInput.onchange = (e) => resolve(e.target.files[0]);
-      datInput.oncancel = () => reject(new Error('未选择数据文件'));
-      // 自动弹出文件选择器
-      setTimeout(() => {
-        alert('请选择对应的 .dat 二进制数据文件');
-        datInput.click();
-      }, 200);
-    });
-
-    const datBuffer = await datFile.arrayBuffer();
-    document.body.removeChild(datInput);
-
-    const totalElements = H * W * B;
-    let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
-
-    // 重排: BIL/BIP → BSQ pixel-major (与 Python read_envi_image 一致)
-    rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
-
-    status.textContent = `预处理中...`;
-
-    // 3. 波段裁剪
-    let bandsToUse = B;
-    if (B === 256) {
-      rawData = cropBands(rawData, H, W, B);
-      bandsToUse = 244;
-    } else if (B !== 244) {
-      throw new Error(`不支持的波段数: ${B}（需要 244 或 256）`);
-    }
-
-    // 4. 归一化
-    normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
-
-    // 5. 构建特征
-    const config = MODEL_CONFIGS[currentModel];
-    const nPixels = H * W;
-    const features = buildFeatures(rawData, nPixels, bandsToUse, config.deriv);
-
-    status.textContent = `推理中... ${H}×${W} = ${nPixels.toLocaleString()} 像素`;
-    progressFill.style.width = '0%';
-
-    // 6. 推理
-    const predictions = await batchInference(features, nPixels, config.channels);
-    const elapsed = (performance.now() - tStart) / 1000;
-
-    // 7. 渲染
-    renderResult(predictions, H, W, elapsed, nPixels);
-
-    status.textContent = `✓ 完成！耗时 ${elapsed.toFixed(2)} 秒`;
-    status.className = 'status ok';
-
-  } catch(e) {
-    status.textContent = `错误: ${e.message}`;
-    status.className = 'status err';
-    console.error(e);
-  } finally {
-    progressBar.style.display = 'none';
-  }
-}
-
 
 // ═══════════════════════════════════════════════════════════
 //  结果渲染
 // ═══════════════════════════════════════════════════════════
-function renderResult(predictions, H, W, elapsed, nPixels) {
-  // Canvas
+function renderResult(predictions, H, W, elapsed, totalROI) {
   const canvas = document.getElementById('resultCanvas');
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext('2d');
   const imgData = ctx.createImageData(W, H);
 
+  const nPixels = H * W;
   for (let i = 0; i < nPixels; i++) {
     const label = predictions[i];
     const [r, g, b] = COLOR_MAP[label] || [0,0,0];
@@ -700,15 +1051,19 @@ function renderResult(predictions, H, W, elapsed, nPixels) {
   // 统计
   const counts = new Array(5).fill(0);
   for (let i = 0; i < nPixels; i++) counts[predictions[i]]++;
-  const names = ['背景','釉质','早期龋','进展龋','牙结石'];
+  const toothPixels = counts[1]+counts[2]+counts[3]+counts[4];
+
   document.getElementById('stats').innerHTML = `
     <div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">推理耗时</div></div>
-    <div class="stat"><div class="value">${nPixels.toLocaleString()}</div><div class="label">总像素</div></div>
-    <div class="stat"><div class="value">${counts[1]+counts[2]+counts[3]+counts[4]}</div><div class="label">牙体像素</div></div>
-    <div class="stat"><div class="value">${((counts[2]+counts[3])/nPixels*100).toFixed(1)}%</div><div class="label">龋坏比例</div></div>
+    <div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">推理像素</div></div>
+    <div class="stat"><div class="value">${toothPixels.toLocaleString()}</div><div class="label">牙体像素</div></div>
+    <div class="stat"><div class="value">${toothPixels>0?((counts[2]+counts[3])/toothPixels*100).toFixed(1):'0'}%</div><div class="label">龋坏比例</div></div>
   `;
 
   document.getElementById('resultsCard').style.display = 'block';
+
+  // 滚动到结果
+  document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
 }
 
 function saveResult() {
