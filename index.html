@@ -194,20 +194,25 @@ function detectDevice(){const ua=navigator.userAgent;const p=navigator.platform|
   return device}
 detectDevice();
 
-function detectWebGL(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(gl){const dbg=gl.getExtension('WEBGL_debug_renderer_info');device.gpu=dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER);device.glVendor=dbg?gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL):'';device.webgl=true;return true}device.webgl=false;return false}catch(e){device.webgl=false;return false}}
-function showDeviceInfo(){const hasGL=detectWebGL();const specs=[];let icon,label;
-  if(device.os==='ios'){specs.push(device.isIPad?'iPad':'iPhone');icon='📱'}else if(device.os==='android'){specs.push('Android');icon='📱'}else{specs.push(device.os||'Desktop');icon='💻'}
-  if(device.gpu){const g=String(device.gpu);let gpuShort=g.replace(/\(R\)|\(TM\)|Graphics|GPU|Immortalis|Adreno\s*\(TM\)\s*/gi,'').replace(/\s+/g,' ').trim();if(gpuShort.length>60)gpuShort=gpuShort.slice(0,57)+'...';specs.push(gpuShort)}
-  if(device.memoryGB)specs.push(device.memoryGB+'GB RAM');
-  specs.push('CPU: '+navigator.hardwareConcurrency+' cores');
-  if(device.browser&&device.browser!=='unknown')specs.push('Browser: '+device.browser);
-  if(hasGL){icon='✅';label='deviceOK'}else{icon='❌';label='deviceFail'}
-  document.getElementById('deviceIcon').textContent=icon;
-  document.getElementById('deviceLabel').textContent=t(label);
-  document.getElementById('deviceSpecs').textContent=specs.join('  ·  ');
-  const card=document.getElementById('deviceCard');
-  card.style.borderColor=hasGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)';
-}
+function detectWebGL(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:false})||c.getContext('experimental-webgl',{failIfMajorPerformanceCaveat:false});if(!gl){device.webgl=false;return false}const dbg=gl.getExtension('WEBGL_debug_renderer_info');device.gpu=dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):'';device.glVendor=dbg?gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL):'';gl.getExtension('WEBGL_lose_context')?.loseContext();device.webgl=true;return true}catch(e){device.webgl=false;return false}}
+function gpuLabel(raw){if(!raw)return'';const s=String(raw);if(s.length<=50)return s;const short=s.split(/[/,(]/)[0].replace(/Graphics|GPU/gi,'').trim();return short||s.slice(0,48)+'..'}
+function showDeviceInfo(){const icon=document.getElementById('deviceIcon'),label=document.getElementById('deviceLabel'),specs=document.getElementById('deviceSpecs'),card=document.getElementById('deviceCard');
+  // Show basic info immediately
+  let devName=device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop');
+  icon.textContent='📱';label.textContent=t('deviceDetecting');specs.textContent=devName;card.style.borderColor='var(--border)';
+  // Run WebGL check asynchronously
+  setTimeout(()=>{
+    const hasGL=detectWebGL();
+    const items=[devName];
+    if(device.gpu)items.push(gpuLabel(device.gpu));
+    if(device.memoryGB)items.push(device.memoryGB+'GB');
+    items.push(navigator.hardwareConcurrency+' cores');
+    if(device.browser&&device.browser!=='unknown')items.push(device.browser);
+    specs.textContent=items.join(' · ');
+    icon.textContent=hasGL?'✅':'❌';
+    label.textContent=t(hasGL?'deviceOK':'deviceFail');
+    card.style.borderColor=hasGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)';
+  },50)}
 
 window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
 function applyDeviceTweaks(){if(device.isLowMemory){window.BATCH_SIZE=512;console.log('Low memory device: batch size 512')}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}if(device.isTouch){document.body.classList.add('touch-device')}}
