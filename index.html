@@ -8,101 +8,77 @@
 <title>ToothClassifier</title>
 <style>
   :root {
-    --bg: #080c12;
-    --surface: #0f172a;
-    --surface2: #1a2332;
-    --border: #1e3348;
-    --border-light: #2a4058;
+    --bg: #060b14;
+    --surface: #0d1525;
+    --surface2: #131d30;
+    --border: #1a2d48;
+    --border-light: #263d5c;
     --text: #e2e8f0;
     --text-dim: #94a3b8;
     --muted: #64748b;
     --accent: #38bdf8;
-    --accent-glow: rgba(56,189,248,0.15);
+    --accent2: #22d3ee;
+    --accent-glow: rgba(56,189,248,0.12);
     --green: #34d399;
-    --green-glow: rgba(52,211,153,0.15);
     --yellow: #fbbf24;
-    --yellow-glow: rgba(251,191,36,0.12);
     --red: #f87171;
     --purple: #a78bfa;
-    --purple-glow: rgba(167,139,250,0.15);
-    --radius: 14px;
+    --orange: #fb923c;
+    --radius: 16px;
     --radius-sm: 10px;
-    --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
     background: var(--bg);
     background-image:
-      radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.03) 0%, transparent 50%);
+      radial-gradient(ellipse at 50% -20%, rgba(56,189,248,0.05) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 30%, rgba(167,139,250,0.03) 0%, transparent 50%);
     color: var(--text);
-    min-height: 100vh; padding: 20px 16px 40px;
+    min-height: 100vh; padding: 24px 16px 48px;
     display: flex; flex-direction: column; align-items: center;
-    line-height: 1.5;
+    line-height: 1.5; -webkit-tap-highlight-color: transparent;
   }
-  .container { max-width: 620px; width: 100%; }
+  .container { max-width: 640px; width: 100%; }
 
   /* ── Header ── */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 10px;
   }
-  .header h1 {
-    font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .header h1 .icon { font-size: 1.6rem; }
-  .header h1 .sub {
-    display: block; font-size: 0.72rem; font-weight: 400;
-    color: var(--text-dim); letter-spacing: 0.02em; margin-top: 2px;
-  }
+  .header h1 { font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .header h1 .icon { font-size: 1.5rem; }
+  .header h1 .sub { display: block; font-size: 0.7rem; font-weight: 400; color: var(--text-dim); margin-top: 1px; }
 
-  /* ── Language selector ── */
-  .lang-selector {
-    display: flex; gap: 2px;
-    background: var(--surface2); border-radius: 999px;
-    padding: 3px; border: 1px solid var(--border);
-  }
+  /* ── Lang selector ── */
+  .lang-selector { display: flex; gap: 3px; background: var(--surface2); border-radius: 999px; padding: 3px; border: 1px solid var(--border); }
   .lang-selector button {
-    width: 34px; height: 30px; border-radius: 999px;
-    border: none; background: transparent; color: var(--muted);
-    font-size: 0.72rem; font-weight: 500; cursor: pointer;
-    padding: 0; transition: all var(--transition);
-    display: flex; align-items: center; justify-content: center;
-    font-family: inherit;
+    width: 32px; height: 28px; border-radius: 999px; border: none;
+    background: transparent; color: var(--muted); font-size: 0.68rem;
+    font-weight: 500; cursor: pointer; padding: 0; font-family: inherit;
+    transition: all var(--transition); display: flex; align-items: center; justify-content: center;
   }
-  .lang-selector button.active {
-    background: var(--accent); color: #0f172a; font-weight: 700;
-    box-shadow: 0 2px 8px rgba(56,189,248,0.3);
-  }
-  .lang-selector button:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
+  .lang-selector button.active { background: var(--accent); color: #060b14; font-weight: 700; box-shadow: 0 2px 10px rgba(56,189,248,0.25); }
+  .lang-selector button:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.04); }
 
   /* ── Cards ── */
   .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px; margin-bottom: 14px;
-    transition: border-color var(--transition), box-shadow var(--transition);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 18px 20px; margin-bottom: 14px; transition: all var(--transition);
   }
   .card:hover { border-color: var(--border-light); }
   .card h2 {
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-    color: var(--muted); margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
   }
-  .card h2 .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent); display: inline-block;
-  }
+  .card h2 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
   /* ── Form elements ── */
-  select, button, input[type=file] {
-    width: 100%; padding: 11px 15px; border-radius: var(--radius-sm);
-    font-size: 0.9rem; font-family: inherit;
-    background: var(--surface2); color: var(--text);
-    border: 1px solid var(--border);
+  select, input[type=text], input[type=url] {
+    width: 100%; padding: 11px 14px; border-radius: var(--radius-sm);
+    font-size: 0.88rem; font-family: inherit; background: var(--surface2);
+    color: var(--text); border: 1px solid var(--border);
     margin-top: 7px; transition: all var(--transition);
     appearance: none; -webkit-appearance: none;
   }
@@ -111,102 +87,102 @@
     background-repeat: no-repeat; background-position: right 14px center;
     padding-right: 36px; cursor: pointer;
   }
-  select:focus, button:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-
-  button {
-    font-weight: 600; cursor: pointer; border: none;
-    display: flex; align-items: center; justify-content: center; gap: 7px;
+  input[type=text]:focus, input[type=url]:focus, select:focus, button:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow);
   }
-  button:active { transform: scale(0.98); }
+  button {
+    width: 100%; padding: 11px 15px; border-radius: var(--radius-sm);
+    font-size: 0.88rem; font-family: inherit; font-weight: 600;
+    cursor: pointer; border: none; margin-top: 7px;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all var(--transition);
+  }
+  button:active { transform: scale(0.97); }
   button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
-  .btn-primary  { background: var(--accent); color: #0f172a; }
-  .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 16px var(--accent-glow); }
-  .btn-purple   { background: var(--purple); color: #fff; }
-  .btn-purple:hover:not(:disabled) { box-shadow: 0 4px 16px var(--purple-glow); }
-  .btn-outline  { background: transparent; border: 1px solid var(--border-light); color: var(--text); }
-  .btn-outline:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,189,248,0.06); }
-  .btn-danger   { background: transparent; border: 1px solid rgba(248,113,113,0.4); color: var(--red); }
-  .btn-danger:hover:not(:disabled) { background: rgba(248,113,113,0.08); }
-  .btn-success  { background: var(--green); color: #0f172a; }
-  .btn-success:hover:not(:disabled) { box-shadow: 0 4px 16px var(--green-glow); }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #060b14; }
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 20px var(--accent-glow); }
+  .btn-purple { background: var(--purple); color: #fff; }
+  .btn-purple:hover:not(:disabled) { box-shadow: 0 4px 18px rgba(167,139,250,0.2); }
+  .btn-outline { background: transparent; border: 1px solid var(--border-light); color: var(--text); }
+  .btn-outline:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+  .btn-success { background: var(--green); color: #060b14; font-weight: 700; }
+  .btn-success:hover:not(:disabled) { box-shadow: 0 4px 18px rgba(52,211,153,0.2); }
+  .btn-sm { width: auto; padding: 8px 16px; font-size: 0.8rem; margin-top: 0; }
 
   .btn-row { display: flex; gap: 8px; margin-top: 8px; }
   .btn-row button { margin-top: 0; flex: 1; }
-  .btn-row button:only-child { flex: none; }
+
+  /* ── Segmented control ── */
+  .segmented {
+    display: flex; background: var(--surface2); border-radius: var(--radius-sm);
+    padding: 3px; border: 1px solid var(--border); margin-bottom: 10px;
+  }
+  .segmented button {
+    flex: 1; padding: 8px 10px; font-size: 0.8rem; border-radius: 8px;
+    background: transparent; color: var(--muted); border: none;
+    margin-top: 0; font-weight: 500;
+  }
+  .segmented button.active { background: var(--accent); color: #060b14; font-weight: 700; }
 
   /* ── Status ── */
-  .status {
-    font-size: 0.8rem; color: var(--muted); text-align: center;
-    min-height: 18px; margin: 9px 0 2px; transition: color 0.3s;
-  }
+  .status { font-size: 0.78rem; color: var(--muted); text-align: center; min-height: 18px; margin: 8px 0 2px; }
   .status.ok { color: var(--green); }
   .status.err { color: var(--red); }
   .status.warn { color: var(--yellow); }
 
   /* ── Canvas ── */
-  canvas {
-    width: 100%; border-radius: 8px;
-    border: 1px solid var(--border);
-    image-rendering: auto; margin-top: 8px;
-  }
+  canvas { width: 100%; border-radius: 8px; border: 1px solid var(--border); image-rendering: auto; margin-top: 8px; }
   .canvas-container { position: relative; margin-top: 8px; }
   .canvas-container canvas { position: absolute; top: 0; left: 0; }
   .canvas-container canvas#rgbCanvas { position: relative; z-index: 1; }
   .canvas-container canvas#drawCanvas { z-index: 2; cursor: crosshair; }
 
   /* ── Progress ── */
-  .progress-bar {
-    height: 3px; background: var(--border); border-radius: 3px;
-    margin-top: 10px; overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple));
-    transition: width 0.3s; width: 0%; border-radius: 3px;
-  }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.3s; width: 0%; border-radius: 3px; }
 
   /* ── Stats ── */
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-  .stat {
-    background: var(--surface2); border-radius: var(--radius-sm);
-    padding: 12px 8px; text-align: center; border: 1px solid var(--border);
-  }
-  .stat .value { font-size: 1.2rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
-  .stat .label { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+  .stat { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px 8px; text-align: center; border: 1px solid var(--border); }
+  .stat .value { font-size: 1.15rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat .label { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
 
   /* ── Legend ── */
-  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 0.73rem; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 0.72rem; }
   .legend-item { display: flex; align-items: center; gap: 5px; }
   .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
   /* ── Warning ── */
-  .warning {
-    background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2);
-    border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.78rem;
-    color: var(--yellow); margin-bottom: 14px; text-align: center;
-  }
-  .hint { font-size: 0.73rem; color: var(--muted); margin-top: 6px; text-align: center; }
+  .warning { background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.18); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.76rem; color: var(--yellow); margin-bottom: 14px; text-align: center; }
+  .hint { font-size: 0.72rem; color: var(--muted); margin-top: 6px; text-align: center; }
 
-  /* ── Animations ── */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+
+  /* ── Server info ── */
+  .info-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.7rem; padding: 3px 8px; border-radius: 999px;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
   }
+  .info-tag.ok { border-color: rgba(52,211,153,0.3); color: var(--green); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   .card.fade-in { animation: fadeIn 0.35s ease-out; }
 
-  /* ── Responsive ── */
   @media (max-width: 420px) {
-    body { padding: 12px 10px 32px; }
+    body { padding: 14px 10px 36px; }
     .card { padding: 14px; }
     .header h1 { font-size: 1.2rem; }
-    .lang-selector button { width: 30px; height: 26px; font-size: 0.65rem; }
+    .lang-selector button { width: 28px; height: 24px; font-size: 0.6rem; }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-
   <!-- Header -->
   <div class="header">
     <h1>
@@ -219,7 +195,6 @@
     <div class="lang-selector" id="langSelector"></div>
   </div>
 
-  <!-- Safari Warning -->
   <div class="warning" id="safariWarning" style="display:none" data-i18n-html="safariWarning"></div>
 
   <!-- Model -->
@@ -242,10 +217,34 @@
   <div class="card">
     <h2><span class="dot"></span> <span data-i18n="opsHeading">Operations</span></h2>
     <button class="btn-primary" id="loadModelBtn" onclick="loadModel()" data-i18n="loadModelBtn">Load Model</button>
-    <button class="btn-outline" id="runBtn" onclick="selectFiles()" disabled data-i18n="runBtn">Select HDR + .dat to Load</button>
+
+    <!-- Source toggle -->
+    <div class="segmented" style="margin-top:10px" id="sourceToggle">
+      <button class="active" onclick="switchSource('local')" data-i18n="sourceLocal">📁 Local File</button>
+      <button onclick="switchSource('server')" data-i18n="sourceServer">📡 Test Server</button>
+    </div>
+
+    <!-- Local mode -->
+    <div id="localPanel">
+      <button class="btn-outline" id="runBtn" onclick="selectFiles()" disabled data-i18n="runBtn">Select HDR + Binary File</button>
+    </div>
+
+    <!-- Server mode -->
+    <div id="serverPanel" style="display:none">
+      <div class="btn-row">
+        <input type="text" id="serverUrl" placeholder="http://192.168.x.x:8765" data-i18n-placeholder="serverUrlPlaceholder" style="flex:1; margin-top:0">
+        <button class="btn-outline btn-sm" id="connectBtn" onclick="connectServer()" data-i18n="connectBtn">Connect</button>
+      </div>
+      <div class="status" id="serverStatus"></div>
+      <select id="imageSelect" disabled data-i18n="imageSelect" style="display:none"></select>
+      <div id="imageInfo" style="display:none; margin-top:6px; font-size:0.73rem; color:var(--text-dim); text-align:center"></div>
+      <button class="btn-success" id="loadServerBtn" onclick="loadFromServer()" disabled style="display:none" data-i18n="loadServerBtn">📥 Load Selected Image</button>
+    </div>
+
     <button class="btn-purple" id="inferROIBtn" onclick="runROIInference()" disabled style="display:none" data-i18n="inferROIBtn">Infer Selected ROI</button>
     <button class="btn-outline" id="inferAllBtn" onclick="runFullInference()" disabled style="display:none" data-i18n="inferAllBtn">Infer Entire Image</button>
-    <input type="file" id="fileInput" accept=".hdr,.dat,.img" multiple style="display:none" onchange="handleFiles(event)">
+
+    <input type="file" id="fileInput" accept=".hdr,.HDR,.dat,.img,.enp" multiple style="display:none" onchange="handleFiles(event)">
     <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
     <div class="status" id="status"></div>
   </div>
@@ -257,10 +256,10 @@
       <canvas id="rgbCanvas"></canvas>
       <canvas id="drawCanvas"></canvas>
     </div>
-    <div class="hint" data-i18n="roiHint">👆 Draw on the image to select ROI (multiple regions allowed)</div>
+    <div class="hint" data-i18n="roiHint">Draw on the image to select ROI</div>
     <div class="btn-row">
-      <button class="btn-outline" onclick="clearROI()" data-i18n="clearROIBtn">Clear All</button>
-      <button class="btn-outline" onclick="undoLastROI()" data-i18n="undoROIBtn">Undo Last</button>
+      <button class="btn-outline btn-sm" onclick="clearROI()" data-i18n="clearROIBtn">Clear All</button>
+      <button class="btn-outline btn-sm" onclick="undoLastROI()" data-i18n="undoROIBtn">Undo Last</button>
     </div>
   </div>
 
@@ -272,321 +271,197 @@
     <div class="legend" id="legend"></div>
     <button class="btn-outline" onclick="saveResult()" style="margin-top:10px" data-i18n="saveBtn">Save to Photos</button>
   </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.webgpu.min.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════
-//  多语言系统
+//  i18n
 // ═══════════════════════════════════════════════════════════
 const LANGS = {
   'zh-CN': {
-    title: 'ToothClassifier',
-    subtitle1: '高光谱牙齿组织分类',
-    subtitle2: '边缘推理',
-    safariWarning: '⚠️ 检测到非 Safari 浏览器。推荐使用 <b>Safari</b> 以获得最佳 WebAssembly 性能。',
-    modelHeading: '模型',
-    recommended: '推荐',
-    modelStatusInit: '点击「加载模型」开始',
-    opsHeading: '操作',
-    loadModelBtn: '📦 加载模型',
-    runBtn: '📁 选择 HDR + .dat 文件加载图像',
-    inferROIBtn: '🎯 推理圈选区域',
-    inferAllBtn: '🖼️ 推理整幅图像',
-    previewHeading: 'RGB 预览 (R:639.63 / G:551 / B:468.9 nm) — 圈画推理区域',
-    roiHint: '👆 用手指/鼠标在图上圈画 ROI 区域（可多次绘制）',
-    clearROIBtn: '✕ 清除选区',
-    undoROIBtn: '↩ 撤销最后选区',
-    resultsHeading: '推理结果',
-    saveBtn: '💾 保存结果到相册',
-    legendBg: '背景',
-    legendEnamel: '釉质',
-    legendEarly: '早期龋',
-    legendDeveloped: '进展龋',
-    legendCalculus: '牙结石',
-    statTime: '推理耗时',
-    statPixels: '推理像素',
-    statTooth: '牙体像素',
-    statCaries: '龋坏比例',
-    ortReady: 'ONNX Runtime Web 已就绪 ✓',
-    ortLoading: '正在加载 ONNX Runtime...',
-    ortFailed: 'ONNX Runtime 加载失败: ',
-    modelLoading: '正在加载 {0}...',
-    modelLoaded: '✓ {0} 已加载 ({1}通道)',
-    modelFailed: '加载失败: ',
-    readingHDR: '正在读取 HDR 文件...',
-    imageInfo: '图像: {0}×{1}×{2} 波段',
-    hdrError: 'HDR 文件格式错误：缺少 samples/lines/bands',
-    unsupportedBands: '不支持的波段数: {0}（需要 244 或 256）',
-    imageReady: '✓ 图像加载完毕。请在 RGB 预览图上圈画 ROI 区域。',
-    preparingInfer: '准备推理...',
-    inferring: '推理中... 选中 {0} 像素',
-    noPixelError: '没有可推理的像素',
-    doneROI: '✓ 完成！ROI {0} 像素，耗时 {1} 秒',
-    doneFull: '✓ 完成！{0} 像素，耗时 {1} 秒',
-    errorPrefix: '错误: ',
-    selectBoth: '请同时选择 .hdr 文件和对应的 .dat/.img 数据文件',
-    noHDR: '未找到 .hdr 文件',
-    noDAT: '未找到 .dat/.img 二进制数据文件',
-    drawROIFirst: '请先在 RGB 预览图上圈画需要推理的区域',
-    emptyROI: '选中的区域为空，请重新圈画',
+    title:'ToothClassifier',subtitle1:'高光谱牙齿组织分类',subtitle2:'边缘推理',
+    safariWarning:'⚠️ 非 Safari 浏览器。推荐 <b>Safari</b> 获得最佳性能。',
+    modelHeading:'模型',opsHeading:'操作',recommended:'推荐',
+    modelStatusInit:'点击「加载模型」开始',
+    loadModelBtn:'📦 加载模型',
+    sourceLocal:'📁 本地文件',
+    sourceServer:'📡 测试服务器',
+    runBtn:'📁 选择 HDR + 二进制文件',
+    serverUrlPlaceholder:'http://电脑IP:8765',
+    connectBtn:'🔗 连接',
+    serverConnecting:'连接中...',serverConnected:'✓ 已连接，{0} 张测试图像可用',serverFailed:'连接失败：确保电脑已运行 server.py',
+    imageSelect:'选择测试图像...',
+    loadServerBtn:'📥 加载选中图像',
+    inferROIBtn:'🎯 推理圈选区域',
+    inferAllBtn:'🖼️ 推理整幅图像',
+    previewHeading:'RGB 预览 (R:639.63 / G:551 / B:468.9 nm) — 圈画推理区域',
+    roiHint:'👆 在图上圈画 ROI 区域（可多次绘制）',
+    clearROIBtn:'✕ 清除',undoROIBtn:'↩ 撤销',
+    resultsHeading:'推理结果',saveBtn:'💾 保存到相册',
+    legendBg:'背景',legendEnamel:'釉质',legendEarly:'早期龋',legendDeveloped:'进展龋',legendCalculus:'牙结石',
+    statTime:'推理耗时',statPixels:'推理像素',statTooth:'牙体像素',statCaries:'龋坏比例',
+    ortReady:'ONNX Runtime Web 就绪 ✓',ortLoading:'加载 ONNX Runtime...',ortFailed:'加载失败: ',
+    modelLoading:'加载 {0}...',modelLoaded:'✓ {0} 已加载 ({1}通道)',modelFailed:'加载失败: ',
+    readingHDR:'读取 HDR...',imageInfo:'图像: {0}×{1}×{2} 波段',
+    hdrError:'HDR 格式错误：缺少必要字段',unsupportedBands:'不支持的波段数: {0}（需 244 或 256）',
+    imageReady:'✓ 加载完毕。请在预览图上圈画 ROI。',
+    downloading:'下载中 {0}...',downloaded:'已下载 ({0} MB)',
+    preparingInfer:'准备推理...',inferring:'推理中... {0} 像素',
+    noPixelError:'无有效像素',doneROI:'✓ ROI {0} 像素，{1}秒',doneFull:'✓ 全图 {0} 像素，{1}秒',
+    errorPrefix:'错误: ',
+    selectBoth:'请同时选择 HDR 和二进制数据文件',noHDR:'未找到 HDR 文件',noDAT:'未找到二进制数据文件',
+    drawROIFirst:'请先圈画 ROI',emptyROI:'选区为空',
+    serverNoSelect:'请先选择测试图像',
+    imageNameTag:'{0} — {1}×{2}×{3} 波段',
+    loadFirst:'请先加载模型',
   },
   'en': {
-    title: 'ToothClassifier',
-    subtitle1: 'Hyperspectral Dental Tissue Classification',
-    subtitle2: 'Edge Inference',
-    safariWarning: '⚠️ Non-Safari browser detected. <b>Safari</b> is recommended for best WebAssembly performance.',
-    modelHeading: 'Model',
-    recommended: 'recommended',
-    modelStatusInit: 'Click "Load Model" to start',
-    opsHeading: 'Operations',
-    loadModelBtn: '📦 Load Model',
-    runBtn: '📁 Select HDR + .dat to Load Image',
-    inferROIBtn: '🎯 Infer Selected ROI',
-    inferAllBtn: '🖼️ Infer Entire Image',
-    previewHeading: 'RGB Preview (R:639.63 / G:551 / B:468.9 nm) — Draw ROI',
-    roiHint: '👆 Draw on the image to select ROI (multiple regions allowed)',
-    clearROIBtn: '✕ Clear All',
-    undoROIBtn: '↩ Undo Last',
-    resultsHeading: 'Inference Results',
-    saveBtn: '💾 Save to Photos',
-    legendBg: 'Background',
-    legendEnamel: 'Enamel',
-    legendEarly: 'Early Lesion',
-    legendDeveloped: 'Developed Lesion',
-    legendCalculus: 'Calculus',
-    statTime: 'Inference Time',
-    statPixels: 'Pixels Inferred',
-    statTooth: 'Tooth Pixels',
-    statCaries: 'Caries Ratio',
-    ortReady: 'ONNX Runtime Web ready ✓',
-    ortLoading: 'Loading ONNX Runtime...',
-    ortFailed: 'ONNX Runtime load failed: ',
-    modelLoading: 'Loading {0}...',
-    modelLoaded: '✓ {0} loaded ({1} channel)',
-    modelFailed: 'Load failed: ',
-    readingHDR: 'Reading HDR file...',
-    imageInfo: 'Image: {0}×{1}×{2} bands',
-    hdrError: 'HDR format error: missing samples/lines/bands',
-    unsupportedBands: 'Unsupported band count: {0} (requires 244 or 256)',
-    imageReady: '✓ Image loaded. Draw ROI on the RGB preview.',
-    preparingInfer: 'Preparing inference...',
-    inferring: 'Inferring... {0} pixels selected',
-    noPixelError: 'No pixels to infer',
-    doneROI: '✓ Done! ROI {0} pixels in {1}s',
-    doneFull: '✓ Done! {0} pixels in {1}s',
-    errorPrefix: 'Error: ',
-    selectBoth: 'Please select both .hdr and .dat/.img files',
-    noHDR: 'No .hdr file found',
-    noDAT: 'No .dat/.img binary file found',
-    drawROIFirst: 'Please draw an ROI on the RGB preview first',
-    emptyROI: 'Selected region is empty, please redraw',
+    title:'ToothClassifier',subtitle1:'Hyperspectral Dental Tissue Classification',subtitle2:'Edge Inference',
+    safariWarning:'⚠️ Non-Safari browser. <b>Safari</b> recommended for best performance.',
+    modelHeading:'Model',opsHeading:'Operations',recommended:'recommended',
+    modelStatusInit:'Click "Load Model" to start',
+    loadModelBtn:'📦 Load Model',
+    sourceLocal:'📁 Local File',
+    sourceServer:'📡 Test Server',
+    runBtn:'📁 Select HDR + Binary File',
+    serverUrlPlaceholder:'http://your-pc-ip:8765',
+    connectBtn:'🔗 Connect',
+    serverConnecting:'Connecting...',serverConnected:'✓ Connected, {0} test images available',serverFailed:'Connection failed: run server.py on your PC',
+    imageSelect:'Select test image...',
+    loadServerBtn:'📥 Load Selected',
+    inferROIBtn:'🎯 Infer ROI',inferAllBtn:'🖼️ Infer All',
+    previewHeading:'RGB Preview (R:639.63 / G:551 / B:468.9 nm) — Draw ROI',
+    roiHint:'👆 Draw ROI on the image (multiple regions allowed)',
+    clearROIBtn:'✕ Clear',undoROIBtn:'↩ Undo',
+    resultsHeading:'Results',saveBtn:'💾 Save to Photos',
+    legendBg:'Background',legendEnamel:'Enamel',legendEarly:'Early Lesion',legendDeveloped:'Developed Lesion',legendCalculus:'Calculus',
+    statTime:'Inference Time',statPixels:'Pixels Inferred',statTooth:'Tooth Pixels',statCaries:'Caries Ratio',
+    ortReady:'ONNX Runtime Web ready ✓',ortLoading:'Loading ONNX Runtime...',ortFailed:'Load failed: ',
+    modelLoading:'Loading {0}...',modelLoaded:'✓ {0} loaded ({1}ch)',modelFailed:'Load failed: ',
+    readingHDR:'Reading HDR...',imageInfo:'Image: {0}×{1}×{2} bands',
+    hdrError:'HDR format error',unsupportedBands:'Unsupported band count: {0} (need 244/256)',
+    imageReady:'✓ Loaded. Draw ROI on the preview.',
+    downloading:'Downloading {0}...',downloaded:'Downloaded ({0} MB)',
+    preparingInfer:'Preparing...',inferring:'Inferring {0} pixels...',
+    noPixelError:'No valid pixels',doneROI:'✓ ROI {0} px in {1}s',doneFull:'✓ Full {0} px in {1}s',
+    errorPrefix:'Error: ',
+    selectBoth:'Select both HDR and binary data file',noHDR:'HDR file not found',noDAT:'Binary data file not found',
+    drawROIFirst:'Draw ROI first',emptyROI:'Selection is empty',
+    serverNoSelect:'Select a test image first',
+    imageNameTag:'{0} — {1}×{2}×{3} bands',
+    loadFirst:'Please load model first',
   },
   'ja': {
-    title: 'ToothClassifier',
-    subtitle1: 'ハイパースペクトル歯組織分類',
-    subtitle2: 'エッジ推論',
-    safariWarning: '⚠️ Safari以外のブラウザが検出されました。WebAssemblyのパフォーマンス向上のため<b>Safari</b>を推奨します。',
-    modelHeading: 'モデル',
-    recommended: '推奨',
-    modelStatusInit: '「モデルを読み込む」をクリックしてください',
-    opsHeading: '操作',
-    loadModelBtn: '📦 モデルを読み込む',
-    runBtn: '📁 HDR + .dat を選択して画像を読み込む',
-    inferROIBtn: '🎯 選択領域を推論',
-    inferAllBtn: '🖼️ 画像全体を推論',
-    previewHeading: 'RGB プレビュー (R:639.63 / G:551 / B:468.9 nm) — ROIを描画',
-    roiHint: '👆 画像上でROI領域を描画してください（複数領域可）',
-    clearROIBtn: '✕ すべてクリア',
-    undoROIBtn: '↩ 最後を元に戻す',
-    resultsHeading: '推論結果',
-    saveBtn: '💾 写真に保存',
-    legendBg: '背景',
-    legendEnamel: 'エナメル質',
-    legendEarly: '初期う蝕',
-    legendDeveloped: '進行う蝕',
-    legendCalculus: '歯石',
-    statTime: '推論時間',
-    statPixels: '推論ピクセル',
-    statTooth: '歯ピクセル',
-    statCaries: 'う蝕率',
-    ortReady: 'ONNX Runtime Web 準備完了 ✓',
-    ortLoading: 'ONNX Runtime 読み込み中...',
-    ortFailed: 'ONNX Runtime 読み込み失敗: ',
-    modelLoading: '{0} を読み込み中...',
-    modelLoaded: '✓ {0} 読み込み完了 ({1}チャンネル)',
-    modelFailed: '読み込み失敗: ',
-    readingHDR: 'HDRファイルを読み込み中...',
-    imageInfo: '画像: {0}×{1}×{2} バンド',
-    hdrError: 'HDRフォーマットエラー: samples/lines/bands がありません',
-    unsupportedBands: '未対応のバンド数: {0}（244 または 256 が必要）',
-    imageReady: '✓ 画像読み込み完了。RGBプレビュー上でROIを描画してください。',
-    preparingInfer: '推論準備中...',
-    inferring: '推論中... {0} ピクセル選択',
-    noPixelError: '推論可能なピクセルがありません',
-    doneROI: '✓ 完了！ROI {0} ピクセル、{1}秒',
-    doneFull: '✓ 完了！{0} ピクセル、{1}秒',
-    errorPrefix: 'エラー: ',
-    selectBoth: '.hdrファイルと.dat/.imgファイルの両方を選択してください',
-    noHDR: '.hdrファイルが見つかりません',
-    noDAT: '.dat/.imgバイナリファイルが見つかりません',
-    drawROIFirst: '最初にRGBプレビュー上でROIを描画してください',
-    emptyROI: '選択領域が空です。再描画してください',
+    title:'ToothClassifier',subtitle1:'ハイパースペクトル歯組織分類',subtitle2:'エッジ推論',
+    safariWarning:'⚠️ Safari以外のブラウザ。<b>Safari</b>推奨。',
+    modelHeading:'モデル',opsHeading:'操作',recommended:'推奨',
+    modelStatusInit:'「モデルを読み込む」をクリック',
+    loadModelBtn:'📦 モデル読み込み',
+    sourceLocal:'📁 ローカル',sourceServer:'📡 サーバー',
+    runBtn:'📁 HDR + バイナリ選択',
+    serverUrlPlaceholder:'http://PCのIP:8765',
+    connectBtn:'🔗 接続',
+    serverConnecting:'接続中...',serverConnected:'✓ 接続完了、{0}枚の画像',serverFailed:'接続失敗: PCでserver.pyを実行',
+    imageSelect:'画像を選択...',loadServerBtn:'📥 読み込み',
+    inferROIBtn:'🎯 ROI推論',inferAllBtn:'🖼️ 全体推論',
+    previewHeading:'RGBプレビュー — ROI描画',
+    roiHint:'👆 画像上でROIを描画',clearROIBtn:'✕ クリア',undoROIBtn:'↩ 元に戻す',
+    resultsHeading:'結果',saveBtn:'💾 保存',
+    legendBg:'背景',legendEnamel:'エナメル質',legendEarly:'初期う蝕',legendDeveloped:'進行う蝕',legendCalculus:'歯石',
+    statTime:'時間',statPixels:'推論px',statTooth:'歯px',statCaries:'う蝕率',
+    ortReady:'ONNX Runtime 準備完了 ✓',ortLoading:'読み込み中...',ortFailed:'失敗: ',
+    modelLoading:'{0} 読み込み中...',modelLoaded:'✓ {0} ({1}ch)',modelFailed:'失敗: ',
+    readingHDR:'HDR読み込み...',imageInfo:'画像: {0}×{1}×{2}バンド',
+    hdrError:'HDRエラー',unsupportedBands:'未対応バンド数: {0}',
+    imageReady:'✓ 読み込み完了',downloading:'ダウンロード中 {0}...',downloaded:'完了 ({0}MB)',
+    preparingInfer:'準備中...',inferring:'推論中 {0}px...',noPixelError:'pxなし',
+    doneROI:'✓ ROI {0}px {1}秒',doneFull:'✓ 全体 {0}px {1}秒',errorPrefix:'エラー: ',
+    selectBoth:'HDRとバイナリを選択',noHDR:'HDRなし',noDAT:'バイナリなし',
+    drawROIFirst:'ROIを描画',emptyROI:'選択空',serverNoSelect:'画像を選択',
+    imageNameTag:'{0} — {1}×{2}×{3}バンド',loadFirst:'モデルを先に読み込み',
   },
   'es': {
-    title: 'ToothClassifier',
-    subtitle1: 'Clasificación Hiperespectral de Tejido Dental',
-    subtitle2: 'Inferencia en el Borde',
-    safariWarning: '⚠️ Navegador no Safari detectado. Se recomienda <b>Safari</b> para mejor rendimiento WebAssembly.',
-    modelHeading: 'Modelo',
-    recommended: 'recomendado',
-    modelStatusInit: 'Haga clic en "Cargar Modelo" para comenzar',
-    opsHeading: 'Operaciones',
-    loadModelBtn: '📦 Cargar Modelo',
-    runBtn: '📁 Seleccionar HDR + .dat para Cargar',
-    inferROIBtn: '🎯 Inferir ROI Seleccionada',
-    inferAllBtn: '🖼️ Inferir Imagen Completa',
-    previewHeading: 'Vista RGB (R:639.63 / G:551 / B:468.9 nm) — Dibujar ROI',
-    roiHint: '👆 Dibuje en la imagen para seleccionar ROI (múltiples regiones)',
-    clearROIBtn: '✕ Borrar Todo',
-    undoROIBtn: '↩ Deshacer Último',
-    resultsHeading: 'Resultados',
-    saveBtn: '💾 Guardar en Fotos',
-    legendBg: 'Fondo',
-    legendEnamel: 'Esmalte',
-    legendEarly: 'Lesión Temprana',
-    legendDeveloped: 'Lesión Avanzada',
-    legendCalculus: 'Cálculo',
-    statTime: 'Tiempo',
-    statPixels: 'Píxeles Inferidos',
-    statTooth: 'Píxeles Dentales',
-    statCaries: 'Tasa de Caries',
-    ortReady: 'ONNX Runtime Web listo ✓',
-    ortLoading: 'Cargando ONNX Runtime...',
-    ortFailed: 'Error al cargar ONNX Runtime: ',
-    modelLoading: 'Cargando {0}...',
-    modelLoaded: '✓ {0} cargado ({1} canales)',
-    modelFailed: 'Error de carga: ',
-    readingHDR: 'Leyendo archivo HDR...',
-    imageInfo: 'Imagen: {0}×{1}×{2} bandas',
-    hdrError: 'Error de formato HDR: faltan samples/lines/bands',
-    unsupportedBands: 'Número de bandas no soportado: {0} (requiere 244 o 256)',
-    imageReady: '✓ Imagen cargada. Dibuje ROI en la vista previa RGB.',
-    preparingInfer: 'Preparando inferencia...',
-    inferring: 'Inferiendo... {0} píxeles seleccionados',
-    noPixelError: 'No hay píxeles para inferir',
-    doneROI: '✓ ¡Listo! ROI {0} píxeles en {1}s',
-    doneFull: '✓ ¡Listo! {0} píxeles en {1}s',
-    errorPrefix: 'Error: ',
-    selectBoth: 'Seleccione ambos archivos .hdr y .dat/.img',
-    noHDR: 'No se encontró archivo .hdr',
-    noDAT: 'No se encontró archivo .dat/.img',
-    drawROIFirst: 'Dibuje primero un ROI en la vista previa RGB',
-    emptyROI: 'La región seleccionada está vacía, vuelva a dibujar',
+    title:'ToothClassifier',subtitle1:'Clasificación Hiperespectral Dental',subtitle2:'Inferencia Edge',
+    safariWarning:'⚠️ Navegador no-Safari. <b>Safari</b> recomendado.',
+    modelHeading:'Modelo',opsHeading:'Operaciones',recommended:'recomendado',
+    modelStatusInit:'Clic "Cargar Modelo"',loadModelBtn:'📦 Cargar Modelo',
+    sourceLocal:'📁 Archivo Local',sourceServer:'📡 Servidor',
+    runBtn:'📁 Seleccionar HDR + Binario',
+    serverUrlPlaceholder:'http://ip-pc:8765',connectBtn:'🔗 Conectar',
+    serverConnecting:'Conectando...',serverConnected:'✓ Conectado, {0} imágenes',serverFailed:'Error: ejecute server.py',
+    imageSelect:'Seleccionar imagen...',loadServerBtn:'📥 Cargar',
+    inferROIBtn:'🎯 Inferir ROI',inferAllBtn:'🖼️ Inferir Todo',
+    previewHeading:'Vista RGB — Dibujar ROI',
+    roiHint:'👆 Dibuje ROI',clearROIBtn:'✕ Limpiar',undoROIBtn:'↩ Deshacer',
+    resultsHeading:'Resultados',saveBtn:'💾 Guardar',
+    legendBg:'Fondo',legendEnamel:'Esmalte',legendEarly:'Lesión Temprana',legendDeveloped:'Lesión Avanzada',legendCalculus:'Cálculo',
+    statTime:'Tiempo',statPixels:'Pixels',statTooth:'Diente',statCaries:'Caries',
+    ortReady:'ONNX Runtime listo ✓',ortLoading:'Cargando...',ortFailed:'Error: ',
+    modelLoading:'Cargando {0}...',modelLoaded:'✓ {0} ({1}ch)',modelFailed:'Error: ',
+    readingHDR:'Leyendo HDR...',imageInfo:'Imagen: {0}×{1}×{2}',
+    hdrError:'Error HDR',unsupportedBands:'Bandas no soportadas: {0}',
+    imageReady:'✓ Listo',downloading:'Descargando {0}...',downloaded:'Listo ({0}MB)',
+    preparingInfer:'Preparando...',inferring:'Inferiendo {0}px...',noPixelError:'Sin pixels',
+    doneROI:'✓ ROI {0}px {1}s',doneFull:'✓ Todo {0}px {1}s',errorPrefix:'Error: ',
+    selectBoth:'Seleccione HDR + binario',noHDR:'Sin HDR',noDAT:'Sin binario',
+    drawROIFirst:'Dibuje ROI',emptyROI:'Vacío',serverNoSelect:'Seleccione imagen',
+    imageNameTag:'{0} — {1}×{2}×{3}',loadFirst:'Cargue modelo primero',
   },
   'ko': {
-    title: 'ToothClassifier',
-    subtitle1: '초분광 치아 조직 분류',
-    subtitle2: '엣지 추론',
-    safariWarning: '⚠️ Safari 이외의 브라우저가 감지되었습니다. WebAssembly 성능을 위해 <b>Safari</b>를 권장합니다.',
-    modelHeading: '모델',
-    recommended: '권장',
-    modelStatusInit: '"모델 로드"를 클릭하여 시작하세요',
-    opsHeading: '작업',
-    loadModelBtn: '📦 모델 로드',
-    runBtn: '📁 HDR + .dat 파일 선택',
-    inferROIBtn: '🎯 선택 영역 추론',
-    inferAllBtn: '🖼️ 전체 이미지 추론',
-    previewHeading: 'RGB 미리보기 (R:639.63 / G:551 / B:468.9 nm) — ROI 그리기',
-    roiHint: '👆 이미지 위에 ROI 영역을 그리세요 (여러 영역 가능)',
-    clearROIBtn: '✕ 모두 지우기',
-    undoROIBtn: '↩ 마지막 실행 취소',
-    resultsHeading: '추론 결과',
-    saveBtn: '💾 사진에 저장',
-    legendBg: '배경',
-    legendEnamel: '법랑질',
-    legendEarly: '초기 우식',
-    legendDeveloped: '진행 우식',
-    legendCalculus: '치석',
-    statTime: '추론 시간',
-    statPixels: '추론 픽셀',
-    statTooth: '치아 픽셀',
-    statCaries: '우식 비율',
-    ortReady: 'ONNX Runtime Web 준비 완료 ✓',
-    ortLoading: 'ONNX Runtime 로드 중...',
-    ortFailed: 'ONNX Runtime 로드 실패: ',
-    modelLoading: '{0} 로드 중...',
-    modelLoaded: '✓ {0} 로드 완료 ({1}채널)',
-    modelFailed: '로드 실패: ',
-    readingHDR: 'HDR 파일 읽는 중...',
-    imageInfo: '이미지: {0}×{1}×{2} 밴드',
-    hdrError: 'HDR 형식 오류: samples/lines/bands 누락',
-    unsupportedBands: '지원되지 않는 밴드 수: {0} (244 또는 256 필요)',
-    imageReady: '✓ 이미지 로드 완료. RGB 미리보기에서 ROI를 그리세요.',
-    preparingInfer: '추론 준비 중...',
-    inferring: '추론 중... {0} 픽셀 선택됨',
-    noPixelError: '추론할 픽셀이 없습니다',
-    doneROI: '✓ 완료! ROI {0} 픽셀, {1}초',
-    doneFull: '✓ 완료! {0} 픽셀, {1}초',
-    errorPrefix: '오류: ',
-    selectBoth: '.hdr 파일과 .dat/.img 파일을 모두 선택하세요',
-    noHDR: '.hdr 파일을 찾을 수 없습니다',
-    noDAT: '.dat/.img 바이너리 파일을 찾을 수 없습니다',
-    drawROIFirst: '먼저 RGB 미리보기에서 ROI를 그리세요',
-    emptyROI: '선택한 영역이 비어 있습니다. 다시 그리세요',
+    title:'ToothClassifier',subtitle1:'초분광 치아 조직 분류',subtitle2:'엣지 추론',
+    safariWarning:'⚠️ Safari 외 브라우저. <b>Safari</b> 권장.',
+    modelHeading:'모델',opsHeading:'작업',recommended:'권장',
+    modelStatusInit:'"모델 로드" 클릭',loadModelBtn:'📦 모델 로드',
+    sourceLocal:'📁 로컬 파일',sourceServer:'📡 서버',
+    runBtn:'📁 HDR + 바이너리 선택',
+    serverUrlPlaceholder:'http://PC-IP:8765',connectBtn:'🔗 연결',
+    serverConnecting:'연결 중...',serverConnected:'✓ 연결됨, {0}개 이미지',serverFailed:'연결 실패: PC에서 server.py 실행',
+    imageSelect:'이미지 선택...',loadServerBtn:'📥 불러오기',
+    inferROIBtn:'🎯 ROI 추론',inferAllBtn:'🖼️ 전체 추론',
+    previewHeading:'RGB 미리보기 — ROI 그리기',
+    roiHint:'👆 ROI 영역 그리기',clearROIBtn:'✕ 지우기',undoROIBtn:'↩ 실행취소',
+    resultsHeading:'결과',saveBtn:'💾 저장',
+    legendBg:'배경',legendEnamel:'법랑질',legendEarly:'초기우식',legendDeveloped:'진행우식',legendCalculus:'치석',
+    statTime:'시간',statPixels:'추론px',statTooth:'치아px',statCaries:'우식률',
+    ortReady:'ONNX Runtime 준비 ✓',ortLoading:'로드 중...',ortFailed:'실패: ',
+    modelLoading:'{0} 로드 중...',modelLoaded:'✓ {0} ({1}채널)',modelFailed:'실패: ',
+    readingHDR:'HDR 읽는 중...',imageInfo:'이미지: {0}×{1}×{2}',
+    hdrError:'HDR 오류',unsupportedBands:'지원 안 됨: {0}',
+    imageReady:'✓ 로드 완료',downloading:'다운로드 중 {0}...',downloaded:'완료 ({0}MB)',
+    preparingInfer:'준비 중...',inferring:'추론 중 {0}px...',noPixelError:'px 없음',
+    doneROI:'✓ ROI {0}px {1}초',doneFull:'✓ 전체 {0}px {1}초',errorPrefix:'오류: ',
+    selectBoth:'HDR + 바이너리 선택',noHDR:'HDR 없음',noDAT:'바이너리 없음',
+    drawROIFirst:'ROI 그리기',emptyROI:'빈 영역',serverNoSelect:'이미지 선택',
+    imageNameTag:'{0} — {1}×{2}×{3}',loadFirst:'모델 먼저 로드',
   },
   'fr': {
-    title: 'ToothClassifier',
-    subtitle1: 'Classification Hyper-spectrale des Tissus Dentaires',
-    subtitle2: 'Inférence en Périphérie',
-    safariWarning: '⚠️ Navigateur non-Safari détecté. <b>Safari</b> recommandé pour les performances WebAssembly.',
-    modelHeading: 'Modèle',
-    recommended: 'recommandé',
-    modelStatusInit: 'Cliquez sur "Charger le modèle"',
-    opsHeading: 'Opérations',
-    loadModelBtn: '📦 Charger le Modèle',
-    runBtn: '📁 Sélectionner HDR + .dat',
-    inferROIBtn: '🎯 Inférer la ROI',
-    inferAllBtn: '🖼️ Inférer l\'Image Entière',
-    previewHeading: 'Aperçu RGB (R:639.63 / G:551 / B:468.9 nm) — Dessiner ROI',
-    roiHint: '👆 Dessinez sur l\'image pour sélectionner la ROI',
-    clearROIBtn: '✕ Tout Effacer',
-    undoROIBtn: '↩ Annuler Dernier',
-    resultsHeading: 'Résultats',
-    saveBtn: '💾 Enregistrer',
-    legendBg: 'Fond',
-    legendEnamel: 'Émail',
-    legendEarly: 'Lésion Précoce',
-    legendDeveloped: 'Lésion Avancée',
-    legendCalculus: 'Tartre',
-    statTime: 'Temps',
-    statPixels: 'Pixels Inférés',
-    statTooth: 'Pixels Dentaires',
-    statCaries: 'Taux de Caries',
-    ortReady: 'ONNX Runtime Web prêt ✓',
-    ortLoading: 'Chargement ONNX Runtime...',
-    ortFailed: 'Échec ONNX Runtime: ',
-    modelLoading: 'Chargement de {0}...',
-    modelLoaded: '✓ {0} chargé ({1} canaux)',
-    modelFailed: 'Échec: ',
-    readingHDR: 'Lecture du fichier HDR...',
-    imageInfo: 'Image: {0}×{1}×{2} bandes',
-    hdrError: 'Erreur format HDR: samples/lines/bands manquants',
-    unsupportedBands: 'Nombre de bandes non supporté: {0} (244 ou 256 requis)',
-    imageReady: '✓ Image chargée. Dessinez la ROI sur l\'aperçu RGB.',
-    preparingInfer: 'Préparation de l\'inférence...',
-    inferring: 'Inférence... {0} pixels sélectionnés',
-    noPixelError: 'Aucun pixel à inférer',
-    doneROI: '✓ Terminé ! ROI {0} pixels en {1}s',
-    doneFull: '✓ Terminé ! {0} pixels en {1}s',
-    errorPrefix: 'Erreur: ',
-    selectBoth: 'Sélectionnez les fichiers .hdr et .dat/.img',
-    noHDR: 'Fichier .hdr introuvable',
-    noDAT: 'Fichier .dat/.img introuvable',
-    drawROIFirst: 'Dessinez d\'abord une ROI sur l\'aperçu RGB',
-    emptyROI: 'La région sélectionnée est vide',
+    title:'ToothClassifier',subtitle1:'Classification Hyper-spectrale Dentaire',subtitle2:'Inférence Edge',
+    safariWarning:'⚠️ Navigateur non-Safari. <b>Safari</b> recommandé.',
+    modelHeading:'Modèle',opsHeading:'Opérations',recommended:'recommandé',
+    modelStatusInit:'Cliquez "Charger"',loadModelBtn:'📦 Charger',
+    sourceLocal:'📁 Fichier Local',sourceServer:'📡 Serveur',
+    runBtn:'📁 Sélectionner HDR + Binaire',
+    serverUrlPlaceholder:'http://ip-pc:8765',connectBtn:'🔗 Connecter',
+    serverConnecting:'Connexion...',serverConnected:'✓ Connecté, {0} images',serverFailed:'Échec: lancez server.py',
+    imageSelect:'Choisir image...',loadServerBtn:'📥 Charger',
+    inferROIBtn:'🎯 Inférer ROI',inferAllBtn:'🖼️ Tout Inférer',
+    previewHeading:'Aperçu RGB — Dessiner ROI',
+    roiHint:'👆 Dessinez ROI',clearROIBtn:'✕ Effacer',undoROIBtn:'↩ Annuler',
+    resultsHeading:'Résultats',saveBtn:'💾 Enregistrer',
+    legendBg:'Fond',legendEnamel:'Émail',legendEarly:'Lésion Précoce',legendDeveloped:'Lésion Avancée',legendCalculus:'Tartre',
+    statTime:'Temps',statPixels:'Pixels',statTooth:'Dent',statCaries:'Caries',
+    ortReady:'ONNX Runtime prêt ✓',ortLoading:'Chargement...',ortFailed:'Échec: ',
+    modelLoading:'Chargement {0}...',modelLoaded:'✓ {0} ({1}can)',modelFailed:'Échec: ',
+    readingHDR:'Lecture HDR...',imageInfo:'Image: {0}×{1}×{2}',
+    hdrError:'Erreur HDR',unsupportedBands:'Bandes non supportées: {0}',
+    imageReady:'✓ Prêt',downloading:'Téléchargement {0}...',downloaded:'OK ({0}MB)',
+    preparingInfer:'Préparation...',inferring:'Inférence {0}px...',noPixelError:'Pas de pixels',
+    doneROI:'✓ ROI {0}px {1}s',doneFull:'✓ Tout {0}px {1}s',errorPrefix:'Erreur: ',
+    selectBoth:'Sélectionnez HDR + binaire',noHDR:'Pas de HDR',noDAT:'Pas de binaire',
+    drawROIFirst:'Dessinez ROI',emptyROI:'Vide',serverNoSelect:'Choisissez image',
+    imageNameTag:'{0} — {1}×{2}×{3}',loadFirst:'Chargez modèle',
   },
 };
 
@@ -594,788 +469,385 @@ let currentLang = 'zh-CN';
 
 function t(key, ...args) {
   let text = (LANGS[currentLang] && LANGS[currentLang][key]) || (LANGS['en'] && LANGS['en'][key]) || key;
-  for (let i = 0; i < args.length; i++) {
-    text = text.replace('{' + i + '}', args[i]);
-  }
+  for (let i = 0; i < args.length; i++) text = text.replace('{' + i + '}', args[i]);
   return text;
 }
 
 function applyLanguage() {
   document.documentElement.lang = currentLang;
-  // Update all [data-i18n] text elements
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
-  });
-  // Update [data-i18n-html] elements
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    const key = el.getAttribute('data-i18n-html');
-    el.innerHTML = t(key);
-  });
-  // Rebuild legend
-  const legend = document.getElementById('legend');
-  if (legend) {
-    legend.innerHTML = `
-      <div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>
-    `;
-  }
-  // Re-render results stats if visible (update labels only)
-  const statsEl = document.getElementById('stats');
-  if (statsEl && statsEl.children.length >= 4) {
-    statsEl.children[0].querySelector('.label').textContent = t('statTime');
-    statsEl.children[1].querySelector('.label').textContent = t('statPixels');
-    statsEl.children[2].querySelector('.label').textContent = t('statTooth');
-    statsEl.children[3].querySelector('.label').textContent = t('statCaries');
-  }
-  // Update model status if it's static (initial state)
-  const modelStatus = document.getElementById('modelStatus');
-  if (modelStatus && modelStatus.className === 'status') {
-    modelStatus.textContent = t('modelStatusInit');
-  }
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+  document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.getAttribute('data-i18n-html')));
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.getAttribute('data-i18n-placeholder')));
+  // Update model status if still in initial state
+  const ms = document.getElementById('modelStatus');
+  if (ms && ms.className === 'status') ms.textContent = t('modelStatusInit');
+  // Rebuild legend if visible
+  const leg = document.getElementById('legend');
+  if (leg) leg.innerHTML = buildLegendHTML();
+}
+
+function buildLegendHTML() {
+  return `<div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div><div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div><div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div><div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div><div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>`;
 }
 
 function initLanguage() {
   const saved = localStorage.getItem('toothclassifier-lang');
-  if (saved && LANGS[saved]) {
-    currentLang = saved;
-  } else {
-    const browserLang = (navigator.language || 'en').split('-')[0];
-    const map = { zh: 'zh-CN', ja: 'ja', ko: 'ko', es: 'es', fr: 'fr', en: 'en' };
-    currentLang = map[browserLang] || 'en';
-  }
-  // Build language selector buttons
-  const selector = document.getElementById('langSelector');
-  const flags = { 'zh-CN': '中', 'en': 'EN', 'ja': '日', 'es': 'ES', 'ko': '한', 'fr': 'FR' };
+  if (saved && LANGS[saved]) currentLang = saved;
+  else { const m={'zh':'zh-CN','ja':'ja','ko':'ko','es':'es','fr':'fr'}; currentLang = m[(navigator.language||'en').split('-')[0]] || 'en'; }
+  const sel = document.getElementById('langSelector');
+  const flags = {'zh-CN':'中','en':'EN','ja':'日','es':'ES','ko':'한','fr':'FR'};
   for (const [code, label] of Object.entries(flags)) {
-    const btn = document.createElement('button');
-    btn.textContent = label;
-    btn.title = code;
-    btn.onclick = () => { currentLang = code; localStorage.setItem('toothclassifier-lang', code); applyLanguage(); updateLangBtns(); };
-    selector.appendChild(btn);
+    const b = document.createElement('button'); b.textContent = label; b.title = code;
+    b.onclick = () => { currentLang = code; localStorage.setItem('toothclassifier-lang', code); applyLanguage(); updateLangBtns(); };
+    sel.appendChild(b);
   }
-  updateLangBtns();
-  applyLanguage();
+  updateLangBtns(); applyLanguage();
 }
-
 function updateLangBtns() {
-  document.querySelectorAll('#langSelector button').forEach(b => {
-    const code = Object.entries({ '中': 'zh-CN', 'EN': 'en', '日': 'ja', 'ES': 'es', '한': 'ko', 'FR': 'fr' }).find(([k]) => k === b.textContent)?.[1];
-    b.className = (code === currentLang) ? 'active' : '';
-  });
+  const m = {'中':'zh-CN','EN':'en','日':'ja','ES':'es','한':'ko','FR':'fr'};
+  document.querySelectorAll('#langSelector button').forEach(b => b.className = (m[b.textContent] === currentLang) ? 'active' : '');
 }
 
 // ═══════════════════════════════════════════════════════════
-//  全局状态
+//  Source toggle
 // ═══════════════════════════════════════════════════════════
-let ortSession = null;
-let currentModel = '';
-let modelData = null;
+let sourceMode = 'local';
 
-const BANDS = 244;
-const NOISE_START = 6;
-const NOISE_END = 6;
-const NUM_CLASSES = 5;
-const BATCH_SIZE = 1024;
-
-const GLOBAL_MEAN = 0.330996;
-const GLOBAL_STD  = 0.201596;
-
-const TARGET_R = 639.63;
-const TARGET_G = 551.00;
-const TARGET_B = 468.90;
-
-const COLOR_MAP = [
-  [0,   0,   0],
-  [255, 0,   0],
-  [0,   139, 0],
-  [0,   0,   255],
-  [255, 255, 0],
-];
-
-const MODEL_CONFIGS = {
-  resnet_original:    { channels: 1, deriv: false },
-  resnet_original_se: { channels: 1, deriv: false },
-  resnet_deriv:       { channels: 3, deriv: true },
-  resnet_deriv_se:    { channels: 3, deriv: true },
-  efficientnet_original:    { channels: 1, deriv: false },
-  efficientnet_deriv:       { channels: 3, deriv: true },
-  simple_original:    { channels: 1, deriv: false },
-  vgg_original:       { channels: 1, deriv: false },
-};
-
-let storedH = 0, storedW = 0, storedBands = 0;
-let storedRawData = null;
-let storedNormalizedData = null;
-let storedWavelengths = null;
-
-let roiPolygons = [];
-let currentPolygon = [];
-let isDrawing = false;
-let roiMask = null;
-
+function switchSource(mode) {
+  sourceMode = mode;
+  const btns = document.querySelectorAll('#sourceToggle button');
+  btns[0].className = mode === 'local' ? 'active' : '';
+  btns[1].className = mode === 'server' ? 'active' : '';
+  document.getElementById('localPanel').style.display = mode === 'local' ? 'block' : 'none';
+  document.getElementById('serverPanel').style.display = mode === 'server' ? 'block' : 'none';
+  // Reset server state
+  if (mode === 'server') {
+    document.getElementById('serverStatus').textContent = '';
+    document.getElementById('serverStatus').className = 'status';
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
-//  初始化
+//  Global state
+// ═══════════════════════════════════════════════════════════
+let ortSession = null, currentModel = '', modelData = null;
+const BANDS=244, NOISE_START=6, NOISE_END=6, NUM_CLASSES=5, BATCH_SIZE=1024;
+const GLOBAL_MEAN=0.330996, GLOBAL_STD=0.201596;
+const TARGET_R=639.63, TARGET_G=551.00, TARGET_B=468.90;
+const COLOR_MAP=[[0,0,0],[255,0,0],[0,139,0],[0,0,255],[255,255,0]];
+const MODEL_CONFIGS={resnet_original:{channels:1,deriv:false},resnet_original_se:{channels:1,deriv:false},resnet_deriv:{channels:3,deriv:true},resnet_deriv_se:{channels:3,deriv:true},efficientnet_original:{channels:1,deriv:false},efficientnet_deriv:{channels:3,deriv:true},simple_original:{channels:1,deriv:false},vgg_original:{channels:1,deriv:false}};
+let storedH=0,storedW=0,storedBands=0,storedRawData=null,storedNormalizedData=null,storedWavelengths=null;
+let roiPolygons=[],currentPolygon=[],isDrawing=false,roiMask=null;
+let serverFiles=[],selectedServerFile=null;
+
+// ═══════════════════════════════════════════════════════════
+//  Init
 // ═══════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   initLanguage();
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  if (!isSafari) {
-    document.getElementById('safariWarning').style.display = 'block';
-    document.getElementById('safariWarning').innerHTML = t('safariWarning');
-  }
-  checkORT();
-  setupDrawCanvas();
+  if (!isSafari) { document.getElementById('safariWarning').style.display='block'; document.getElementById('safariWarning').innerHTML=t('safariWarning'); }
+  checkORT(); setupDrawCanvas();
 });
 
 async function checkORT() {
-  const status = document.getElementById('modelStatus');
-  try {
-    const available = typeof ort !== 'undefined';
-    status.textContent = available ? t('ortReady') : t('ortLoading');
-    status.className = available ? 'status ok' : 'status';
-  } catch(e) {
-    status.textContent = t('ortFailed') + e.message;
-    status.className = 'status err';
-  }
+  const s=document.getElementById('modelStatus');
+  try { const a=typeof ort!=='undefined'; s.textContent=a?t('ortReady'):t('ortLoading'); s.className=a?'status ok':'status'; }
+  catch(e) { s.textContent=t('ortFailed')+e.message; s.className='status err'; }
 }
 
-
 // ═══════════════════════════════════════════════════════════
-//  模型加载
+//  Model
 // ═══════════════════════════════════════════════════════════
 async function loadModel() {
-  const select = document.getElementById('modelSelect');
-  const modelName = select.value;
-  const status = document.getElementById('modelStatus');
-  const btn = document.getElementById('loadModelBtn');
-
-  btn.disabled = true;
-  status.textContent = t('modelLoading', modelName);
-  status.className = 'status';
-
+  const mn=document.getElementById('modelSelect').value,s=document.getElementById('modelStatus'),b=document.getElementById('loadModelBtn');
+  b.disabled=true; s.textContent=t('modelLoading',mn); s.className='status';
   try {
-    const resp = await fetch(`onnx_models/${modelName}.onnx`);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const buffer = await resp.arrayBuffer();
-    modelData = new Uint8Array(buffer);
-
-    ortSession = await ort.InferenceSession.create(modelData, {
-      executionProviders: ['webgl', 'wasm'],
-      graphOptimizationLevel: 'all',
-    });
-    currentModel = modelName;
-
-    status.textContent = t('modelLoaded', modelName, MODEL_CONFIGS[modelName].channels);
-    status.className = 'status ok';
-    document.getElementById('runBtn').disabled = false;
-  } catch(e) {
-    status.textContent = t('modelFailed') + e.message;
-    status.className = 'status err';
-    console.error(e);
-  } finally {
-    btn.disabled = false;
-  }
+    const r=await fetch(`onnx_models/${mn}.onnx`); if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const buf=await r.arrayBuffer(); modelData=new Uint8Array(buf);
+    ortSession=await ort.InferenceSession.create(modelData,{executionProviders:['webgl','wasm'],graphOptimizationLevel:'all'});
+    currentModel=mn; s.textContent=t('modelLoaded',mn,MODEL_CONFIGS[mn].channels); s.className='status ok';
+    document.getElementById('runBtn').disabled=false;
+  } catch(e) { s.textContent=t('modelFailed')+e.message; s.className='status err'; console.error(e); }
+  finally { b.disabled=false; }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  Server mode
+// ═══════════════════════════════════════════════════════════
+async function connectServer() {
+  if (!currentModel) { alert(t('loadFirst')); return; }
+  const urlInput=document.getElementById('serverUrl');
+  const status=document.getElementById('serverStatus');
+  const url=urlInput.value.trim() || urlInput.placeholder.replace('电脑IP','192.168.1.1').replace('your-pc-ip','192.168.1.1');
+  status.textContent=t('serverConnecting'); status.className='status';
+  try {
+    const r=await fetch(`${url}/api/list`); if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    serverFiles=await r.json();
+    if(serverFiles.length===0) { status.textContent='No test images found on server'; status.className='status warn'; return; }
+    status.textContent=t('serverConnected',serverFiles.length); status.className='status ok';
+    // Populate dropdown
+    const sel=document.getElementById('imageSelect');
+    sel.innerHTML=`<option value="">-- ${t('imageSelect')} --</option>`;
+    for(const f of serverFiles) {
+      const o=document.createElement('option'); o.value=f.name;
+      o.textContent=`${f.name}  (${f.samples}×${f.lines}×${f.bands}, ${(f.bin_size/1024/1024).toFixed(1)}MB)`;
+      sel.appendChild(o);
+    }
+    sel.style.display='block'; sel.disabled=false;
+    sel.onchange=function(){
+      const v=this.value;
+      selectedServerFile=v?serverFiles.find(f=>f.name===v):null;
+      const info=document.getElementById('imageInfo');
+      if(selectedServerFile) {
+        info.style.display='block';
+        info.innerHTML=`<span class="info-tag ok">${t('imageNameTag',selectedServerFile.name,selectedServerFile.samples,selectedServerFile.lines,selectedServerFile.bands)}</span>`;
+      } else { info.style.display='none'; }
+      document.getElementById('loadServerBtn').style.display=v?'block':'none';
+      document.getElementById('loadServerBtn').disabled=!v;
+    };
+    document.getElementById('loadServerBtn').style.display='block';
+    document.getElementById('loadServerBtn').disabled=true;
+  } catch(e) { status.textContent=t('serverFailed'); status.className='status err'; console.error(e); }
+}
+
+async function loadFromServer() {
+  if (!selectedServerFile) { alert(t('serverNoSelect')); return; }
+  const urlInput=document.getElementById('serverUrl');
+  const baseUrl=urlInput.value.trim() || urlInput.placeholder.replace('电脑IP','192.168.1.1').replace('your-pc-ip','192.168.1.1');
+  const f=selectedServerFile;
+  const status=document.getElementById('status');
+  const pbar=document.getElementById('progressBar');
+  const pfill=document.getElementById('progressFill');
+
+  status.textContent=t('readingHDR'); status.className='status';
+  pbar.style.display='block'; pfill.style.width='0%';
+  document.getElementById('resultsCard').style.display='none';
+
+  try {
+    // Fetch HDR
+    const hdrUrl=`${baseUrl}/api/file?subdir=${encodeURIComponent(f.subdir)}&file=${encodeURIComponent(f.hdr_file)}`;
+    const hdrResp=await fetch(hdrUrl); if(!hdrResp.ok) throw new Error(`HDR fetch failed`);
+    const hdrText=await hdrResp.text();
+
+    // Fetch binary
+    status.textContent=t('downloading',f.name);
+    const binUrl=`${baseUrl}/api/file?subdir=${encodeURIComponent(f.subdir)}&file=${encodeURIComponent(f.bin_file)}`;
+    const binResp=await fetch(binUrl); if(!binResp.ok) throw new Error('Binary fetch failed');
+
+    // Read binary with progress
+    const contentLength=+binResp.headers.get('Content-Length')||f.bin_size;
+    const reader=binResp.body.getReader();
+    const chunks=[]; let received=0;
+    while(true) {
+      const {done,value}=await reader.read();
+      if(done) break;
+      chunks.push(value); received+=value.length;
+      pfill.style.width=(received/contentLength*100)+'%';
+    }
+    // Concat chunks
+    const buf=new Uint8Array(received); let off=0;
+    for(const c of chunks) { buf.set(c,off); off+=c.length; }
+
+    status.textContent=t('downloaded',(received/1024/1024).toFixed(1));
+    pfill.style.width='100%';
+
+    // Process loaded data
+    await processLoadedData(hdrText, buf.buffer, f.name);
+  } catch(e) {
+    status.textContent=t('errorPrefix')+e.message; status.className='status err'; console.error(e);
+  } finally { pbar.style.display='none'; }
+}
 
 // ═══════════════════════════════════════════════════════════
-//  文件选择
+//  Local file mode
 // ═══════════════════════════════════════════════════════════
 function selectFiles() {
+  if (!currentModel) { alert(t('loadFirst')); return; }
   document.getElementById('fileInput').click();
 }
 
 async function handleFiles(event) {
-  const files = event.target.files;
-  if (!files || files.length < 2) {
-    alert(t('selectBoth'));
-    return;
+  const files=event.target.files;
+  if(!files||files.length<2) { alert(t('selectBoth')); return; }
+
+  // Find HDR (case-insensitive) and binary file
+  let hdrFile=null, binFile=null;
+  for(const f of files) {
+    const ext=f.name.split('.').pop().toLowerCase();
+    const name=f.name;
+    if(ext==='hdr') hdrFile=f;
+    else if(ext==='dat'||ext==='img'||ext==='enp') binFile=f;
+    else if(!name.includes('.')) binFile=f; // No extension = binary
+    else if(!hdrFile) hdrFile=f; // Fallback: if we haven't found HDR yet
   }
-
-  let hdrFile = null, datFile = null;
-  for (const f of files) {
-    const ext = f.name.split('.').pop().toLowerCase();
-    if (ext === 'hdr') hdrFile = f;
-    else if (ext === 'dat' || ext === 'img') datFile = f;
+  // Try harder: match by stem
+  if(!hdrFile||!binFile) {
+    for(const f of files) { const l=f.name.toLowerCase(); if(l.endsWith('.hdr')) hdrFile=f; }
+    for(const f of files) { if(!f.name.includes('.')) binFile=f; }
+    if(!binFile) { for(const f of files) { if(f!==hdrFile) binFile=f; } }
   }
+  if(!hdrFile) { alert(t('noHDR')); return; }
+  if(!binFile) { alert(t('noDAT')); return; }
 
-  if (!hdrFile) { alert(t('noHDR')); return; }
-  if (!datFile) { alert(t('noDAT')); return; }
-
-  const status = document.getElementById('status');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
-
-  status.textContent = t('readingHDR');
-  status.className = 'status';
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
-
-  document.getElementById('resultsCard').style.display = 'none';
+  const status=document.getElementById('status');
+  const pbar=document.getElementById('progressBar');
+  const pfill=document.getElementById('progressFill');
+  status.textContent=t('readingHDR'); status.className='status';
+  pbar.style.display='block'; pfill.style.width='0%';
+  document.getElementById('resultsCard').style.display='none';
 
   try {
-    const hdrText = await hdrFile.text();
-    const hdr = parseHDRHeader(hdrText);
-    const H = hdr.lines, W = hdr.samples, B = hdr.bands;
-    if (!H || !W || !B) throw new Error(t('hdrError'));
-    status.textContent = t('imageInfo', H, W, B);
-
-    const datBuffer = await datFile.arrayBuffer();
-    const totalElements = H * W * B;
-    let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
-    rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
-
-    let rawDataForRGB = new Float32Array(rawData);
-    let wavelengthsRaw = hdr.wavelengths;
-    let bandsToUse = B;
-
-    if (B === 256) {
-      rawData = cropBands(rawData, H, W, B);
-      rawDataForRGB = cropBands(rawDataForRGB, H, W, B);
-      if (wavelengthsRaw && wavelengthsRaw.length === 256) {
-        wavelengthsRaw = wavelengthsRaw.slice(NOISE_START, NOISE_START + 244);
-      }
-      bandsToUse = 244;
-    } else if (B !== 244) {
-      throw new Error(t('unsupportedBands', B));
-    }
-
-    storedH = H;
-    storedW = W;
-    storedBands = bandsToUse;
-    storedWavelengths = wavelengthsRaw || null;
-
-    showRGBPreview(rawDataForRGB, H, W, bandsToUse, storedWavelengths);
-
-    normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
-    storedNormalizedData = rawData;
-    storedRawData = rawDataForRGB;
-
-    document.getElementById('inferROIBtn').style.display = 'block';
-    document.getElementById('inferAllBtn').style.display = 'block';
-    document.getElementById('inferROIBtn').disabled = true;
-    document.getElementById('inferAllBtn').disabled = false;
-
-    roiPolygons = [];
-    currentPolygon = [];
-    roiMask = null;
-    redrawAll();
-
-    status.textContent = t('imageReady');
-    status.className = 'status ok';
-
+    const hdrText=await hdrFile.text();
+    const binBuf=await binFile.arrayBuffer();
+    pfill.style.width='100%';
+    await processLoadedData(hdrText, binBuf, hdrFile.name);
   } catch(e) {
-    status.textContent = t('errorPrefix') + e.message;
-    status.className = 'status err';
-    console.error(e);
-  } finally {
-    progressBar.style.display = 'none';
-  }
+    status.textContent=t('errorPrefix')+e.message; status.className='status err'; console.error(e);
+  } finally { pbar.style.display='none'; }
 }
 
-
 // ═══════════════════════════════════════════════════════════
-//  RGB 预览
+//  Core data processing (shared between local + server)
 // ═══════════════════════════════════════════════════════════
-function showRGBPreview(rawData, H, W, bands, wavelengths) {
-  let idxR, idxG, idxB;
-  if (wavelengths && wavelengths.length === bands) {
-    idxR = findClosestBand(wavelengths, TARGET_R);
-    idxG = findClosestBand(wavelengths, TARGET_G);
-    idxB = findClosestBand(wavelengths, TARGET_B);
-  } else {
-    idxR = 114; idxG = 77; idxB = 42;
-  }
+async function processLoadedData(hdrText, binBuffer, sourceName) {
+  const status=document.getElementById('status'),pfill=document.getElementById('progressFill');
 
-  const nPixels = H * W;
-  const rChan = new Float32Array(nPixels);
-  const gChan = new Float32Array(nPixels);
-  const bChan = new Float32Array(nPixels);
+  const hdr=parseHDRHeader(hdrText);
+  const H=hdr.lines,W=hdr.samples,B=hdr.bands;
+  if(!H||!W||!B) throw new Error(t('hdrError'));
+  status.textContent=t('imageInfo',H,W,B); status.className='status';
 
-  for (let p = 0; p < nPixels; p++) {
-    const base = p * bands;
-    rChan[p] = rawData[base + idxR];
-    gChan[p] = rawData[base + idxG];
-    bChan[p] = rawData[base + idxB];
-  }
+  const totalElements=H*W*B;
+  let rawData=parseBinaryData(binBuffer,hdr.dataType,hdr.byteOrder,totalElements);
+  rawData=reorderToBSQ(rawData,H,W,B,hdr.interleave);
+  let rawDataForRGB=new Float32Array(rawData);
+  let wavelengthsRaw=hdr.wavelengths;
+  let bandsToUse=B;
 
-  function percentile(arr, pct) {
-    const sorted = new Float32Array(arr).sort();
-    return sorted[Math.floor(pct / 100 * (sorted.length - 1))];
-  }
+  if(B===256) {
+    rawData=cropBands(rawData,H,W,B); rawDataForRGB=cropBands(rawDataForRGB,H,W,B);
+    if(wavelengthsRaw&&wavelengthsRaw.length===256) wavelengthsRaw=wavelengthsRaw.slice(NOISE_START,NOISE_START+244);
+    bandsToUse=244;
+  } else if(B!==244) throw new Error(t('unsupportedBands',B));
 
-  const rMin = percentile(rChan, 2), rMax = percentile(rChan, 98);
-  const gMin = percentile(gChan, 2), gMax = percentile(gChan, 98);
-  const bMin = percentile(bChan, 2), bMax = percentile(bChan, 98);
+  storedH=H; storedW=W; storedBands=bandsToUse; storedWavelengths=wavelengthsRaw||null;
 
-  function scale(val, min, max) {
-    if (max <= min) return 128;
-    return Math.max(0, Math.min(255, (val - min) / (max - min) * 255));
-  }
+  showRGBPreview(rawDataForRGB,H,W,bandsToUse,storedWavelengths);
+  normalize(rawData,GLOBAL_MEAN,GLOBAL_STD);
+  storedNormalizedData=rawData; storedRawData=rawDataForRGB;
 
-  const canvas = document.getElementById('rgbCanvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.createImageData(W, H);
+  document.getElementById('inferROIBtn').style.display='block';
+  document.getElementById('inferAllBtn').style.display='block';
+  document.getElementById('inferROIBtn').disabled=true;
+  document.getElementById('inferAllBtn').disabled=false;
 
-  for (let p = 0; p < nPixels; p++) {
-    const off = p * 4;
-    imgData.data[off]     = scale(rChan[p], rMin, rMax);
-    imgData.data[off + 1] = scale(gChan[p], gMin, gMax);
-    imgData.data[off + 2] = scale(bChan[p], bMin, bMax);
-    imgData.data[off + 3] = 255;
-  }
-  ctx.putImageData(imgData, 0, 0);
-
-  const drawCanvas = document.getElementById('drawCanvas');
-  drawCanvas.width = W; drawCanvas.height = H;
-
-  document.getElementById('previewCard').style.display = 'block';
-  updateCanvasContainer();
+  roiPolygons=[]; currentPolygon=[]; roiMask=null; redrawAll();
+  status.textContent=t('imageReady'); status.className='status ok';
 }
 
+// ═══════════════════════════════════════════════════════════
+//  RGB Preview, ROI, Inference — same as before
+// ═══════════════════════════════════════════════════════════
+function showRGBPreview(rawData,H,W,bands,wavelengths) {
+  let idxR,idxG,idxB;
+  if(wavelengths&&wavelengths.length===bands) { idxR=findClosestBand(wavelengths,TARGET_R); idxG=findClosestBand(wavelengths,TARGET_G); idxB=findClosestBand(wavelengths,TARGET_B); }
+  else { idxR=114;idxG=77;idxB=42; }
+  const nPixels=H*W;
+  const rC=new Float32Array(nPixels),gC=new Float32Array(nPixels),bC=new Float32Array(nPixels);
+  for(let p=0;p<nPixels;p++) { const base=p*bands; rC[p]=rawData[base+idxR]; gC[p]=rawData[base+idxG]; bC[p]=rawData[base+idxB]; }
+  function pct(arr,p){ const s=new Float32Array(arr).sort(); return s[Math.floor(p/100*(s.length-1))]; }
+  const rMin=pct(rC,2),rMax=pct(rC,98),gMin=pct(gC,2),gMax=pct(gC,98),bMin=pct(bC,2),bMax=pct(bC,98);
+  function sc(v,min,max){ if(max<=min)return 128; return Math.max(0,Math.min(255,(v-min)/(max-min)*255)); }
+  const c=document.getElementById('rgbCanvas'); c.width=W;c.height=H;
+  const ctx=c.getContext('2d'),img=ctx.createImageData(W,H);
+  for(let p=0;p<nPixels;p++){ const o=p*4; img.data[o]=sc(rC[p],rMin,rMax); img.data[o+1]=sc(gC[p],gMin,gMax); img.data[o+2]=sc(bC[p],bMin,bMax); img.data[o+3]=255; }
+  ctx.putImageData(img,0,0);
+  const dc=document.getElementById('drawCanvas'); dc.width=W;dc.height=H;
+  document.getElementById('previewCard').style.display='block'; updateCanvasContainer();
+}
 function updateCanvasContainer() {
-  const rgbCanvas = document.getElementById('rgbCanvas');
-  const container = document.getElementById('canvasContainer');
-  if (rgbCanvas.clientHeight > 0) {
-    container.style.height = rgbCanvas.clientHeight + 'px';
-  }
+  const c=document.getElementById('rgbCanvas'),ct=document.getElementById('canvasContainer');
+  if(c.clientHeight>0) ct.style.height=c.clientHeight+'px';
 }
+window.addEventListener('load',()=>setTimeout(updateCanvasContainer,500));
+window.addEventListener('resize',()=>setTimeout(updateCanvasContainer,500));
 
-window.addEventListener('load', () => setTimeout(updateCanvasContainer, 500));
-window.addEventListener('resize', () => setTimeout(updateCanvasContainer, 500));
-
-
-// ═══════════════════════════════════════════════════════════
-//  ROI 圈画
-// ═══════════════════════════════════════════════════════════
 function setupDrawCanvas() {
-  const canvas = document.getElementById('drawCanvas');
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    let clientX, clientY;
-    if (e.touches) {
-      if (e.touches.length === 0) return null;
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    return {
-      x: Math.round((clientX - rect.left) * scaleX),
-      y: Math.round((clientY - rect.top) * scaleY)
-    };
-  }
-
-  function onStart(e) {
-    e.preventDefault();
-    const pos = getPos(e); if (!pos) return;
-    isDrawing = true;
-    currentPolygon = [pos];
-    redrawAll();
-  }
-
-  function onMove(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    const pos = getPos(e); if (!pos) return;
-    const last = currentPolygon[currentPolygon.length - 1];
-    if (last && Math.abs(pos.x - last.x) + Math.abs(pos.y - last.y) < 3) return;
-    currentPolygon.push(pos);
-    drawCurrentPolygon();
-  }
-
-  function onEnd(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    isDrawing = false;
-    if (currentPolygon.length >= 3) {
-      roiPolygons.push({ points: [...currentPolygon] });
-      currentPolygon = [];
-      redrawAll();
-    } else {
-      currentPolygon = [];
-      redrawAll();
-    }
-    document.getElementById('inferROIBtn').disabled = (roiPolygons.length === 0);
-  }
-
-  canvas.addEventListener('mousedown', onStart);
-  canvas.addEventListener('mousemove', onMove);
-  canvas.addEventListener('mouseup', onEnd);
-  canvas.addEventListener('mouseleave', onEnd);
-  canvas.addEventListener('touchstart', onStart, { passive: false });
-  canvas.addEventListener('touchmove', onMove, { passive: false });
-  canvas.addEventListener('touchend', onEnd, { passive: false });
+  const c=document.getElementById('drawCanvas');
+  function gp(e){ const r=c.getBoundingClientRect(),sX=c.width/r.width,sY=c.height/r.height; let cx,cy; if(e.touches){ if(e.touches.length===0)return null; cx=e.touches[0].clientX;cy=e.touches[0].clientY; } else{ cx=e.clientX;cy=e.clientY; } return {x:Math.round((cx-r.left)*sX),y:Math.round((cy-r.top)*sY)}; }
+  function s(e){ e.preventDefault(); const p=gp(e); if(!p)return; isDrawing=true;currentPolygon=[p];redrawAll(); }
+  function m(e){ e.preventDefault(); if(!isDrawing)return; const p=gp(e); if(!p)return; const l=currentPolygon[currentPolygon.length-1]; if(l&&Math.abs(p.x-l.x)+Math.abs(p.y-l.y)<3)return; currentPolygon.push(p);drawCurrentPolygon(); }
+  function en(e){ e.preventDefault(); if(!isDrawing)return; isDrawing=false; if(currentPolygon.length>=3){ roiPolygons.push({points:[...currentPolygon]});currentPolygon=[];redrawAll(); } else{ currentPolygon=[];redrawAll(); } document.getElementById('inferROIBtn').disabled=(roiPolygons.length===0); }
+  c.addEventListener('mousedown',s);c.addEventListener('mousemove',m);c.addEventListener('mouseup',en);c.addEventListener('mouseleave',en);
+  c.addEventListener('touchstart',s,{passive:false});c.addEventListener('touchmove',m,{passive:false});c.addEventListener('touchend',en,{passive:false});
 }
+function drawCurrentPolygon() { redrawAll(); if(currentPolygon.length>=1){ const ctx=document.getElementById('drawCanvas').getContext('2d'); drawPoly(ctx,currentPolygon,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true); } }
+function redrawAll() { const c=document.getElementById('drawCanvas'),ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); for(const p of roiPolygons) drawPoly(ctx,p.points,'rgba(56,189,248,0.25)','rgba(56,189,248,0.8)',false); if(currentPolygon.length>=1) drawPoly(ctx,currentPolygon,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true); }
+function drawPoly(ctx,pts,fill,stroke,isCur) { if(pts.length<1)return; ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y); for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y); if(!isCur&&pts.length>=3)ctx.closePath(); ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.setLineDash(isCur?[5,5]:[]);ctx.stroke(); if(!isCur&&pts.length>=3){ ctx.fillStyle=fill;ctx.fill(); } }
+function clearROI(){ roiPolygons=[];currentPolygon=[];roiMask=null;redrawAll();document.getElementById('inferROIBtn').disabled=true; }
+function undoLastROI(){ if(roiPolygons.length>0){ roiPolygons.pop();redrawAll();document.getElementById('inferROIBtn').disabled=(roiPolygons.length===0); } }
 
-function drawCurrentPolygon() {
-  redrawAll();
-  if (currentPolygon.length >= 1) {
-    const ctx = document.getElementById('drawCanvas').getContext('2d');
-    drawPolygon(ctx, currentPolygon, 'rgba(56,189,248,0.4)', 'rgba(56,189,248,0.9)', true);
-  }
-}
-
-function redrawAll() {
-  const canvas = document.getElementById('drawCanvas');
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (const poly of roiPolygons) {
-    drawPolygon(ctx, poly.points, 'rgba(56,189,248,0.25)', 'rgba(56,189,248,0.8)', false);
-  }
-  if (currentPolygon.length >= 1) {
-    drawPolygon(ctx, currentPolygon, 'rgba(56,189,248,0.4)', 'rgba(56,189,248,0.9)', true);
-  }
-}
-
-function drawPolygon(ctx, points, fillColor, strokeColor, isCurrent) {
-  if (points.length < 1) return;
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-  if (!isCurrent && points.length >= 3) ctx.closePath();
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 2;
-  ctx.setLineDash(isCurrent ? [5, 5] : []);
-  ctx.stroke();
-  if (!isCurrent && points.length >= 3) {
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-  }
-}
-
-function clearROI() {
-  roiPolygons = []; currentPolygon = []; roiMask = null;
-  redrawAll();
-  document.getElementById('inferROIBtn').disabled = true;
-}
-
-function undoLastROI() {
-  if (roiPolygons.length > 0) {
-    roiPolygons.pop(); redrawAll();
-    document.getElementById('inferROIBtn').disabled = (roiPolygons.length === 0);
-  }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  ROI 掩码
-// ═══════════════════════════════════════════════════════════
-function buildROIMask() {
-  if (roiPolygons.length === 0) return null;
-  const nPixels = storedH * storedW;
-  const mask = new Uint8Array(nPixels);
-  for (const poly of roiPolygons) {
-    const pts = poly.points;
-    if (pts.length < 3) continue;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (const p of pts) {
-      if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
-      if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
-    }
-    minX = Math.max(0, Math.floor(minX)); maxX = Math.min(storedW - 1, Math.ceil(maxX));
-    minY = Math.max(0, Math.floor(minY)); maxY = Math.min(storedH - 1, Math.ceil(maxY));
-    for (let y = minY; y <= maxY; y++)
-      for (let x = minX; x <= maxX; x++)
-        if (pointInPolygon(x, y, pts)) mask[y * storedW + x] = 1;
-  }
+function buildROIMask(){
+  if(roiPolygons.length===0)return null;
+  const nP=storedH*storedW,mask=new Uint8Array(nP);
+  for(const poly of roiPolygons){ const pts=poly.points; if(pts.length<3)continue; let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity; for(const p of pts){ if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y; } minX=Math.max(0,Math.floor(minX));maxX=Math.min(storedW-1,Math.ceil(maxX));minY=Math.max(0,Math.floor(minY));maxY=Math.min(storedH-1,Math.ceil(maxY)); for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++)if(pip(x,y,pts))mask[y*storedW+x]=1; }
   return mask;
 }
+function pip(px,py,p){ let inside=false; const n=p.length; for(let i=0,j=n-1;i<n;j=i++){ if((p[i].y>py)!==(p[j].y>py)&&px<(p[j].x-p[i].x)*(py-p[i].y)/(p[j].y-p[i].y)+p[i].x)inside=!inside; } return inside; }
 
-function pointInPolygon(px, py, polygon) {
-  let inside = false;
-  const n = polygon.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const xi = polygon[i].x, yi = polygon[i].y;
-    const xj = polygon[j].x, yj = polygon[j].y;
-    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
-  }
-  return inside;
+async function runROIInference(){ const mask=buildROIMask(); if(!mask){alert(t('drawROIFirst'));return;} const n=mask.reduce((s,v)=>s+v,0); if(n===0){alert(t('emptyROI'));return;} roiMask=mask; await runMaskedInference(mask); }
+async function runFullInference(){ roiMask=null; await runMaskedInference(null); }
+
+async function runMaskedInference(mask){
+  const H=storedH,W=storedW,bands=storedBands,nPixels=H*W;
+  const s=document.getElementById('status'),pbar=document.getElementById('progressBar'),pf=document.getElementById('progressFill');
+  s.textContent=t('preparingInfer');s.className='status';pbar.style.display='block';pf.style.width='0%';
+  try{
+    const t0=performance.now();
+    let vi; if(mask){ vi=[]; for(let i=0;i<nPixels;i++) if(mask[i]) vi.push(i); } else{ vi=new Array(nPixels); for(let i=0;i<nPixels;i++)vi[i]=i; }
+    const nV=vi.length; if(nV===0) throw new Error(t('noPixelError'));
+    const cfg=MODEL_CONFIGS[currentModel],ch=cfg.channels,fs=ch*bands;
+    const feats=new Float32Array(nV*fs);
+    for(let i=0;i<nV;i++){ const pI=vi[i],src=pI*bands,dst=i*fs,sp=storedNormalizedData.slice(src,src+bands); if(cfg.deriv){ const d1=sgd(sp,SG_C1),d2=sgd(sp,SG_C2); for(let b=0;b<bands;b++){ feats[(i*3+0)*bands+b]=sp[b];feats[(i*3+1)*bands+b]=d1[b];feats[(i*3+2)*bands+b]=d2[b]; } } else{ for(let b=0;b<bands;b++)feats[dst+b]=sp[b]; } }
+    s.textContent=t('inferring',nV.toLocaleString());
+    const vp=new Int32Array(nV),sess=ortSession;
+    for(let st=0;st<nV;st+=BATCH_SIZE){ const end=Math.min(st+BATCH_SIZE,nV),cnt=end-st; const bd=new Float32Array(cnt*fs); for(let p=0;p<cnt;p++){ const so=(st+p)*fs; for(let j=0;j<fs;j++)bd[p*fs+j]=feats[so+j]; } const tensor=new ort.Tensor('float32',bd,[cnt,ch,bands]); const r=await sess.run({spectrum:tensor}); const logits=r.logits.data; for(let p=0;p<cnt;p++){ let mx=-Infinity,mi=0; for(let c=0;c<NUM_CLASSES;c++){ if(logits[p*NUM_CLASSES+c]>mx){mx=logits[p*NUM_CLASSES+c];mi=c;} } vp[st+p]=mi; } pf.style.width=(end/nV*100)+'%'; }
+    const fp=new Int32Array(nPixels); for(let i=0;i<nV;i++)fp[vi[i]]=vp[i];
+    const el=(performance.now()-t0)/1000;
+    renderResult(fp,H,W,el,nV);
+    s.textContent=mask?t('doneROI',nV.toLocaleString(),el.toFixed(2)):t('doneFull',nV.toLocaleString(),el.toFixed(2)); s.className='status ok';
+  }catch(e){ s.textContent=t('errorPrefix')+e.message;s.className='status err';console.error(e); }
+  finally{ pbar.style.display='none'; }
 }
-
 
 // ═══════════════════════════════════════════════════════════
-//  推理
+//  HDR / Binary parsing
 // ═══════════════════════════════════════════════════════════
-async function runROIInference() {
-  const mask = buildROIMask();
-  if (!mask) { alert(t('drawROIFirst')); return; }
-  const nSelected = mask.reduce((s, v) => s + v, 0);
-  if (nSelected === 0) { alert(t('emptyROI')); return; }
-  roiMask = mask;
-  await runMaskedInference(mask);
-}
-
-async function runFullInference() {
-  roiMask = null;
-  await runMaskedInference(null);
-}
-
-async function runMaskedInference(mask) {
-  const H = storedH, W = storedW, bands = storedBands;
-  const nPixels = H * W;
-  const status = document.getElementById('status');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
-
-  status.textContent = t('preparingInfer');
-  status.className = 'status';
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
-
-  try {
-    const tStart = performance.now();
-    let validIndices;
-    if (mask) {
-      validIndices = [];
-      for (let i = 0; i < nPixels; i++) if (mask[i]) validIndices.push(i);
-    } else {
-      validIndices = new Array(nPixels);
-      for (let i = 0; i < nPixels; i++) validIndices[i] = i;
-    }
-
-    const nValid = validIndices.length;
-    if (nValid === 0) throw new Error(t('noPixelError'));
-
-    const config = MODEL_CONFIGS[currentModel];
-    const channels = config.channels;
-    const featureSize = channels * bands;
-
-    const features = new Float32Array(nValid * featureSize);
-    for (let i = 0; i < nValid; i++) {
-      const pIdx = validIndices[i];
-      const srcBase = pIdx * bands;
-      const dstBase = i * featureSize;
-      const spec = storedNormalizedData.slice(srcBase, srcBase + bands);
-      if (config.deriv) {
-        const d1 = sgDerivative1D(spec, SG_COEFFS_1ST);
-        const d2 = sgDerivative1D(spec, SG_COEFFS_2ND);
-        for (let b = 0; b < bands; b++) {
-          features[(i * 3 + 0) * bands + b] = spec[b];
-          features[(i * 3 + 1) * bands + b] = d1[b];
-          features[(i * 3 + 2) * bands + b] = d2[b];
-        }
-      } else {
-        for (let b = 0; b < bands; b++) features[dstBase + b] = spec[b];
-      }
-    }
-
-    status.textContent = t('inferring', nValid.toLocaleString());
-    progressFill.style.width = '0%';
-
-    const validPredictions = new Int32Array(nValid);
-    const session = ortSession;
-
-    for (let start = 0; start < nValid; start += BATCH_SIZE) {
-      const end = Math.min(start + BATCH_SIZE, nValid);
-      const count = end - start;
-      const batchData = new Float32Array(count * featureSize);
-      for (let p = 0; p < count; p++) {
-        const srcOff = (start + p) * featureSize;
-        for (let j = 0; j < featureSize; j++) batchData[p * featureSize + j] = features[srcOff + j];
-      }
-      const tensor = new ort.Tensor('float32', batchData, [count, channels, bands]);
-      const results = await session.run({ spectrum: tensor });
-      const logits = results.logits.data;
-      for (let p = 0; p < count; p++) {
-        let maxVal = -Infinity, maxIdx = 0;
-        for (let c = 0; c < NUM_CLASSES; c++) {
-          if (logits[p * NUM_CLASSES + c] > maxVal) { maxVal = logits[p * NUM_CLASSES + c]; maxIdx = c; }
-        }
-        validPredictions[start + p] = maxIdx;
-      }
-      progressFill.style.width = (end / nValid * 100) + '%';
-    }
-
-    const fullPredictions = new Int32Array(nPixels);
-    for (let i = 0; i < nValid; i++) fullPredictions[validIndices[i]] = validPredictions[i];
-
-    const elapsed = (performance.now() - tStart) / 1000;
-    const totalROI = nValid;
-    renderResult(fullPredictions, H, W, elapsed, totalROI);
-
-    const doneMsg = mask ? t('doneROI', totalROI.toLocaleString(), elapsed.toFixed(2)) : t('doneFull', totalROI.toLocaleString(), elapsed.toFixed(2));
-    status.textContent = doneMsg;
-    status.className = 'status ok';
-
-  } catch(e) {
-    status.textContent = t('errorPrefix') + e.message;
-    status.className = 'status err';
-    console.error(e);
-  } finally {
-    progressBar.style.display = 'none';
-  }
-}
-
+function parseHDRHeader(text){ const info={}; for(const line of text.split('\n')){ const t=line.trim(); if(!t||t.startsWith(';'))continue; const eq=t.indexOf('='); if(eq===-1)continue; info[t.substring(0,eq).trim().toLowerCase()]=t.substring(eq+1).trim(); } let wl=null; if(info['wavelength']){ const m=text.match(/wavelength\s*=\s*\{([^}]+)\}/s); if(m)wl=m[1].split(/[\s,]+/).map(v=>parseFloat(v)).filter(v=>!isNaN(v)); } return {samples:parseInt(info['samples'])||0,lines:parseInt(info['lines'])||0,bands:parseInt(info['bands'])||0,dataType:parseInt(info['data type']||'4'),byteOrder:parseInt(info['byte order']||'0'),interleave:(info['interleave']||'bsq').toLowerCase(),wavelengths:wl}; }
+function findClosestBand(wl,t){ let bi=0,bd=Infinity; for(let i=0;i<wl.length;i++){ const d=Math.abs(wl[i]-t); if(d<bd){bd=d;bi=i;} } return bi; }
+function parseBinaryData(buf,dt,bo,te){ const be=(bo===1),dv=new DataView(buf),r=new Float32Array(te); switch(dt){ case 1:{ const u=new Uint8Array(buf); for(let i=0;i<te;i++)r[i]=u[i]; break; } case 2:for(let i=0;i<te;i++)r[i]=dv.getInt16(i*2,!be);break; case 3:for(let i=0;i<te;i++)r[i]=dv.getInt32(i*4,!be);break; case 4:for(let i=0;i<te;i++)r[i]=dv.getFloat32(i*4,!be);break; case 5:for(let i=0;i<te;i++)r[i]=dv.getFloat64(i*8,!be);break; case 12:for(let i=0;i<te;i++)r[i]=dv.getUint16(i*2,!be);break; default:throw new Error('Unsupported type: '+dt); } return r; }
+function reorderToBSQ(d,h,w,b,il){ switch(il){ case 'bil':{ const re=new Float32Array(h*w*b); for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let bb=0;bb<b;bb++)re[(y*w+x)*b+bb]=d[y*b*w+bb*w+x]; return re; } case 'bip':{ const re=new Float32Array(h*w*b); for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let bb=0;bb<b;bb++)re[(y*w+x)*b+bb]=d[y*w*b+x*b+bb]; return re; } default:return d; } }
+function cropBands(d,h,w,b){ const k=b-NOISE_START-NOISE_END,r=new Float32Array(h*w*k); const tp=h*w; for(let p=0;p<tp;p++){ const sb=p*b+NOISE_START,db=p*k; for(let bb=0;bb<k;bb++)r[db+bb]=d[sb+bb]; } return r; }
+function normalize(d,mean,std){ const is=1/std; for(let i=0;i<d.length;i++)d[i]=(d[i]-mean)*is; }
+const SG_C1=[0.2,0.1,0.0,-0.1,-0.2],SG_C2=[0.285714,-0.142857,-0.285714,-0.142857,0.285714];
+function sgd(sp,co){ const n=sp.length,r=new Float32Array(n),w=co.length,hf=(w-1)/2; for(let i=0;i<n;i++){ let s=0; for(let j=0;j<w;j++){ let idx=i+j-hf; if(idx<0)idx=0;else if(idx>=n)idx=n-1; s+=sp[idx]*co[j]; } r[i]=s; } return r; }
 
 // ═══════════════════════════════════════════════════════════
-//  HDR 解析
+//  Render
 // ═══════════════════════════════════════════════════════════
-function parseHDRHeader(text) {
-  const info = {};
-  for (const line of text.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith(';')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.substring(0, eq).trim().toLowerCase();
-    const val = trimmed.substring(eq + 1).trim();
-    info[key] = val;
-  }
-  let wavelengths = null;
-  if (info['wavelength']) {
-    const wlMatch = text.match(/wavelength\s*=\s*\{([^}]+)\}/s);
-    if (wlMatch) wavelengths = wlMatch[1].split(/[\s,]+/).map(v => parseFloat(v)).filter(v => !isNaN(v));
-  }
-  return {
-    samples: parseInt(info['samples']) || 0,
-    lines: parseInt(info['lines']) || 0,
-    bands: parseInt(info['bands']) || 0,
-    dataType: parseInt(info['data type'] || '4'),
-    byteOrder: parseInt(info['byte order'] || '0'),
-    interleave: (info['interleave'] || 'bsq').toLowerCase(),
-    wavelengths,
-  };
+function renderResult(pred,H,W,elapsed,totalROI){
+  const c=document.getElementById('resultCanvas'); c.width=W;c.height=H;
+  const ctx=c.getContext('2d'),img=ctx.createImageData(W,H),nP=H*W;
+  for(let i=0;i<nP;i++){ const [r,g,b]=COLOR_MAP[pred[i]]||[0,0,0],off=i*4; img.data[off]=r;img.data[off+1]=g;img.data[off+2]=b;img.data[off+3]=255; }
+  ctx.putImageData(img,0,0);
+  const cnt=new Array(5).fill(0); for(let i=0;i<nP;i++)cnt[pred[i]]++; const tp=cnt[1]+cnt[2]+cnt[3]+cnt[4];
+  document.getElementById('stats').innerHTML=`<div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">${t('statTime')}</div></div><div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">${t('statPixels')}</div></div><div class="stat"><div class="value">${tp.toLocaleString()}</div><div class="label">${t('statTooth')}</div></div><div class="stat"><div class="value">${tp>0?((cnt[2]+cnt[3])/tp*100).toFixed(1):'0'}%</div><div class="label">${t('statCaries')}</div></div>`;
+  document.getElementById('legend').innerHTML=buildLegendHTML();
+  document.getElementById('resultsCard').style.display='block';
+  document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'});
 }
-
-function findClosestBand(wavelengths, target) {
-  let bestIdx = 0, bestDiff = Infinity;
-  for (let i = 0; i < wavelengths.length; i++) {
-    if (Math.abs(wavelengths[i] - target) < bestDiff) { bestDiff = Math.abs(wavelengths[i] - target); bestIdx = i; }
-  }
-  return bestIdx;
-}
-
-function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
-  const isBE = (byteOrder === 1);
-  const dv = new DataView(buffer);
-  const result = new Float32Array(totalElements);
-  switch (dataType) {
-    case 1: { const u8 = new Uint8Array(buffer); for (let i=0;i<totalElements;i++) result[i]=u8[i]; break; }
-    case 2: for (let i=0;i<totalElements;i++) result[i]=dv.getInt16(i*2,!isBE); break;
-    case 3: for (let i=0;i<totalElements;i++) result[i]=dv.getInt32(i*4,!isBE); break;
-    case 4: for (let i=0;i<totalElements;i++) result[i]=dv.getFloat32(i*4,!isBE); break;
-    case 5: for (let i=0;i<totalElements;i++) result[i]=dv.getFloat64(i*8,!isBE); break;
-    case 12: for (let i=0;i<totalElements;i++) result[i]=dv.getUint16(i*2,!isBE); break;
-    default: throw new Error(`Unsupported data type: ${dataType}`);
-  }
-  return result;
-}
-
-function reorderToBSQ(data, h, w, bands, interleave) {
-  switch (interleave) {
-    case 'bil': {
-      const re = new Float32Array(h*w*bands);
-      for (let y=0;y<h;y++) for (let x=0;x<w;x++) for (let b=0;b<bands;b++) re[(y*w+x)*bands+b]=data[y*bands*w+b*w+x];
-      return re;
-    }
-    case 'bip': {
-      const re = new Float32Array(h*w*bands);
-      for (let y=0;y<h;y++) for (let x=0;x<w;x++) for (let b=0;b<bands;b++) re[(y*w+x)*bands+b]=data[y*w*bands+x*bands+b];
-      return re;
-    }
-    default: return data;
-  }
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  预处理
-// ═══════════════════════════════════════════════════════════
-function cropBands(data, h, w, bands) {
-  const keep = bands - NOISE_START - NOISE_END;
-  const result = new Float32Array(h * w * keep);
-  const totalPixels = h * w;
-  for (let p = 0; p < totalPixels; p++) {
-    const srcBase = p * bands + NOISE_START;
-    const dstBase = p * keep;
-    for (let b = 0; b < keep; b++) result[dstBase + b] = data[srcBase + b];
-  }
-  return result;
-}
-
-function normalize(data, mean, std) {
-  const invStd = 1.0 / std;
-  for (let i = 0; i < data.length; i++) data[i] = (data[i] - mean) * invStd;
-}
-
-const SG_COEFFS_1ST = [0.2, 0.1, 0.0, -0.1, -0.2];
-const SG_COEFFS_2ND = [0.285714, -0.142857, -0.285714, -0.142857, 0.285714];
-
-function sgDerivative1D(spectrum, coeffs) {
-  const n = spectrum.length;
-  const result = new Float32Array(n);
-  const w = coeffs.length, half = (w-1)/2;
-  for (let i = 0; i < n; i++) {
-    let sum = 0;
-    for (let j = 0; j < w; j++) {
-      let idx = i + j - half;
-      if (idx < 0) idx = 0; else if (idx >= n) idx = n - 1;
-      sum += spectrum[idx] * coeffs[j];
-    }
-    result[i] = sum;
-  }
-  return result;
-}
-
-
-// ═══════════════════════════════════════════════════════════
-//  结果渲染
-// ═══════════════════════════════════════════════════════════
-function renderResult(predictions, H, W, elapsed, totalROI) {
-  const canvas = document.getElementById('resultCanvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.createImageData(W, H);
-  const nPixels = H * W;
-  for (let i = 0; i < nPixels; i++) {
-    const [r, g, b] = COLOR_MAP[predictions[i]] || [0,0,0];
-    const off = i * 4;
-    imgData.data[off]=r; imgData.data[off+1]=g; imgData.data[off+2]=b; imgData.data[off+3]=255;
-  }
-  ctx.putImageData(imgData, 0, 0);
-
-  const counts = new Array(5).fill(0);
-  for (let i = 0; i < nPixels; i++) counts[predictions[i]]++;
-  const toothPixels = counts[1]+counts[2]+counts[3]+counts[4];
-
-  document.getElementById('stats').innerHTML = `
-    <div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">${t('statTime')}</div></div>
-    <div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">${t('statPixels')}</div></div>
-    <div class="stat"><div class="value">${toothPixels.toLocaleString()}</div><div class="label">${t('statTooth')}</div></div>
-    <div class="stat"><div class="value">${toothPixels>0?((counts[2]+counts[3])/toothPixels*100).toFixed(1):'0'}%</div><div class="label">${t('statCaries')}</div></div>
-  `;
-
-  // Ensure legend is updated
-  document.getElementById('legend').innerHTML = `
-    <div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>
-  `;
-
-  document.getElementById('resultsCard').style.display = 'block';
-  document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
-}
-
-function saveResult() {
-  const canvas = document.getElementById('resultCanvas');
-  const link = document.createElement('a');
-  link.download = 'tooth_prediction.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-}
+function saveResult(){ const c=document.getElementById('resultCanvas'),a=document.createElement('a'); a.download='tooth_prediction.png'; a.href=c.toDataURL('image/png'); a.click(); }
 </script>
 </body>
 </html>
