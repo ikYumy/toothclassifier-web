@@ -28,22 +28,26 @@ let sH=0,sW=0,sB=0,sRD=null,sND=null,sWL=null;
 let roiP=[],curP=[],drawing=false,roiM=null;
 let testImages=[],selTest=null;
 
+// ═══════════════════════ Theme ═══════════════════════
+function initTheme(){const s=localStorage.getItem('tc-theme');if(s==='light'||s==='dark'){applyTheme(s)}else{const m=window.matchMedia('(prefers-color-scheme:light)');applyTheme(m.matches?'light':'dark');m.addEventListener('change',e=>{if(!localStorage.getItem('tc-theme'))applyTheme(e.matches?'light':'dark')})}}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);const mc=document.querySelector('meta[name="theme-color"]');if(mc)mc.content=t==='light'?'#f8f9fa':'#07080a'}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='dark'?'light':'dark';localStorage.setItem('tc-theme',n);applyTheme(n)}
+
 // ═══════════════════════ Init ═══════════════════════
 const device = {memoryGB:null,isLowMemory:false,isIPad:false,hasWebGL:null};
 function detectDevice(){
   device.memoryGB=navigator.deviceMemory||null;
   device.isLowMemory=device.memoryGB!==null&&device.memoryGB<4;
   device.isIPad=/iPad/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  // Quick WebGL check: just test context creation, no GPU init
   try{const c=document.createElement('canvas');const gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:true})||c.getContext('experimental-webgl',{failIfMajorPerformanceCaveat:true});device.hasWebGL=!!gl}catch(e){device.hasWebGL=false}
   return device}
 detectDevice();
 
 function showDeviceInfo(){const label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
-  label.textContent=device.hasWebGL?'✅ 设备兼容 · WebGL 可用':'❌ 设备不支持 WebGL · 无法运行';
-  card.style.borderColor=device.hasWebGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)'}
+  label.textContent=device.hasWebGL?'Device compatible · WebGL available':'Device not compatible · No WebGL';
+  card.style.borderColor=device.hasWebGL?'rgba(62,207,142,0.3)':'rgba(248,113,113,0.3)'}
 
-window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
+window.addEventListener('DOMContentLoaded',()=>{initTheme();initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
 function applyDeviceTweaks(){if(device.isLowMemory){BS=512}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}}
 async function checkORT(){const s=document.getElementById('modelStatus');try{const a=typeof ort!=='undefined';s.textContent=a?t('ortReady'):t('ortLoading');s.className=a?'status ok':'status'}catch(e){s.textContent=t('ortFailed')+e.message;s.className='status err'}}
 async function loadManifest(){try{const r=await fetch('test_images/manifest.json');if(!r.ok)throw new Error('HTTP '+r.status);testImages=await r.json();populateTestSelect()}catch(e){console.log('Manifest:',e.message);const s=document.getElementById('testImageSelect');s.innerHTML=`<option value="">${t('manifestFailed')}</option>`}}
@@ -71,8 +75,8 @@ window.addEventListener('load',()=>setTimeout(updateCanvasContainer,500));window
 
 // ═══════════════════════ ROI drawing ═══════════════════
 function setupDrawCanvas(){const c=document.getElementById('drawCanvas');function getPos(e){const r=c.getBoundingClientRect(),sX=c.width/r.width,sY=c.height/r.height;let cx,cy;if(e.touches){if(e.touches.length===0)return null;cx=e.touches[0].clientX;cy=e.touches[0].clientY}else{cx=e.clientX;cy=e.clientY}return{x:Math.round((cx-r.left)*sX),y:Math.round((cy-r.top)*sY)}}function onStart(e){e.preventDefault();const p=getPos(e);if(!p)return;drawing=true;curP=[p];redrawAll()}function onMove(e){e.preventDefault();if(!drawing)return;const p=getPos(e);if(!p)return;const l=curP[curP.length-1];if(l&&Math.abs(p.x-l.x)+Math.abs(p.y-l.y)<3)return;curP.push(p);drawCur()}function onEnd(e){e.preventDefault();if(!drawing)return;drawing=false;if(curP.length>=3){roiP.push({pts:[...curP]});curP=[];redrawAll()}else{curP=[];redrawAll()}document.getElementById('inferROIBtn').disabled=(roiP.length===0)}c.addEventListener('mousedown',onStart);c.addEventListener('mousemove',onMove);c.addEventListener('mouseup',onEnd);c.addEventListener('mouseleave',onEnd);c.addEventListener('touchstart',onStart,{passive:false});c.addEventListener('touchmove',onMove,{passive:false});c.addEventListener('touchend',onEnd,{passive:false})}
-function drawCur(){redrawAll();if(curP.length>=1){const ctx=document.getElementById('drawCanvas').getContext('2d');drawPoly(ctx,curP,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true)}}
-function redrawAll(){const c=document.getElementById('drawCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);for(const p of roiP)drawPoly(ctx,p.pts,'rgba(56,189,248,0.25)','rgba(56,189,248,0.8)',false);if(curP.length>=1)drawPoly(ctx,curP,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true)}
+function drawCur(){redrawAll();if(curP.length>=1){const ctx=document.getElementById('drawCanvas').getContext('2d');drawPoly(ctx,curP,'rgba(94,168,240,0.4)','rgba(94,168,240,0.9)',true)}}
+function redrawAll(){const c=document.getElementById('drawCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);for(const p of roiP)drawPoly(ctx,p.pts,'rgba(94,168,240,0.25)','rgba(94,168,240,0.8)',false);if(curP.length>=1)drawPoly(ctx,curP,'rgba(94,168,240,0.4)','rgba(94,168,240,0.9)',true)}
 function drawPoly(ctx,pts,fill,stroke,isCur){if(pts.length<1)return;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);if(!isCur&&pts.length>=3)ctx.closePath();ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.setLineDash(isCur?[5,5]:[]);ctx.stroke();if(!isCur&&pts.length>=3){ctx.fillStyle=fill;ctx.fill()}}
 function clearROI(){roiP=[];curP=[];roiM=null;redrawAll();document.getElementById('inferROIBtn').disabled=true}
 function undoLastROI(){if(roiP.length>0){roiP.pop();redrawAll();document.getElementById('inferROIBtn').disabled=(roiP.length===0)}}

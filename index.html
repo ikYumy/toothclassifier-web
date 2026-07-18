@@ -1,24 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#060b14">
+<meta name="theme-color" content="#07080a">
 <meta name="mobile-web-app-capable" content="yes">
 <title>ToothClassifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;510;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1><span class="icon">🦷</span><span><span data-i18n="title">ToothClassifier</span><span class="sub"><span data-i18n="subtitle1">Hyperspectral Dental Tissue Classification</span> · <span data-i18n="subtitle2">Edge Inference</span></span></span></h1>
-    <div class="lang-selector" id="langSelector"></div>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark/light mode">
+        <span class="icon-light">☀️</span>
+        <span class="icon-dark">🌙</span>
+      </button>
+      <div class="lang-selector" id="langSelector"></div>
+    </div>
   </div>
 
   <!-- Device info -->
-  <div class="card" id="deviceCard" style="padding:10px 16px;font-size:0.73rem;margin-bottom:10px">
+  <div class="card" id="deviceCard">
     <span id="deviceLabel"></span>
   </div>
 
