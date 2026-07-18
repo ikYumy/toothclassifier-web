@@ -1,0 +1,98 @@
+[
+  {
+    "name": "09-1-1",
+    "samples": 284,
+    "lines": 188,
+    "bands": 256,
+    "hdr_size": 12288,
+    "bin_size": 54673408,
+    "bin_mb": 52.1,
+    "hdr_file": "test_images/09-1-1/09-1-1.HDR",
+    "bin_file": "test_images/09-1-1/09-1-1",
+    "subdir": "09-1-1"
+  },
+  {
+    "name": "09-1-2",
+    "samples": 325,
+    "lines": 194,
+    "bands": 256,
+    "hdr_size": 12288,
+    "bin_size": 64563200,
+    "bin_mb": 61.6,
+    "hdr_file": "test_images/09-1-2/09-1-2.HDR",
+    "bin_file": "test_images/09-1-2/09-1-2",
+    "subdir": "09-1-2"
+  },
+  {
+    "name": "09-1-3",
+    "samples": 311,
+    "lines": 201,
+    "bands": 256,
+    "hdr_size": 12289,
+    "bin_size": 64011264,
+    "bin_mb": 61.0,
+    "hdr_file": "test_images/09-1-3/09-1-3.HDR",
+    "bin_file": "test_images/09-1-3/09-1-3",
+    "subdir": "09-1-3"
+  },
+  {
+    "name": "09-1-4",
+    "samples": 403,
+    "lines": 202,
+    "bands": 256,
+    "hdr_size": 12289,
+    "bin_size": 83359744,
+    "bin_mb": 79.5,
+    "hdr_file": "test_images/09-1-4/09-1-4.HDR",
+    "bin_file": "test_images/09-1-4/09-1-4",
+    "subdir": "09-1-4"
+  },
+  {
+    "name": "09-1-5",
+    "samples": 287,
+    "lines": 190,
+    "bands": 256,
+    "hdr_size": 12289,
+    "bin_size": 55838720,
+    "bin_mb": 53.3,
+    "hdr_file": "test_images/09-1-5/09-1-5.HDR",
+    "bin_file": "test_images/09-1-5/09-1-5",
+    "subdir": "09-1-5"
+  },
+  {
+    "name": "09-1-6",
+    "samples": 313,
+    "lines": 193,
+    "bands": 256,
+    "hdr_size": 12289,
+    "bin_size": 61858816,
+    "bin_mb": 59.0,
+    "hdr_file": "test_images/09-1-6/09-1-6.HDR",
+    "bin_file": "test_images/09-1-6/09-1-6",
+    "subdir": "09-1-6"
+  },
+  {
+    "name": "09-1-7",
+    "samples": 320,
+    "lines": 219,
+    "bands": 256,
+    "hdr_size": 12290,
+    "bin_size": 71761920,
+    "bin_mb": 68.4,
+    "hdr_file": "test_images/09-1-7/09-1-7.HDR",
+    "bin_file": "test_images/09-1-7/09-1-7",
+    "subdir": "09-1-7"
+  },
+  {
+    "name": "09-1-8",
+    "samples": 366,
+    "lines": 193,
+    "bands": 256,
+    "hdr_size": 12290,
+    "bin_size": 72333312,
+    "bin_mb": 69.0,
+    "hdr_file": "test_images/09-1-8/09-1-8.HDR",
+    "bin_file": "test_images/09-1-8/09-1-8",
+    "subdir": "09-1-8"
+  }
+]
