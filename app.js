@@ -29,33 +29,45 @@ let roiP=[],curP=[],drawing=false,roiM=null;
 let testImages=[],selTest=null;
 
 // ═══════════════════════ Init ═══════════════════════
-const device = {os:'unknown',browser:'unknown',memoryGB:null,isTouch:false,isLowMemory:false,gpu:null,glVendor:'',webgl:null,isIPad:false};
-function detectDevice(){const ua=navigator.userAgent;const p=navigator.platform||'';
-  if(/iPhone|iPad|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1))device.os='ios';
-  else if(/Android/.test(ua)){device.os='android';
-    if(/Huawei|Honor|HUAWEI|HONOR/.test(ua))device.browser='huawei';
-    else if(/OPPO|PAAM|PACM/.test(ua))device.browser='oppo';
-    else if(/vivo|V182|V19|V20/.test(ua))device.browser='vivo';
-    else if(/Miui|Xiaomi|Redmi|MI |MIX/.test(ua))device.browser='xiaomi';
-    else if(/Samsung|SM-/.test(ua))device.browser='samsung';
-  }
-  if(/Safari/.test(ua)&&!/Chrome|CriOS/.test(ua))device.browser='safari';
-  else if(/Chrome|CriOS/.test(ua))device.browser='chrome';
-  else if(/Firefox/.test(ua))device.browser='firefox';
+const device = {os:'unknown',browser:'unknown',brand:'',memoryGB:null,isTouch:false,isLowMemory:false,isIPad:false};
+function detectDevice(){const ua=navigator.userAgent,p=navigator.platform||'';
+  // ── OS ──
+  if(/iPhone|iPad|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1)){device.os='ios';device.isIPad=!/iPhone|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1)}
+  else if(/Android|HarmonyOS/i.test(ua))device.os='android';
+  else if(/Mac|Macintosh/i.test(ua)||p==='MacIntel')device.os='macos';
+  else if(/Windows|Win/i.test(ua)||/Win/.test(p))device.os='windows';
+  else if(/Linux/i.test(ua))device.os='linux';
+  // ── Browser (check branded browsers first, then generic) ──
+  if(/SamsungBrowser/i.test(ua))device.browser='samsung';
+  else if(/HuaweiBrowser|HBPC/i.test(ua))device.browser='huawei';
+  else if(/OPR|Opera/i.test(ua))device.browser='opera';
+  else if(/Firefox/i.test(ua)&&!/Seamonkey/i.test(ua))device.browser='firefox';
+  else if(/Edg/i.test(ua))device.browser='edge';
+  else if(/CriOS/i.test(ua))device.browser='chrome';
+  else if(/Chrome/i.test(ua))device.browser='chrome';
+  else if(/Safari/i.test(ua))device.browser='safari';
+  // ── Device brand (Android manufacturers) ──
+  if(/Huawei|Honor|HARMONY/i.test(ua))device.brand='Huawei';
+  else if(/OPPO|PAAM|PACM|CPH|RMX/i.test(ua))device.brand='OPPO';
+  else if(/vivo|V1[89]|V2[0-9]/i.test(ua))device.brand='vivo';
+  else if(/Xiaomi|Redmi|Mi |POCO|M20[0-9]/i.test(ua))device.brand='Xiaomi';
+  else if(/Samsung|SM-/i.test(ua))device.brand='Samsung';
+  else if(/OnePlus|LE2|KB2/i.test(ua))device.brand='OnePlus';
+  else if(/Pixel/i.test(ua))device.brand='Pixel';
+  else if(/iPhone|iPad|iPod/i.test(ua))device.brand='Apple';
   device.isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
   device.memoryGB=navigator.deviceMemory||null;
   device.isLowMemory=device.memoryGB!==null&&device.memoryGB<4;
-  device.isIPad=device.os==='ios'&&(p==='MacIntel'||/iPad/.test(ua));
   return device}
 detectDevice();
 
-function showDeviceInfo(){const icon=document.getElementById('deviceIcon'),label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
-  let devName=device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop');
-  const items=[devName];
+function showDeviceInfo(){const label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
+  let devName=device.brand||(device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop'));
+  const items=[];
   if(device.memoryGB)items.push(device.memoryGB+'GB');
   items.push(navigator.hardwareConcurrency+' cores');
   if(device.browser&&device.browser!=='unknown')items.push(device.browser);
-  icon.textContent='📱';label.textContent=items.join(' · ');
+  label.textContent='📱 '+devName+(items.length?' · '+items.join(' · '):'');
   card.style.borderColor='var(--border)';}
 
 window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
