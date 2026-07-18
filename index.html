@@ -8,67 +8,7 @@
 <meta name="theme-color" content="#060b14">
 <meta name="mobile-web-app-capable" content="yes">
 <title>ToothClassifier</title>
-<style>
-:root{--bg:#060b14;--surface:#0d1525;--surface2:#131d30;--border:#1a2d48;--border-light:#263d5c;--text:#e2e8f0;--text-dim:#94a3b8;--muted:#64748b;--accent:#38bdf8;--accent2:#22d3ee;--green:#34d399;--yellow:#fbbf24;--red:#f87171;--purple:#a78bfa;--radius:16px;--radius-sm:10px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC','Noto Sans JP','HarmonyOS Sans',sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at 50% -20%,rgba(56,189,248,0.05) 0%,transparent 55%),radial-gradient(ellipse at 80% 30%,rgba(167,139,250,0.03) 0%,transparent 50%);color:var(--text);min-height:100vh;min-height:100dvh;padding:max(24px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;align-items:center;line-height:1.5;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-.container{max-width:640px;width:100%}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
-.header h1{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:8px}
-.header .icon{font-size:1.5rem}
-.header .sub{display:block;font-size:.7rem;font-weight:400;color:var(--text-dim);margin-top:1px}
-.lang-selector{display:flex;gap:3px;background:var(--surface2);border-radius:999px;padding:3px;border:1px solid var(--border)}
-.lang-selector button{width:32px;height:28px;border-radius:999px;border:none;background:transparent;color:var(--muted);font-size:.68rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .25s;display:flex;align-items:center;justify-content:center}
-.lang-selector button.active{background:var(--accent);color:#060b14;font-weight:700;box-shadow:0 2px 10px rgba(56,189,248,.25)}
-.lang-selector button:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 18px 20px;margin-bottom:14px;transition:all .25s}
-.card:hover{border-color:var(--border-light)}
-.card h2{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.card h2 .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
-select,input[type=text]{width:100%;padding:11px 14px;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;background:var(--surface2);color:var(--text);border:1px solid var(--border);margin-top:7px;transition:all .25s;appearance:none;-webkit-appearance:none}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2364748b' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer}
-select:focus,input:focus,button:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,0.12)}
-button{width:100%;padding:11px 15px;border-radius:var(--radius-sm);font-size:.88rem;font-family:inherit;font-weight:600;cursor:pointer;border:none;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .25s}
-button:active{transform:scale(.97)}button:disabled{opacity:.35;cursor:not-allowed;transform:none}
-@media(hover:none){button:active:not(:disabled){background-blend-mode:overlay;filter:brightness(1.15)}}
-@media(hover:hover){button:hover:not(:disabled){filter:brightness(1.1)}}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#060b14}
-.btn-primary:hover:not(:disabled){box-shadow:0 4px 20px rgba(56,189,248,0.12)}
-.btn-purple{background:var(--purple);color:#fff}
-.btn-purple:hover:not(:disabled){box-shadow:0 4px 18px rgba(167,139,250,.2)}
-.btn-outline{background:transparent;border:1px solid var(--border-light);color:var(--text)}
-.btn-outline:hover:not(:disabled){border-color:var(--accent);background:rgba(56,189,248,.05)}
-.btn-success{background:var(--green);color:#060b14;font-weight:700}
-.btn-success:hover:not(:disabled){box-shadow:0 4px 18px rgba(52,211,153,.2)}
-.btn-sm{width:auto;padding:8px 16px;font-size:.8rem;margin-top:0}
-.btn-row{display:flex;gap:8px;margin-top:8px}.btn-row button{margin-top:0;flex:1}
-.segmented{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;border:1px solid var(--border);margin-bottom:10px}
-.segmented button{flex:1;padding:8px 10px;font-size:.8rem;border-radius:8px;background:transparent;color:var(--muted);border:none;margin-top:0;font-weight:500}
-.segmented button.active{background:var(--accent);color:#060b14;font-weight:700}
-.status{font-size:.78rem;color:var(--muted);text-align:center;min-height:18px;margin:8px 0 2px}
-.status.ok{color:var(--green)}.status.err{color:var(--red)}.status.warn{color:var(--yellow)}
-canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-rendering:auto;margin-top:8px}
-.canvas-container{position:relative;margin-top:8px}
-.canvas-container canvas{position:absolute;top:0;left:0}
-.canvas-container canvas#rgbCanvas{position:relative;z-index:1}
-.canvas-container canvas#drawCanvas{z-index:2;cursor:crosshair}
-.progress-bar{height:3px;background:var(--border);border-radius:3px;margin-top:10px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .3s;width:0;border-radius:3px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.stat{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;border:1px solid var(--border)}
-.stat .value{font-size:1.15rem;font-weight:700;color:var(--accent)}
-.stat .label{font-size:.68rem;color:var(--muted);margin-top:3px}
-.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.72rem}
-.legend-item{display:flex;align-items:center;gap:5px}
-.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.warning{background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:.76rem;color:var(--yellow);margin-bottom:14px;text-align:center}
-.hint{font-size:.72rem;color:var(--muted);margin-top:6px;text-align:center}
-.info-tag{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;padding:3px 8px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.card.fade-in{animation:fadeIn .35s ease-out}
-@media(max-width:420px){body{font-size:15px}.card{padding:14px}.header h1{font-size:1.2rem}.lang-selector button{width:28px;height:24px;font-size:.6rem}}
-@media(min-width:768px){.container{max-width:720px}.stats{grid-template-columns:repeat(4,1fr)}button{padding:13px 18px;font-size:.92rem}select{padding:12px 16px;font-size:.9rem}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
@@ -76,7 +16,8 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
     <h1><span class="icon">🦷</span><span><span data-i18n="title">ToothClassifier</span><span class="sub"><span data-i18n="subtitle1">Hyperspectral Dental Tissue Classification</span> · <span data-i18n="subtitle2">Edge Inference</span></span></span></h1>
     <div class="lang-selector" id="langSelector"></div>
   </div>
-  <!-- Device info & compatibility -->
+
+  <!-- Device info -->
   <div class="card" id="deviceCard" style="padding:12px 16px;font-size:0.75rem;margin-bottom:10px">
     <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="document.getElementById('deviceDetail').style.display=document.getElementById('deviceDetail').style.display==='none'?'block':'none'">
       <span><span id="deviceIcon"></span> <span id="deviceLabel" data-i18n="deviceDetecting">Detecting device...</span></span>
@@ -88,6 +29,7 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
     </div>
   </div>
 
+  <!-- Model -->
   <div class="card"><h2><span class="dot"></span> <span data-i18n="modelHeading">Model</span></h2>
     <select id="modelSelect">
       <option value="resnet_original" selected>ResNet-1D original (★ recommended OA≈0.944)</option>
@@ -102,6 +44,7 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
     <div class="status" id="modelStatus" data-i18n="modelStatusInit"></div>
   </div>
 
+  <!-- Operations -->
   <div class="card"><h2><span class="dot"></span> <span data-i18n="opsHeading">Operations</span></h2>
     <button class="btn-primary" id="loadModelBtn" onclick="loadModel()" data-i18n="loadModelBtn">Load Model</button>
     <div class="segmented" style="margin-top:10px" id="sourceToggle">
@@ -126,6 +69,7 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
     <div class="status" id="status"></div>
   </div>
 
+  <!-- Preview + ROI -->
   <div class="card fade-in" id="previewCard" style="display:none">
     <h2><span class="dot"></span> <span data-i18n="previewHeading">RGB Preview</span></h2>
     <div class="canvas-container" id="canvasContainer"><canvas id="rgbCanvas"></canvas><canvas id="drawCanvas"></canvas></div>
@@ -133,6 +77,7 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
     <div class="btn-row"><button class="btn-outline btn-sm" onclick="clearROI()" data-i18n="clearROIBtn">Clear</button><button class="btn-outline btn-sm" onclick="undoLastROI()" data-i18n="undoROIBtn">Undo</button></div>
   </div>
 
+  <!-- Results -->
   <div class="card fade-in" id="resultsCard" style="display:none">
     <h2><span class="dot"></span> <span data-i18n="resultsHeading">Results</span></h2>
     <canvas id="resultCanvas"></canvas>
@@ -142,134 +87,6 @@ canvas{width:100%;border-radius:8px;border:1px solid var(--border);image-renderi
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.webgpu.min.js"></script>
-<script>
-// ═══════════════════════ i18n ═══════════════════════
-const LANG = {
-  zh:{title:'ToothClassifier',subtitle1:'高光谱牙齿组织分类',subtitle2:'边缘推理',deviceDetecting:'正在检测设备...',deviceOK:'✓ 设备兼容 — WebGL 可用',deviceWarn:'⚠ 兼容性未知 — 可能无法正常运行',deviceFail:'✗ 设备不支持 WebGL — 无法运行',deviceTapHint:'点击查看详情',deviceDisclaimer:'免责声明：此检测仅读取浏览器提供的设备型号、GPU 名称和 WebGL 支持状态。不会获取您的IMEI、手机号、位置、相册、通讯录、剪贴板等任何个人隐私信息，所有检测均在您的设备本地完成，不向任何服务器发送数据。',modelHeading:'模型',opsHeading:'操作',modelStatusInit:'点击「加载模型」开始',loadModelBtn:'📦 加载模型',sourceLocal:'📁 本地文件',sourceTest:'🖼️ 测试图像',runBtn:'📁 选择 HDR + 二进制文件',testSelectDefault:'正在加载测试图像列表...',testSelectPlaceholder:'选择测试图像...',loadTestBtn:'📥 加载选中图像',inferROIBtn:'🎯 推理圈选区域',inferAllBtn:'🖼️ 推理整幅图像',previewHeading:'RGB 预览 (R:639.63/G:551/B:468.9nm) — 圈画推理区域',roiHint:'👆 在图上圈画 ROI 区域（可多次绘制）',clearROIBtn:'✕ 清除',undoROIBtn:'↩ 撤销',resultsHeading:'推理结果',saveBtn:'💾 保存到相册',legendBg:'背景',legendEnamel:'釉质',legendEarly:'早期龋',legendDeveloped:'进展龋',legendCalculus:'牙结石',statTime:'推理耗时',statPixels:'推理像素',statTooth:'牙体像素',statCaries:'龋坏比例',ortReady:'ONNX Runtime Web 就绪 ✓',ortLoading:'加载 ONNX Runtime...',ortFailed:'加载失败: ',modelLoading:'加载 {0}...',modelLoaded:'✓ {0} 已加载 ({1}通道)',modelFailed:'加载失败: ',readingHDR:'读取 HDR...',imageInfo:'图像: {0}×{1}×{2} 波段',hdrError:'HDR 格式错误',unsupportedBands:'不支持的波段数: {0}（需244或256）',imageReady:'✓ 加载完毕。请在预览图上圈画 ROI。',downloading:'下载中 ({0}MB)...',downloaded:'已下载 {0}MB',preparingInfer:'准备推理...',inferring:'推理中... {0} 像素',noPixelError:'无有效像素',doneROI:'✓ ROI {0} 像素，{1}秒',doneFull:'✓ 全图 {0} 像素，{1}秒',errorPrefix:'错误: ',selectBoth:'请同时选择 HDR 和二进制文件',noHDR:'未找到 HDR 文件',noDAT:'未找到二进制文件',drawROIFirst:'请先圈画 ROI',emptyROI:'选区为空',loadFirst:'请先加载模型',manifestFailed:'无法加载测试图像列表',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'},
-  en:{deviceDetecting:'Detecting device...',deviceOK:'✓ Compatible — WebGL available',deviceWarn:'⚠ Compatibility unknown — may not work',deviceFail:'✗ No WebGL — cannot run',deviceTapHint:'tap for details',deviceDisclaimer:'Disclaimer: This check only reads browser-provided device model, GPU name, and WebGL support status. No personal data (IMEI, phone number, location, photos, contacts, clipboard, etc.) is accessed. All checks run locally on your device; no data is sent to any server.',title:'ToothClassifier',subtitle1:'Hyperspectral Dental Tissue Classification',subtitle2:'Edge Inference'modelHeading:'Model',opsHeading:'Operations',modelStatusInit:'Click "Load Model" to start',loadModelBtn:'📦 Load Model',sourceLocal:'📁 Local File',sourceTest:'🖼️ Test Images',runBtn:'📁 Select HDR + Binary File',testSelectDefault:'Loading test images...',testSelectPlaceholder:'Select test image...',loadTestBtn:'📥 Load Selected',inferROIBtn:'🎯 Infer ROI',inferAllBtn:'🖼️ Infer All',previewHeading:'RGB Preview (R:639.63/G:551/B:468.9nm) — Draw ROI',roiHint:'👆 Draw ROI on the image (multiple regions allowed)',clearROIBtn:'✕ Clear',undoROIBtn:'↩ Undo',resultsHeading:'Results',saveBtn:'💾 Save to Photos',legendBg:'Background',legendEnamel:'Enamel',legendEarly:'Early Lesion',legendDeveloped:'Developed Lesion',legendCalculus:'Calculus',statTime:'Inference Time',statPixels:'Pixels Inferred',statTooth:'Tooth Pixels',statCaries:'Caries Ratio',ortReady:'ONNX Runtime Web ready ✓',ortLoading:'Loading ONNX Runtime...',ortFailed:'Load failed: ',modelLoading:'Loading {0}...',modelLoaded:'✓ {0} loaded ({1}ch)',modelFailed:'Load failed: ',readingHDR:'Reading HDR...',imageInfo:'Image: {0}×{1}×{2} bands',hdrError:'HDR format error',unsupportedBands:'Unsupported band count: {0} (need 244/256)',imageReady:'✓ Loaded. Draw ROI on the preview.',downloading:'Downloading ({0}MB)...',downloaded:'Downloaded {0}MB',preparingInfer:'Preparing...',inferring:'Inferring {0} pixels...',noPixelError:'No valid pixels',doneROI:'✓ ROI {0} px in {1}s',doneFull:'✓ Full {0} px in {1}s',errorPrefix:'Error: ',selectBoth:'Select both HDR and binary file',noHDR:'HDR file not found',noDAT:'Binary file not found',drawROIFirst:'Draw ROI first',emptyROI:'Selection is empty',loadFirst:'Load model first',manifestFailed:'Failed to load test image list',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'},
-  ja:{deviceDetecting:'デバイスを検出中...',deviceOK:'✓ 互換性あり — WebGL 使用可能',deviceWarn:'⚠ 互換性不明 — 動作しない可能性あり',deviceFail:'✗ WebGL非対応 — 実行不可',deviceTapHint:'タップで詳細',deviceDisclaimer:'免責事項：このチェックはブラウザが提供するデバイスモデル、GPU名、WebGLサポート状態のみを読み取ります。IMEI、電話番号、位置情報、写真、連絡先、クリップボード等の個人情報には一切アクセスしません。すべてのチェックはデバイス上でローカルに実行され、サーバーにデータは送信されません。',title:'ToothClassifier',subtitle1:'ハイパースペクトル歯組織分類',subtitle2:'エッジ推論'modelHeading:'モデル',opsHeading:'操作',modelStatusInit:'「モデルを読み込む」をクリック',loadModelBtn:'📦 モデル読み込み',sourceLocal:'📁 ローカル',sourceTest:'🖼️ テスト画像',runBtn:'📁 HDR+バイナリ選択',testSelectDefault:'読み込み中...',testSelectPlaceholder:'画像を選択...',loadTestBtn:'📥 読み込み',inferROIBtn:'🎯 ROI推論',inferAllBtn:'🖼️ 全体推論',previewHeading:'RGBプレビュー — ROI描画',roiHint:'👆 ROIを描画',clearROIBtn:'✕ クリア',undoROIBtn:'↩ 元に戻す',resultsHeading:'結果',saveBtn:'💾 保存',legendBg:'背景',legendEnamel:'エナメル質',legendEarly:'初期う蝕',legendDeveloped:'進行う蝕',legendCalculus:'歯石',statTime:'時間',statPixels:'推論px',statTooth:'歯px',statCaries:'う蝕率',ortReady:'ONNX Runtime 準備完了 ✓',ortLoading:'読込中...',ortFailed:'失敗: ',modelLoading:'{0} 読込中...',modelLoaded:'✓ {0} ({1}ch)',modelFailed:'失敗: ',readingHDR:'HDR読込...',imageInfo:'画像: {0}×{1}×{2}',hdrError:'HDRエラー',unsupportedBands:'未対応バンド数: {0}',imageReady:'✓ 完了',downloading:'DL中 ({0}MB)...',downloaded:'DL完了 {0}MB',preparingInfer:'準備中...',inferring:'推論中 {0}px...',noPixelError:'pxなし',doneROI:'✓ ROI {0}px {1}秒',doneFull:'✓ 全体 {0}px {1}秒',errorPrefix:'エラー: ',selectBoth:'HDR+バイナリ選択',noHDR:'HDRなし',noDAT:'バイナリなし',drawROIFirst:'ROI描画',emptyROI:'選択空',loadFirst:'モデル読込',manifestFailed:'リスト取得失敗',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'},
-  es:{deviceDetecting:'Detectando dispositivo...',deviceOK:'✓ Compatible — WebGL disponible',deviceWarn:'⚠ Compatibilidad desconocida — puede no funcionar',deviceFail:'✗ Sin WebGL — no puede ejecutarse',deviceTapHint:'toque para detalles',deviceDisclaimer:'Aviso: Esta verificación solo lee el modelo del dispositivo, nombre de GPU y soporte WebGL proporcionados por el navegador. No se accede a datos personales (IMEI, teléfono, ubicación, fotos, contactos, portapapeles, etc.). Todas las comprobaciones se ejecutan localmente; no se envían datos a ningún servidor.',title:'ToothClassifier',subtitle1:'Clasificación Hiperespectral Dental',subtitle2:'Inferencia Edge'modelHeading:'Modelo',opsHeading:'Operaciones',modelStatusInit:'Clic "Cargar"',loadModelBtn:'📦 Cargar Modelo',sourceLocal:'📁 Archivo Local',sourceTest:'🖼️ Imágenes Test',runBtn:'📁 Seleccionar HDR+Binario',testSelectDefault:'Cargando lista...',testSelectPlaceholder:'Seleccionar imagen...',loadTestBtn:'📥 Cargar',inferROIBtn:'🎯 Inferir ROI',inferAllBtn:'🖼️ Inferir Todo',previewHeading:'Vista RGB — Dibujar ROI',roiHint:'👆 Dibuje ROI',clearROIBtn:'✕ Limpiar',undoROIBtn:'↩ Deshacer',resultsHeading:'Resultados',saveBtn:'💾 Guardar',legendBg:'Fondo',legendEnamel:'Esmalte',legendEarly:'Lesión Temprana',legendDeveloped:'Lesión Avanzada',legendCalculus:'Cálculo',statTime:'Tiempo',statPixels:'Pixels',statTooth:'Diente',statCaries:'Caries',ortReady:'ONNX Runtime listo ✓',ortLoading:'Cargando...',ortFailed:'Error: ',modelLoading:'Cargando {0}...',modelLoaded:'✓ {0} ({1}can)',modelFailed:'Error: ',readingHDR:'Leyendo HDR...',imageInfo:'Imagen: {0}×{1}×{2}',hdrError:'Error HDR',unsupportedBands:'Bandas no soportadas: {0}',imageReady:'✓ Listo',downloading:'Descargando ({0}MB)...',downloaded:'Descargado {0}MB',preparingInfer:'Preparando...',inferring:'Inferiendo {0}px...',noPixelError:'Sin pixels',doneROI:'✓ ROI {0}px {1}s',doneFull:'✓ Todo {0}px {1}s',errorPrefix:'Error: ',selectBoth:'Seleccione HDR+binario',noHDR:'Sin HDR',noDAT:'Sin binario',drawROIFirst:'Dibuje ROI',emptyROI:'Vacío',loadFirst:'Cargue modelo',manifestFailed:'Error al cargar lista',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'},
-  ko:{deviceDetecting:'장치 감지 중...',deviceOK:'✓ 호환됨 — WebGL 사용 가능',deviceWarn:'⚠ 호환성 알 수 없음 — 작동하지 않을 수 있음',deviceFail:'✗ WebGL 미지원 — 실행 불가',deviceTapHint:'탭하여 상세 보기',deviceDisclaimer:'면책 조항: 이 검사는 브라우저가 제공하는 기기 모델, GPU 이름 및 WebGL 지원 상태만 읽습니다. IMEI, 전화번호, 위치, 사진, 연락처, 클립보드 등 개인 정보에는 접근하지 않습니다. 모든 검사는 기기에서 로컬로 실행되며 서버로 데이터가 전송되지 않습니다.',title:'ToothClassifier',subtitle1:'초분광 치아 조직 분류',subtitle2:'엣지 추론'modelHeading:'모델',opsHeading:'작업',modelStatusInit:'"모델 로드" 클릭',loadModelBtn:'📦 모델 로드',sourceLocal:'📁 로컬 파일',sourceTest:'🖼️ 테스트 이미지',runBtn:'📁 HDR+바이너리 선택',testSelectDefault:'목록 로드 중...',testSelectPlaceholder:'이미지 선택...',loadTestBtn:'📥 불러오기',inferROIBtn:'🎯 ROI 추론',inferAllBtn:'🖼️ 전체 추론',previewHeading:'RGB 미리보기 — ROI 그리기',roiHint:'👆 ROI 그리기',clearROIBtn:'✕ 지우기',undoROIBtn:'↩ 실행취소',resultsHeading:'결과',saveBtn:'💾 저장',legendBg:'배경',legendEnamel:'법랑질',legendEarly:'초기우식',legendDeveloped:'진행우식',legendCalculus:'치석',statTime:'시간',statPixels:'추론px',statTooth:'치아px',statCaries:'우식률',ortReady:'ONNX Runtime 준비 ✓',ortLoading:'로드 중...',ortFailed:'실패: ',modelLoading:'{0} 로드 중...',modelLoaded:'✓ {0} ({1}채널)',modelFailed:'실패: ',readingHDR:'HDR 읽는 중...',imageInfo:'이미지: {0}×{1}×{2}',hdrError:'HDR 오류',unsupportedBands:'지원 안 됨: {0}',imageReady:'✓ 완료',downloading:'다운로드 중 ({0}MB)...',downloaded:'완료 {0}MB',preparingInfer:'준비 중...',inferring:'추론 중 {0}px...',noPixelError:'px 없음',doneROI:'✓ ROI {0}px {1}초',doneFull:'✓ 전체 {0}px {1}초',errorPrefix:'오류: ',selectBoth:'HDR+바이너리 선택',noHDR:'HDR 없음',noDAT:'바이너리 없음',drawROIFirst:'ROI 그리기',emptyROI:'빈 영역',loadFirst:'모델 로드',manifestFailed:'목록 로드 실패',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'},
-  fr:{deviceDetecting:'Détection de l\'appareil...',deviceOK:'✓ Compatible — WebGL disponible',deviceWarn:'⚠ Compatibilité inconnue — peut ne pas fonctionner',deviceFail:'✗ Pas de WebGL — impossible d\'exécuter',deviceTapHint:'appuyez pour détails',deviceDisclaimer:'Avertissement : Cette vérification lit uniquement le modèle de l\'appareil, le nom du GPU et la prise en charge WebGL fournis par le navigateur. Aucune donnée personnelle (IMEI, téléphone, localisation, photos, contacts, presse-papiers, etc.) n\'est consultée. Toutes les vérifications s\'exécutent localement ; aucune donnée n\'est envoyée à un serveur.',title:'ToothClassifier',subtitle1:'Classification Hyper-spectrale Dentaire',subtitle2:'Inférence Edge'modelHeading:'Modèle',opsHeading:'Opérations',modelStatusInit:'Cliquez "Charger"',loadModelBtn:'📦 Charger',sourceLocal:'📁 Fichier Local',sourceTest:'🖼️ Images Test',runBtn:'📁 Sélectionner HDR+Binaire',testSelectDefault:'Chargement liste...',testSelectPlaceholder:'Choisir image...',loadTestBtn:'📥 Charger',inferROIBtn:'🎯 Inférer ROI',inferAllBtn:'🖼️ Tout Inférer',previewHeading:'Aperçu RGB — Dessiner ROI',roiHint:'👆 Dessinez ROI',clearROIBtn:'✕ Effacer',undoROIBtn:'↩ Annuler',resultsHeading:'Résultats',saveBtn:'💾 Enregistrer',legendBg:'Fond',legendEnamel:'Émail',legendEarly:'Lésion Précoce',legendDeveloped:'Lésion Avancée',legendCalculus:'Tartre',statTime:'Temps',statPixels:'Pixels',statTooth:'Dent',statCaries:'Caries',ortReady:'ONNX Runtime prêt ✓',ortLoading:'Chargement...',ortFailed:'Échec: ',modelLoading:'Chargement {0}...',modelLoaded:'✓ {0} ({1}can)',modelFailed:'Échec: ',readingHDR:'Lecture HDR...',imageInfo:'Image: {0}×{1}×{2}',hdrError:'Erreur HDR',unsupportedBands:'Bandes non supportées: {0}',imageReady:'✓ Prêt',downloading:'Téléchargement ({0}MB)...',downloaded:'Téléchargé {0}MB',preparingInfer:'Préparation...',inferring:'Inférence {0}px...',noPixelError:'Pas de pixels',doneROI:'✓ ROI {0}px {1}s',doneFull:'✓ Tout {0}px {1}s',errorPrefix:'Erreur: ',selectBoth:'Sélectionnez HDR+binaire',noHDR:'Pas de HDR',noDAT:'Pas de binaire',drawROIFirst:'Dessinez ROI',emptyROI:'Vide',loadFirst:'Chargez modèle',manifestFailed:'Erreur liste',imageNameTag:'{0}  —  {1}×{2}  ·  {3}MB'}
-};
-let curLang='zh';
-function t(k,...a){let x=(LANG[curLang]&&LANG[curLang][k])||(LANG.en&&LANG.en[k])||k;for(let i=0;i<a.length;i++)x=x.replace('{'+i+'}',a[i]);return x}
-function applyLang(){document.documentElement.lang=curLang;document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.getAttribute('data-i18n')));document.querySelectorAll('[data-i18n-html]').forEach(e=>e.innerHTML=t(e.getAttribute('data-i18n-html')));const ms=document.getElementById('modelStatus');if(ms&&ms.className==='status')ms.textContent=t('modelStatusInit');const lg=document.getElementById('legend');if(lg)lg.innerHTML=buildLegend()}
-function buildLegend(){return `<div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div><div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div><div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div><div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div><div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>`}
-function initLang(){const sv=localStorage.getItem('tcl');if(sv&&LANG[sv])curLang=sv;else{const m={zh:'zh',ja:'ja',ko:'ko',es:'es',fr:'fr'};curLang=m[(navigator.language||'en').split('-')[0]]||'en'}const sl=document.getElementById('langSelector');const fl={zh:'中',en:'EN',ja:'日',es:'ES',ko:'한',fr:'FR'};for(const[c,l]of Object.entries(fl)){const b=document.createElement('button');b.textContent=l;b.title=c;b.onclick=()=>{curLang=c;localStorage.setItem('tcl',c);applyLang();updateLangBtns()};sl.appendChild(b)}updateLangBtns();applyLang()}
-function updateLangBtns(){const m={中:'zh',EN:'en',日:'ja',ES:'es',한:'ko',FR:'fr'};document.querySelectorAll('#langSelector button').forEach(b=>b.className=(m[b.textContent]===curLang)?'active':'')}
-
-// ═══════════════════════ Source toggle ═══════════════════
-let sourceMode='local';
-function switchSource(m){sourceMode=m;const bt=document.querySelectorAll('#sourceToggle button');bt[0].className=m==='local'?'active':'';bt[1].className=m==='test'?'active':'';document.getElementById('localPanel').style.display=m==='local'?'block':'none';document.getElementById('testPanel').style.display=m==='test'?'block':'none';if(m==='test'&&testImages.length===0)loadManifest()}
-
-// ═══════════════════════ Global state ═══════════════════
-let ortSession=null,curModel='',modelData=null;
-const BB=244,NS=6,NE=6,NC=5,GM=0.330996,GS=0.201596,TR=639.63,TG=551.00,TB=468.90;
-let BS=1024;
-const CL=[[0,0,0],[255,0,0],[0,139,0],[0,0,255],[255,255,0]];
-const MC={resnet_original:{ch:1,dr:false},resnet_original_se:{ch:1,dr:false},resnet_deriv:{ch:3,dr:true},resnet_deriv_se:{ch:3,dr:true},efficientnet_original:{ch:1,dr:false},efficientnet_deriv:{ch:3,dr:true},simple_original:{ch:1,dr:false},vgg_original:{ch:1,dr:false}};
-let sH=0,sW=0,sB=0,sRD=null,sND=null,sWL=null;
-let roiP=[],curP=[],drawing=false,roiM=null;
-let testImages=[],selTest=null;
-
-// ═══════════════════════ Init ═══════════════════════
-const device = {os:'unknown',browser:'unknown',memoryGB:null,isTouch:false,isLowMemory:false,gpu:null,glVendor:'',webgl:null,isIPad:false};
-function detectDevice(){const ua=navigator.userAgent;const p=navigator.platform||'';
-  if(/iPhone|iPad|iPod/.test(ua)||(p==='MacIntel'&&navigator.maxTouchPoints>1))device.os='ios';
-  else if(/Android/.test(ua)){device.os='android';
-    if(/Huawei|Honor|HUAWEI|HONOR/.test(ua))device.browser='huawei';
-    else if(/OPPO|PAAM|PACM/.test(ua))device.browser='oppo';
-    else if(/vivo|V182|V19|V20/.test(ua))device.browser='vivo';
-    else if(/Miui|Xiaomi|Redmi|MI |MIX/.test(ua))device.browser='xiaomi';
-    else if(/Samsung|SM-/.test(ua))device.browser='samsung';
-  }
-  if(/Safari/.test(ua)&&!/Chrome|CriOS/.test(ua))device.browser='safari';
-  else if(/Chrome|CriOS/.test(ua))device.browser='chrome';
-  else if(/Firefox/.test(ua))device.browser='firefox';
-  device.isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
-  device.memoryGB=navigator.deviceMemory||null;
-  device.isLowMemory=device.memoryGB!==null&&device.memoryGB<4;
-  device.isIPad=device.os==='ios'&&(p==='MacIntel'||/iPad/.test(ua));
-  return device}
-detectDevice();
-
-function detectWebGL(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:false})||c.getContext('experimental-webgl',{failIfMajorPerformanceCaveat:false});if(!gl){device.webgl=false;return false}const dbg=gl.getExtension('WEBGL_debug_renderer_info');device.gpu=dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):'';device.glVendor=dbg?gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL):'';gl.getExtension('WEBGL_lose_context')?.loseContext();device.webgl=true;return true}catch(e){device.webgl=false;return false}}
-function gpuLabel(raw){if(!raw)return'';const s=String(raw);if(s.length<=50)return s;const short=s.split(/[/,(]/)[0].replace(/Graphics|GPU/gi,'').trim();return short||s.slice(0,48)+'..'}
-function showDeviceInfo(){const icon=document.getElementById('deviceIcon'),label=document.getElementById('deviceLabel'),specs=document.getElementById('deviceSpecs'),card=document.getElementById('deviceCard');
-  // Show basic info immediately
-  let devName=device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop');
-  icon.textContent='📱';label.textContent=t('deviceDetecting');specs.textContent=devName;card.style.borderColor='var(--border)';
-  // Run WebGL check asynchronously
-  setTimeout(()=>{
-    const hasGL=detectWebGL();
-    const items=[devName];
-    if(device.gpu)items.push(gpuLabel(device.gpu));
-    if(device.memoryGB)items.push(device.memoryGB+'GB');
-    items.push(navigator.hardwareConcurrency+' cores');
-    if(device.browser&&device.browser!=='unknown')items.push(device.browser);
-    specs.textContent=items.join(' · ');
-    icon.textContent=hasGL?'✅':'❌';
-    label.textContent=t(hasGL?'deviceOK':'deviceFail');
-    card.style.borderColor=hasGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)';
-  },50)}
-
-window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
-function applyDeviceTweaks(){if(device.isLowMemory){window.BATCH_SIZE=512;console.log('Low memory device: batch size 512')}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}if(device.isTouch){document.body.classList.add('touch-device')}}
-async function checkORT(){const s=document.getElementById('modelStatus');try{const a=typeof ort!=='undefined';s.textContent=a?t('ortReady'):t('ortLoading');s.className=a?'status ok':'status'}catch(e){s.textContent=t('ortFailed')+e.message;s.className='status err'}}
-async function loadManifest(){try{const r=await fetch('test_images/manifest.json');if(!r.ok)throw new Error('HTTP '+r.status);testImages=await r.json();populateTestSelect()}catch(e){console.log('Manifest:',e.message);const s=document.getElementById('testImageSelect');s.innerHTML=`<option value="">${t('manifestFailed')}</option>`}}
-function populateTestSelect(){const s=document.getElementById('testImageSelect');if(testImages.length===0){s.innerHTML=`<option value="">${t('manifestFailed')}</option>`;return}let h=`<option value="">-- ${t('testSelectPlaceholder')} --</option>`;for(const f of testImages)h+=`<option value="${f.name}">${f.name}  (${f.samples}×${f.lines}, ${f.bin_mb}MB)</option>`;s.innerHTML=h}
-function onTestImageSelect(){const v=document.getElementById('testImageSelect').value;selTest=v?testImages.find(f=>f.name===v):null;const info=document.getElementById('testImageInfo'),btn=document.getElementById('loadTestBtn');if(selTest){info.style.display='block';info.innerHTML=`<span class="info-tag">${t('imageNameTag',selTest.name,selTest.samples,selTest.lines,selTest.bin_mb)}</span>`;btn.style.display='block';btn.disabled=false}else{info.style.display='none';btn.style.display='none'}document.getElementById('testStatus').textContent='';document.getElementById('testStatus').className='status'}
-
-// ═══════════════════════ Model ═══════════════════════
-async function loadModel(){const mn=document.getElementById('modelSelect').value,s=document.getElementById('modelStatus'),b=document.getElementById('loadModelBtn');b.disabled=true;s.textContent=t('modelLoading',mn);s.className='status';try{const r=await fetch(`onnx_models/${mn}.onnx`);if(!r.ok)throw new Error('HTTP '+r.status);const buf=await r.arrayBuffer();modelData=new Uint8Array(buf);ortSession=await ort.InferenceSession.create(modelData,{executionProviders:['webgl','wasm'],graphOptimizationLevel:'all'});curModel=mn;s.textContent=t('modelLoaded',mn,MC[mn].ch);s.className='status ok';document.getElementById('runBtn').disabled=false}catch(e){s.textContent=t('modelFailed')+e.message;s.className='status err'}finally{b.disabled=false}}
-
-// ═══════════════════════ Test image loading ═══════════
-async function loadTestImage(){if(!selTest||!curModel){alert(t('loadFirst'));return}const f=selTest,s=document.getElementById('status'),ts=document.getElementById('testStatus'),pb=document.getElementById('progressBar'),pf=document.getElementById('progressFill'),btn=document.getElementById('loadTestBtn');btn.disabled=true;ts.textContent='';ts.className='status';pb.style.display='block';pf.style.width='0%';document.getElementById('resultsCard').style.display='none';document.getElementById('inferROIBtn').style.display='none';document.getElementById('inferAllBtn').style.display='none';try{await loadPreviewJPEG(f)}catch(e){console.log('preview skip:',e)}s.textContent=t('readingHDR');s.className='status';try{const hdrR=await fetch(f.hdr_file);if(!hdrR.ok)throw new Error('HDR '+hdrR.status);const hdrT=await hdrR.text();s.textContent=t('downloading',f.bin_mb);const binR=await fetch(f.bin_file);if(!binR.ok)throw new Error('Bin '+binR.status);const cl=+binR.headers.get('Content-Length')||f.bin_size,rd=binR.body.getReader(),cs=[];let rc=0;while(true){const{done,value}=await rd.read();if(done)break;cs.push(value);rc+=value.length;pf.style.width=(rc/cl*100)+'%'}const buf=new Uint8Array(rc);let off=0;for(const c of cs){buf.set(c,off);off+=c.length}s.textContent=t('downloaded',(rc/1048576).toFixed(1));pf.style.width='100%';await processLoaded(hdrT,buf.buffer)}catch(e){s.textContent=t('errorPrefix')+e.message;s.className='status err';ts.textContent=e.message;ts.className='status err'}finally{pb.style.display='none';btn.disabled=false}}
-async function loadPreviewJPEG(f){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{const c=document.getElementById('rgbCanvas');c.width=f.samples;c.height=f.lines;c.getContext('2d').drawImage(img,0,0,f.samples,f.lines);const dc=document.getElementById('drawCanvas');dc.width=f.samples;dc.height=f.lines;document.getElementById('previewCard').style.display='block';updateCanvasContainer();roiP=[];curP=[];roiM=null;redrawAll();resolve(img)};img.onerror=reject;img.src=f.preview_jpg})}
-
-// ═══════════════════════ Local file ═══════════════════
-function selectFiles(){if(!curModel){alert(t('loadFirst'));return}document.getElementById('fileInput').click()}
-async function handleFiles(ev){const files=ev.target.files;if(!files||files.length<2){alert(t('selectBoth'));return}let hf=null,bf=null;for(const f of files){const l=f.name.toLowerCase();if(l.endsWith('.hdr'))hf=f;else if(l.endsWith('.dat')||l.endsWith('.img'))bf=f;else if(!f.name.includes('.'))bf=f}if(!hf){for(const f of files)if(f!==bf)hf=f}if(!bf){for(const f of files)if(f!==hf)bf=f}if(!hf){alert(t('noHDR'));return}if(!bf){alert(t('noDAT'));return}const s=document.getElementById('status'),pb=document.getElementById('progressBar'),pf=document.getElementById('progressFill');s.textContent=t('readingHDR');s.className='status';pb.style.display='block';pf.style.width='0%';document.getElementById('resultsCard').style.display='none';try{const ht=await hf.text(),bb=await bf.arrayBuffer();pf.style.width='100%';await processLoaded(ht,bb)}catch(e){s.textContent=t('errorPrefix')+e.message;s.className='status err'}finally{pb.style.display='none'}}
-
-// ═══════════════════════ Core processing ═══════════════
-async function processLoaded(hdrT,binBuf){const s=document.getElementById('status');const hdr=parseHDR(hdrT);const H=hdr.lines,W=hdr.samples,nB=hdr.bands;if(!H||!W||!nB)throw new Error(t('hdrError'));s.textContent=t('imageInfo',H,W,nB);const te=H*W*nB;let rd=parseBin(binBuf,hdr.dt,hdr.bo,te);rd=reorder(rd,H,W,nB,hdr.il);let rr=new Float32Array(rd);let wl=hdr.wl,bu=nB;if(nB===256){rd=cropBands(rd,H,W,nB);rr=cropBands(rr,H,W,nB);if(wl&&wl.length===256)wl=wl.slice(NS,NS+BB);bu=BB}else if(nB!==BB)throw new Error(t('unsupportedBands',nB));sH=H;sW=W;sB=bu;sWL=wl||null;showRGB(rr,H,W,bu,sWL);normalize(rd,GM,GS);sND=rd;sRD=rr;document.getElementById('inferROIBtn').style.display='block';document.getElementById('inferAllBtn').style.display='block';document.getElementById('inferROIBtn').disabled=true;document.getElementById('inferAllBtn').disabled=false;roiP=[];curP=[];roiM=null;redrawAll();s.textContent=t('imageReady');s.className='status ok'}
-
-// ═══════════════════════ RGB preview ═══════════════════
-function showRGB(rd,H,W,bn,wl){let iR,iG,iB;if(wl&&wl.length===bn){iR=findClosest(wl,TR);iG=findClosest(wl,TG);iB=findClosest(wl,TB)}else{iR=102;iG=65;iB=30}const nP=H*W,rC=new Float32Array(nP),gC=new Float32Array(nP),bC=new Float32Array(nP);for(let p=0;p<nP;p++){const ba=p*bn;rC[p]=rd[ba+iR];gC[p]=rd[ba+iG];bC[p]=rd[ba+iB]}function pct(arr,p){const s=new Float32Array(arr).sort();return s[Math.floor(p/100*(s.length-1))]}const rMin=pct(rC,2),rMax=pct(rC,98),gMin=pct(gC,2),gMax=pct(gC,98),bMin=pct(bC,2),bMax=pct(bC,98);function sc(v,min,max){if(max<=min)return 128;return Math.max(0,Math.min(255,(v-min)/(max-min)*255))}const c=document.getElementById('rgbCanvas');c.width=W;c.height=H;const ctx=c.getContext('2d'),img=ctx.createImageData(W,H);for(let p=0;p<nP;p++){const o=p*4;img.data[o]=sc(rC[p],rMin,rMax);img.data[o+1]=sc(gC[p],gMin,gMax);img.data[o+2]=sc(bC[p],bMin,bMax);img.data[o+3]=255}ctx.putImageData(img,0,0);const dc=document.getElementById('drawCanvas');dc.width=W;dc.height=H;document.getElementById('previewCard').style.display='block';updateCanvasContainer()}
-function updateCanvasContainer(){const c=document.getElementById('rgbCanvas'),ct=document.getElementById('canvasContainer');if(c.clientHeight>0)ct.style.height=c.clientHeight+'px'}
-window.addEventListener('load',()=>setTimeout(updateCanvasContainer,500));window.addEventListener('resize',()=>setTimeout(updateCanvasContainer,500));
-
-// ═══════════════════════ ROI drawing ═══════════════════
-function setupDrawCanvas(){const c=document.getElementById('drawCanvas');function getPos(e){const r=c.getBoundingClientRect(),sX=c.width/r.width,sY=c.height/r.height;let cx,cy;if(e.touches){if(e.touches.length===0)return null;cx=e.touches[0].clientX;cy=e.touches[0].clientY}else{cx=e.clientX;cy=e.clientY}return{x:Math.round((cx-r.left)*sX),y:Math.round((cy-r.top)*sY)}}function onStart(e){e.preventDefault();const p=getPos(e);if(!p)return;drawing=true;curP=[p];redrawAll()}function onMove(e){e.preventDefault();if(!drawing)return;const p=getPos(e);if(!p)return;const l=curP[curP.length-1];if(l&&Math.abs(p.x-l.x)+Math.abs(p.y-l.y)<3)return;curP.push(p);drawCur()}function onEnd(e){e.preventDefault();if(!drawing)return;drawing=false;if(curP.length>=3){roiP.push({pts:[...curP]});curP=[];redrawAll()}else{curP=[];redrawAll()}document.getElementById('inferROIBtn').disabled=(roiP.length===0)}c.addEventListener('mousedown',onStart);c.addEventListener('mousemove',onMove);c.addEventListener('mouseup',onEnd);c.addEventListener('mouseleave',onEnd);c.addEventListener('touchstart',onStart,{passive:false});c.addEventListener('touchmove',onMove,{passive:false});c.addEventListener('touchend',onEnd,{passive:false})}
-function drawCur(){redrawAll();if(curP.length>=1){const ctx=document.getElementById('drawCanvas').getContext('2d');drawPoly(ctx,curP,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true)}}
-function redrawAll(){const c=document.getElementById('drawCanvas'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);for(const p of roiP)drawPoly(ctx,p.pts,'rgba(56,189,248,0.25)','rgba(56,189,248,0.8)',false);if(curP.length>=1)drawPoly(ctx,curP,'rgba(56,189,248,0.4)','rgba(56,189,248,0.9)',true)}
-function drawPoly(ctx,pts,fill,stroke,isCur){if(pts.length<1)return;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);if(!isCur&&pts.length>=3)ctx.closePath();ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.setLineDash(isCur?[5,5]:[]);ctx.stroke();if(!isCur&&pts.length>=3){ctx.fillStyle=fill;ctx.fill()}}
-function clearROI(){roiP=[];curP=[];roiM=null;redrawAll();document.getElementById('inferROIBtn').disabled=true}
-function undoLastROI(){if(roiP.length>0){roiP.pop();redrawAll();document.getElementById('inferROIBtn').disabled=(roiP.length===0)}}
-
-// ═══════════════════════ Mask ═══════════════════════
-function buildMask(){if(roiP.length===0)return null;const nP=sH*sW,mask=new Uint8Array(nP);for(const poly of roiP){const pts=poly.pts;if(pts.length<3)continue;let mnX=Infinity,mxX=-Infinity,mnY=Infinity,mxY=-Infinity;for(const p of pts){if(p.x<mnX)mnX=p.x;if(p.x>mxX)mxX=p.x;if(p.y<mnY)mnY=p.y;if(p.y>mxY)mxY=p.y}mnX=Math.max(0,Math.floor(mnX));mxX=Math.min(sW-1,Math.ceil(mxX));mnY=Math.max(0,Math.floor(mnY));mxY=Math.min(sH-1,Math.ceil(mxY));for(let y=mnY;y<=mxY;y++)for(let x=mnX;x<=mxX;x++)if(pip(x,y,pts))mask[y*sW+x]=1}return mask}
-function pip(px,py,p){let inside=false;const n=p.length;for(let i=0,j=n-1;i<n;j=i++)if((p[i].y>py)!==(p[j].y>py)&&px<(p[j].x-p[i].x)*(py-p[i].y)/(p[j].y-p[i].y)+p[i].x)inside=!inside;return inside}
-
-// ═══════════════════════ Inference ═══════════════════
-async function runROIInference(){const mask=buildMask();if(!mask){alert(t('drawROIFirst'));return}const n=mask.reduce((s,v)=>s+v,0);if(n===0){alert(t('emptyROI'));return}roiM=mask;await runMaskedInference(mask)}
-async function runFullInference(){roiM=null;await runMaskedInference(null)}
-async function runMaskedInference(mask){const H=sH,W=sW,bn=sB,nP=H*W;const s=document.getElementById('status'),pb=document.getElementById('progressBar'),pf=document.getElementById('progressFill');s.textContent=t('preparingInfer');s.className='status';pb.style.display='block';pf.style.width='0%';try{const t0=performance.now();let vi;if(mask){vi=[];for(let i=0;i<nP;i++)if(mask[i])vi.push(i)}else{vi=new Array(nP);for(let i=0;i<nP;i++)vi[i]=i}const nV=vi.length;if(nV===0)throw new Error(t('noPixelError'));const cfg=MC[curModel],ch=cfg.ch,fs=ch*bn;const feats=new Float32Array(nV*fs);for(let i=0;i<nV;i++){const pI=vi[i],src=pI*bn,dst=i*fs,sp=sND.slice(src,src+bn);if(cfg.dr){const d1=sgDeriv(sp,SC1),d2=sgDeriv(sp,SC2);for(let j=0;j<bn;j++){feats[(i*3+0)*bn+j]=sp[j];feats[(i*3+1)*bn+j]=d1[j];feats[(i*3+2)*bn+j]=d2[j]}}else{for(let j=0;j<bn;j++)feats[dst+j]=sp[j]}}s.textContent=t('inferring',nV.toLocaleString());const vp=new Int32Array(nV),sess=ortSession;for(let st=0;st<nV;st+=BS){const end=Math.min(st+BS,nV),cnt=end-st,bd=new Float32Array(cnt*fs);for(let p=0;p<cnt;p++){const so=(st+p)*fs;for(let j=0;j<fs;j++)bd[p*fs+j]=feats[so+j]}const tensor=new ort.Tensor('float32',bd,[cnt,ch,bn]),r=await sess.run({spectrum:tensor}),logits=r.logits.data;for(let p=0;p<cnt;p++){let mx=-Infinity,mi=0;for(let c=0;c<NC;c++){if(logits[p*NC+c]>mx){mx=logits[p*NC+c];mi=c}}vp[st+p]=mi}pf.style.width=(end/nV*100)+'%'}const fp=new Int32Array(nP);for(let i=0;i<nV;i++)fp[vi[i]]=vp[i];const el=(performance.now()-t0)/1000;renderResult(fp,H,W,el,nV);s.textContent=mask?t('doneROI',nV.toLocaleString(),el.toFixed(2)):t('doneFull',nV.toLocaleString(),el.toFixed(2));s.className='status ok'}catch(e){s.textContent=t('errorPrefix')+e.message;s.className='status err'}finally{pb.style.display='none'}}
-
-// ═══════════════════════ HDR / Binary parsing ═════════
-function parseHDR(text){const info={};for(const line of text.split(/\r?\n/)){const t=line.trim();if(!t||t.startsWith(';'))continue;const eq=t.indexOf('=');if(eq===-1)continue;info[t.substring(0,eq).trim().toLowerCase()]=t.substring(eq+1).trim()}let wl=null;if(info.wavelength){const m=text.match(/wavelength\s*=\s*\{([^}]+)\}/s);if(m)wl=m[1].split(/[\s,]+/).map(v=>parseFloat(v)).filter(v=>!isNaN(v))}return{lines:parseInt(info.lines)||0,samples:parseInt(info.samples)||0,bands:parseInt(info.bands)||0,dt:parseInt(info['data type']||'4'),bo:parseInt(info['byte order']||'0'),il:(info.interleave||'bsq').toLowerCase(),wl}}
-function findClosest(wl,t){let bi=0,bd=Infinity;for(let i=0;i<wl.length;i++){const d=Math.abs(wl[i]-t);if(d<bd){bd=d;bi=i}}return bi}
-function parseBin(buf,dt,bo,te){const be=(bo===1),dv=new DataView(buf),r=new Float32Array(te);switch(dt){case 1:{const u=new Uint8Array(buf);for(let i=0;i<te;i++)r[i]=u[i];break}case 2:for(let i=0;i<te;i++)r[i]=dv.getInt16(i*2,!be);break;case 3:for(let i=0;i<te;i++)r[i]=dv.getInt32(i*4,!be);break;case 4:for(let i=0;i<te;i++)r[i]=dv.getFloat32(i*4,!be);break;case 5:for(let i=0;i<te;i++)r[i]=dv.getFloat64(i*8,!be);break;case 12:for(let i=0;i<te;i++)r[i]=dv.getUint16(i*2,!be);break;default:throw new Error('Type: '+dt)}return r}
-function reorder(d,h,w,b,il){switch(il){case'bil':{const re=new Float32Array(h*w*b);for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let bb=0;bb<b;bb++)re[(y*w+x)*b+bb]=d[y*b*w+bb*w+x];return re}case'bip':{const re=new Float32Array(h*w*b);for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let bb=0;bb<b;bb++)re[(y*w+x)*b+bb]=d[y*w*b+x*b+bb];return re}default:return d}}
-function cropBands(d,h,w,b){const k=b-NS-NE,r=new Float32Array(h*w*k),tp=h*w;for(let p=0;p<tp;p++){const sb=p*b+NS,db=p*k;for(let bb=0;bb<k;bb++)r[db+bb]=d[sb+bb]}return r}
-function normalize(d,mean,std){const is=1/std;for(let i=0;i<d.length;i++)d[i]=(d[i]-mean)*is}
-const SC1=[0.2,0.1,0.0,-0.1,-0.2],SC2=[0.285714,-0.142857,-0.285714,-0.142857,0.285714];
-function sgDeriv(sp,co){const n=sp.length,r=new Float32Array(n),w=co.length,hf=(w-1)/2;for(let i=0;i<n;i++){let s=0;for(let j=0;j<w;j++){let idx=i+j-hf;if(idx<0)idx=0;else if(idx>=n)idx=n-1;s+=sp[idx]*co[j]}r[i]=s}return r}
-
-// ═══════════════════════ Render ═══════════════════════
-function renderResult(pred,H,W,el,totalROI){const c=document.getElementById('resultCanvas');c.width=W;c.height=H;const ctx=c.getContext('2d'),img=ctx.createImageData(W,H),nP=H*W;for(let i=0;i<nP;i++){const[r,g,b]=CL[pred[i]]||[0,0,0],off=i*4;img.data[off]=r;img.data[off+1]=g;img.data[off+2]=b;img.data[off+3]=255}ctx.putImageData(img,0,0);const cnt=new Array(5).fill(0);for(let i=0;i<nP;i++)cnt[pred[i]]++;const tp=cnt[1]+cnt[2]+cnt[3]+cnt[4];document.getElementById('stats').innerHTML=`<div class="stat"><div class="value">${el.toFixed(2)}s</div><div class="label">${t('statTime')}</div></div><div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">${t('statPixels')}</div></div><div class="stat"><div class="value">${tp.toLocaleString()}</div><div class="label">${t('statTooth')}</div></div><div class="stat"><div class="value">${tp>0?((cnt[2]+cnt[3])/tp*100).toFixed(1):'0'}%</div><div class="label">${t('statCaries')}</div></div>`;document.getElementById('legend').innerHTML=buildLegend();document.getElementById('resultsCard').style.display='block';document.getElementById('resultsCard').scrollIntoView({behavior:'smooth'})}
-function saveResult(){const c=document.getElementById('resultCanvas'),a=document.createElement('a');a.download='tooth_prediction.png';a.href=c.toDataURL('image/png');a.click()}
-</script>
+<script src="app.js"></script>
 </body>
 </html>
