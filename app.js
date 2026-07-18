@@ -49,25 +49,14 @@ function detectDevice(){const ua=navigator.userAgent;const p=navigator.platform|
   return device}
 detectDevice();
 
-function detectWebGL(){try{const c=document.createElement('canvas');const gl=c.getContext('webgl',{failIfMajorPerformanceCaveat:false})||c.getContext('experimental-webgl',{failIfMajorPerformanceCaveat:false});if(!gl){device.webgl=false;return false}const dbg=gl.getExtension('WEBGL_debug_renderer_info');device.gpu=dbg?gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL):'';device.glVendor=dbg?gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL):'';gl.getExtension('WEBGL_lose_context')?.loseContext();device.webgl=true;return true}catch(e){device.webgl=false;return false}}
-function gpuLabel(raw){if(!raw)return'';const s=String(raw);if(s.length<=50)return s;const short=s.split(/[/,(]/)[0].replace(/Graphics|GPU/gi,'').trim();return short||s.slice(0,48)+'..'}
-function showDeviceInfo(){const icon=document.getElementById('deviceIcon'),label=document.getElementById('deviceLabel'),specs=document.getElementById('deviceSpecs'),card=document.getElementById('deviceCard');
-  // Show basic info immediately
+function showDeviceInfo(){const icon=document.getElementById('deviceIcon'),label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
   let devName=device.os==='ios'?(device.isIPad?'iPad':'iPhone'):device.os==='android'?'Android':(device.os||'Desktop');
-  icon.textContent='📱';label.textContent=t('deviceDetecting');specs.textContent=devName;card.style.borderColor='var(--border)';
-  // Run WebGL check asynchronously
-  setTimeout(()=>{
-    const hasGL=detectWebGL();
-    const items=[devName];
-    if(device.gpu)items.push(gpuLabel(device.gpu));
-    if(device.memoryGB)items.push(device.memoryGB+'GB');
-    items.push(navigator.hardwareConcurrency+' cores');
-    if(device.browser&&device.browser!=='unknown')items.push(device.browser);
-    specs.textContent=items.join(' · ');
-    icon.textContent=hasGL?'✅':'❌';
-    label.textContent=t(hasGL?'deviceOK':'deviceFail');
-    card.style.borderColor=hasGL?'rgba(52,211,153,0.3)':'rgba(248,113,113,0.3)';
-  },50)}
+  const items=[devName];
+  if(device.memoryGB)items.push(device.memoryGB+'GB');
+  items.push(navigator.hardwareConcurrency+' cores');
+  if(device.browser&&device.browser!=='unknown')items.push(device.browser);
+  icon.textContent='📱';label.textContent=items.join(' · ');
+  card.style.borderColor='var(--border)';}
 
 window.addEventListener('DOMContentLoaded',()=>{initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
 function applyDeviceTweaks(){if(device.isLowMemory){window.BATCH_SIZE=512;console.log('Low memory device: batch size 512')}if(device.isIPad){document.querySelector('.container').style.maxWidth='800px'}if(device.isTouch){document.body.classList.add('touch-device')}}
