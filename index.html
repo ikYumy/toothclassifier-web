@@ -5,144 +5,228 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>ToothClassifier — 高光谱牙齿组织推理</title>
+<title>ToothClassifier</title>
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --yellow: #e3b341;
-    --red: #f85149;
-    --purple: #bc8cff;
+    --bg: #080c12;
+    --surface: #0f172a;
+    --surface2: #1a2332;
+    --border: #1e3348;
+    --border-light: #2a4058;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --muted: #64748b;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56,189,248,0.15);
+    --green: #34d399;
+    --green-glow: rgba(52,211,153,0.15);
+    --yellow: #fbbf24;
+    --yellow-glow: rgba(251,191,36,0.12);
+    --red: #f87171;
+    --purple: #a78bfa;
+    --purple-glow: rgba(167,139,250,0.15);
+    --radius: 14px;
+    --radius-sm: 10px;
+    --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(56,189,248,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.03) 0%, transparent 50%);
+    color: var(--text);
+    min-height: 100vh; padding: 20px 16px 40px;
     display: flex; flex-direction: column; align-items: center;
-    min-height: 100vh; padding: 16px;
+    line-height: 1.5;
   }
-  .container { max-width: 600px; width: 100%; }
-  h1 { font-size: 1.5rem; text-align: center; margin-bottom: 16px; }
-  h1 span { color: var(--muted); font-weight: 400; font-size: 0.9rem; display: block; }
+  .container { max-width: 620px; width: 100%; }
 
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
+  }
+  .header h1 {
+    font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header h1 .icon { font-size: 1.6rem; }
+  .header h1 .sub {
+    display: block; font-size: 0.72rem; font-weight: 400;
+    color: var(--text-dim); letter-spacing: 0.02em; margin-top: 2px;
+  }
+
+  /* ── Language selector ── */
+  .lang-selector {
+    display: flex; gap: 2px;
+    background: var(--surface2); border-radius: 999px;
+    padding: 3px; border: 1px solid var(--border);
+  }
+  .lang-selector button {
+    width: 34px; height: 30px; border-radius: 999px;
+    border: none; background: transparent; color: var(--muted);
+    font-size: 0.72rem; font-weight: 500; cursor: pointer;
+    padding: 0; transition: all var(--transition);
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit;
+  }
+  .lang-selector button.active {
+    background: var(--accent); color: #0f172a; font-weight: 700;
+    box-shadow: 0 2px 8px rgba(56,189,248,0.3);
+  }
+  .lang-selector button:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
+
+  /* ── Cards ── */
   .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 16px; margin-bottom: 12px;
-  }
-  .card h2 { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-
-  select, button, input[type=file] {
-    width: 100%; padding: 10px 14px; border-radius: 8px;
-    font-size: 0.95rem; font-family: inherit;
-    background: var(--bg); color: var(--text);
+    background: var(--surface);
     border: 1px solid var(--border);
-    margin-top: 6px;
+    border-radius: var(--radius);
+    padding: 18px; margin-bottom: 14px;
+    transition: border-color var(--transition), box-shadow var(--transition);
   }
-  select:focus, button:focus { outline: none; border-color: var(--accent); }
+  .card:hover { border-color: var(--border-light); }
+  .card h2 {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card h2 .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); display: inline-block;
+  }
+
+  /* ── Form elements ── */
+  select, button, input[type=file] {
+    width: 100%; padding: 11px 15px; border-radius: var(--radius-sm);
+    font-size: 0.9rem; font-family: inherit;
+    background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border);
+    margin-top: 7px; transition: all var(--transition);
+    appearance: none; -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%2364748b' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+    padding-right: 36px; cursor: pointer;
+  }
+  select:focus, button:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
   button {
-    background: var(--accent); color: #fff; font-weight: 600;
-    cursor: pointer; border: none; margin-top: 10px;
+    font-weight: 600; cursor: pointer; border: none;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
   }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
-  button.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-  button.danger { background: var(--red); }
-  button.purple { background: var(--purple); }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
 
+  .btn-primary  { background: var(--accent); color: #0f172a; }
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 16px var(--accent-glow); }
+  .btn-purple   { background: var(--purple); color: #fff; }
+  .btn-purple:hover:not(:disabled) { box-shadow: 0 4px 16px var(--purple-glow); }
+  .btn-outline  { background: transparent; border: 1px solid var(--border-light); color: var(--text); }
+  .btn-outline:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,189,248,0.06); }
+  .btn-danger   { background: transparent; border: 1px solid rgba(248,113,113,0.4); color: var(--red); }
+  .btn-danger:hover:not(:disabled) { background: rgba(248,113,113,0.08); }
+  .btn-success  { background: var(--green); color: #0f172a; }
+  .btn-success:hover:not(:disabled) { box-shadow: 0 4px 16px var(--green-glow); }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-row button { margin-top: 0; flex: 1; }
+  .btn-row button:only-child { flex: none; }
+
+  /* ── Status ── */
   .status {
-    font-size: 0.85rem; color: var(--muted); text-align: center;
-    min-height: 20px; margin: 8px 0;
+    font-size: 0.8rem; color: var(--muted); text-align: center;
+    min-height: 18px; margin: 9px 0 2px; transition: color 0.3s;
   }
   .status.ok { color: var(--green); }
   .status.err { color: var(--red); }
+  .status.warn { color: var(--yellow); }
 
+  /* ── Canvas ── */
   canvas {
     width: 100%; border-radius: 8px;
     border: 1px solid var(--border);
-    image-rendering: auto;
-    margin-top: 8px;
+    image-rendering: auto; margin-top: 8px;
   }
+  .canvas-container { position: relative; margin-top: 8px; }
+  .canvas-container canvas { position: absolute; top: 0; left: 0; }
+  .canvas-container canvas#rgbCanvas { position: relative; z-index: 1; }
+  .canvas-container canvas#drawCanvas { z-index: 2; cursor: crosshair; }
 
-  .canvas-container {
-    position: relative;
-    margin-top: 8px;
-  }
-  .canvas-container canvas {
-    position: absolute;
-    top: 0; left: 0;
-  }
-  .canvas-container canvas#rgbCanvas {
-    position: relative;
-    z-index: 1;
-  }
-  .canvas-container canvas#drawCanvas {
-    z-index: 2;
-  }
-
-  .roi-controls {
-    display: flex; gap: 8px; margin-top: 10px;
-  }
-  .roi-controls button { margin-top: 0; }
-
+  /* ── Progress ── */
   .progress-bar {
-    height: 4px; background: var(--border); border-radius: 2px;
-    margin-top: 8px; overflow: hidden;
+    height: 3px; background: var(--border); border-radius: 3px;
+    margin-top: 10px; overflow: hidden;
   }
   .progress-fill {
-    height: 100%; background: var(--accent);
-    transition: width 0.3s;
-    width: 0%;
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple));
+    transition: width 0.3s; width: 0%; border-radius: 3px;
   }
 
-  .stats {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 8px; margin-top: 8px;
-  }
+  /* ── Stats ── */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
   .stat {
-    background: var(--bg); border-radius: 8px; padding: 10px;
-    text-align: center;
+    background: var(--surface2); border-radius: var(--radius-sm);
+    padding: 12px 8px; text-align: center; border: 1px solid var(--border);
   }
-  .stat .value { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
-  .stat .label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .stat .value { font-size: 1.2rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat .label { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
 
-  .legend {
-    display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;
-    font-size: 0.75rem;
-  }
-  .legend-item { display: flex; align-items: center; gap: 4px; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  /* ── Legend ── */
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 0.73rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
+  /* ── Warning ── */
   .warning {
-    background: rgba(227,179,65,0.1); border: 1px solid var(--yellow);
-    border-radius: 8px; padding: 10px; font-size: 0.8rem;
-    color: var(--yellow); margin-bottom: 12px; text-align: center;
+    background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2);
+    border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.78rem;
+    color: var(--yellow); margin-bottom: 14px; text-align: center;
   }
-  .hint {
-    font-size: 0.75rem; color: var(--muted); margin-top: 4px; text-align: center;
+  .hint { font-size: 0.73rem; color: var(--muted); margin-top: 6px; text-align: center; }
+
+  /* ── Animations ── */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card.fade-in { animation: fadeIn 0.35s ease-out; }
+
+  /* ── Responsive ── */
+  @media (max-width: 420px) {
+    body { padding: 12px 10px 32px; }
+    .card { padding: 14px; }
+    .header h1 { font-size: 1.2rem; }
+    .lang-selector button { width: 30px; height: 26px; font-size: 0.65rem; }
   }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>🦷 ToothClassifier
-    <span>高光谱牙齿组织分类 · 边缘推理</span>
-  </h1>
 
-  <div class="warning" id="safariWarning" style="display:none">
-    ⚠️ 检测到非 Safari 浏览器。推荐使用 <b>Safari</b> 以获得最佳 WebAssembly 性能。
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <span class="icon">🦷</span>
+      <span>
+        <span data-i18n="title">ToothClassifier</span>
+        <span class="sub"><span data-i18n="subtitle1">Hyperspectral Dental Tissue Classification</span> · <span data-i18n="subtitle2">Edge Inference</span></span>
+      </span>
+    </h1>
+    <div class="lang-selector" id="langSelector"></div>
   </div>
 
-  <!-- 模型选择 -->
+  <!-- Safari Warning -->
+  <div class="warning" id="safariWarning" style="display:none" data-i18n-html="safariWarning"></div>
+
+  <!-- Model -->
   <div class="card">
-    <h2>模型</h2>
+    <h2><span class="dot"></span> <span data-i18n="modelHeading">Model</span></h2>
     <select id="modelSelect">
-      <option value="resnet_original" selected>ResNet-1D original (★推荐 OA≈0.944)</option>
+      <option value="resnet_original" selected>ResNet-1D original (★ recommended OA≈0.944)</option>
       <option value="resnet_deriv">ResNet-1D deriv</option>
       <option value="resnet_original_se">ResNet-1D original + SE</option>
       <option value="resnet_deriv_se">ResNet-1D deriv + SE</option>
@@ -151,57 +235,439 @@
       <option value="simple_original">SimpleCNN original</option>
       <option value="vgg_original">VGG-1D original</option>
     </select>
-    <div class="status" id="modelStatus">点击"加载模型"开始</div>
+    <div class="status" id="modelStatus" data-i18n="modelStatusInit"></div>
   </div>
 
-  <!-- 操作 -->
+  <!-- Operations -->
   <div class="card">
-    <h2>操作</h2>
-    <button id="loadModelBtn" onclick="loadModel()">加载模型</button>
-    <button id="runBtn" class="secondary" onclick="selectFiles()" disabled>选择 HDR + .dat 文件加载图像</button>
-    <button id="inferROIBtn" class="purple" onclick="runROIInference()" disabled style="display:none">推理圈选区域</button>
-    <button id="inferAllBtn" class="secondary" onclick="runFullInference()" disabled style="display:none">推理整幅图像</button>
+    <h2><span class="dot"></span> <span data-i18n="opsHeading">Operations</span></h2>
+    <button class="btn-primary" id="loadModelBtn" onclick="loadModel()" data-i18n="loadModelBtn">Load Model</button>
+    <button class="btn-outline" id="runBtn" onclick="selectFiles()" disabled data-i18n="runBtn">Select HDR + .dat to Load</button>
+    <button class="btn-purple" id="inferROIBtn" onclick="runROIInference()" disabled style="display:none" data-i18n="inferROIBtn">Infer Selected ROI</button>
+    <button class="btn-outline" id="inferAllBtn" onclick="runFullInference()" disabled style="display:none" data-i18n="inferAllBtn">Infer Entire Image</button>
     <input type="file" id="fileInput" accept=".hdr,.dat,.img" multiple style="display:none" onchange="handleFiles(event)">
-    <div class="progress-bar" id="progressBar" style="display:none">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
+    <div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
     <div class="status" id="status"></div>
   </div>
 
-  <!-- RGB 预览 + ROI 圈画 -->
-  <div class="card" id="previewCard" style="display:none">
-    <h2>RGB 预览 (R:639.63 / G:551 / B:468.9 nm) — 圈画需要推理的区域</h2>
+  <!-- RGB Preview + ROI -->
+  <div class="card fade-in" id="previewCard" style="display:none">
+    <h2><span class="dot"></span> <span data-i18n="previewHeading">RGB Preview</span></h2>
     <div class="canvas-container" id="canvasContainer">
       <canvas id="rgbCanvas"></canvas>
       <canvas id="drawCanvas"></canvas>
     </div>
-    <div class="hint">👆 用手指/鼠标在图上圈画 ROI 区域（可多次绘制）</div>
-    <div class="roi-controls">
-      <button id="clearROIBtn" class="secondary" onclick="clearROI()" style="flex:1">清除选区</button>
-      <button id="undoROIBtn" class="secondary" onclick="undoLastROI()" style="flex:1">撤销最后选区</button>
+    <div class="hint" data-i18n="roiHint">👆 Draw on the image to select ROI (multiple regions allowed)</div>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="clearROI()" data-i18n="clearROIBtn">Clear All</button>
+      <button class="btn-outline" onclick="undoLastROI()" data-i18n="undoROIBtn">Undo Last</button>
     </div>
   </div>
 
-  <!-- 结果 -->
-  <div class="card" id="resultsCard" style="display:none">
-    <h2>推理结果</h2>
+  <!-- Results -->
+  <div class="card fade-in" id="resultsCard" style="display:none">
+    <h2><span class="dot"></span> <span data-i18n="resultsHeading">Inference Results</span></h2>
     <canvas id="resultCanvas"></canvas>
     <div class="stats" id="stats"></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#000"></div>背景</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>釉质</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>早期龋</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>进展龋</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>牙结石</div>
-    </div>
-    <button class="secondary" onclick="saveResult()" style="margin-top:10px">保存结果到相册</button>
+    <div class="legend" id="legend"></div>
+    <button class="btn-outline" onclick="saveResult()" style="margin-top:10px" data-i18n="saveBtn">Save to Photos</button>
   </div>
+
 </div>
 
-<!-- ONNX Runtime Web -->
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.webgpu.min.js"></script>
 
 <script>
+// ═══════════════════════════════════════════════════════════
+//  多语言系统
+// ═══════════════════════════════════════════════════════════
+const LANGS = {
+  'zh-CN': {
+    title: 'ToothClassifier',
+    subtitle1: '高光谱牙齿组织分类',
+    subtitle2: '边缘推理',
+    safariWarning: '⚠️ 检测到非 Safari 浏览器。推荐使用 <b>Safari</b> 以获得最佳 WebAssembly 性能。',
+    modelHeading: '模型',
+    recommended: '推荐',
+    modelStatusInit: '点击「加载模型」开始',
+    opsHeading: '操作',
+    loadModelBtn: '📦 加载模型',
+    runBtn: '📁 选择 HDR + .dat 文件加载图像',
+    inferROIBtn: '🎯 推理圈选区域',
+    inferAllBtn: '🖼️ 推理整幅图像',
+    previewHeading: 'RGB 预览 (R:639.63 / G:551 / B:468.9 nm) — 圈画推理区域',
+    roiHint: '👆 用手指/鼠标在图上圈画 ROI 区域（可多次绘制）',
+    clearROIBtn: '✕ 清除选区',
+    undoROIBtn: '↩ 撤销最后选区',
+    resultsHeading: '推理结果',
+    saveBtn: '💾 保存结果到相册',
+    legendBg: '背景',
+    legendEnamel: '釉质',
+    legendEarly: '早期龋',
+    legendDeveloped: '进展龋',
+    legendCalculus: '牙结石',
+    statTime: '推理耗时',
+    statPixels: '推理像素',
+    statTooth: '牙体像素',
+    statCaries: '龋坏比例',
+    ortReady: 'ONNX Runtime Web 已就绪 ✓',
+    ortLoading: '正在加载 ONNX Runtime...',
+    ortFailed: 'ONNX Runtime 加载失败: ',
+    modelLoading: '正在加载 {0}...',
+    modelLoaded: '✓ {0} 已加载 ({1}通道)',
+    modelFailed: '加载失败: ',
+    readingHDR: '正在读取 HDR 文件...',
+    imageInfo: '图像: {0}×{1}×{2} 波段',
+    hdrError: 'HDR 文件格式错误：缺少 samples/lines/bands',
+    unsupportedBands: '不支持的波段数: {0}（需要 244 或 256）',
+    imageReady: '✓ 图像加载完毕。请在 RGB 预览图上圈画 ROI 区域。',
+    preparingInfer: '准备推理...',
+    inferring: '推理中... 选中 {0} 像素',
+    noPixelError: '没有可推理的像素',
+    doneROI: '✓ 完成！ROI {0} 像素，耗时 {1} 秒',
+    doneFull: '✓ 完成！{0} 像素，耗时 {1} 秒',
+    errorPrefix: '错误: ',
+    selectBoth: '请同时选择 .hdr 文件和对应的 .dat/.img 数据文件',
+    noHDR: '未找到 .hdr 文件',
+    noDAT: '未找到 .dat/.img 二进制数据文件',
+    drawROIFirst: '请先在 RGB 预览图上圈画需要推理的区域',
+    emptyROI: '选中的区域为空，请重新圈画',
+  },
+  'en': {
+    title: 'ToothClassifier',
+    subtitle1: 'Hyperspectral Dental Tissue Classification',
+    subtitle2: 'Edge Inference',
+    safariWarning: '⚠️ Non-Safari browser detected. <b>Safari</b> is recommended for best WebAssembly performance.',
+    modelHeading: 'Model',
+    recommended: 'recommended',
+    modelStatusInit: 'Click "Load Model" to start',
+    opsHeading: 'Operations',
+    loadModelBtn: '📦 Load Model',
+    runBtn: '📁 Select HDR + .dat to Load Image',
+    inferROIBtn: '🎯 Infer Selected ROI',
+    inferAllBtn: '🖼️ Infer Entire Image',
+    previewHeading: 'RGB Preview (R:639.63 / G:551 / B:468.9 nm) — Draw ROI',
+    roiHint: '👆 Draw on the image to select ROI (multiple regions allowed)',
+    clearROIBtn: '✕ Clear All',
+    undoROIBtn: '↩ Undo Last',
+    resultsHeading: 'Inference Results',
+    saveBtn: '💾 Save to Photos',
+    legendBg: 'Background',
+    legendEnamel: 'Enamel',
+    legendEarly: 'Early Lesion',
+    legendDeveloped: 'Developed Lesion',
+    legendCalculus: 'Calculus',
+    statTime: 'Inference Time',
+    statPixels: 'Pixels Inferred',
+    statTooth: 'Tooth Pixels',
+    statCaries: 'Caries Ratio',
+    ortReady: 'ONNX Runtime Web ready ✓',
+    ortLoading: 'Loading ONNX Runtime...',
+    ortFailed: 'ONNX Runtime load failed: ',
+    modelLoading: 'Loading {0}...',
+    modelLoaded: '✓ {0} loaded ({1} channel)',
+    modelFailed: 'Load failed: ',
+    readingHDR: 'Reading HDR file...',
+    imageInfo: 'Image: {0}×{1}×{2} bands',
+    hdrError: 'HDR format error: missing samples/lines/bands',
+    unsupportedBands: 'Unsupported band count: {0} (requires 244 or 256)',
+    imageReady: '✓ Image loaded. Draw ROI on the RGB preview.',
+    preparingInfer: 'Preparing inference...',
+    inferring: 'Inferring... {0} pixels selected',
+    noPixelError: 'No pixels to infer',
+    doneROI: '✓ Done! ROI {0} pixels in {1}s',
+    doneFull: '✓ Done! {0} pixels in {1}s',
+    errorPrefix: 'Error: ',
+    selectBoth: 'Please select both .hdr and .dat/.img files',
+    noHDR: 'No .hdr file found',
+    noDAT: 'No .dat/.img binary file found',
+    drawROIFirst: 'Please draw an ROI on the RGB preview first',
+    emptyROI: 'Selected region is empty, please redraw',
+  },
+  'ja': {
+    title: 'ToothClassifier',
+    subtitle1: 'ハイパースペクトル歯組織分類',
+    subtitle2: 'エッジ推論',
+    safariWarning: '⚠️ Safari以外のブラウザが検出されました。WebAssemblyのパフォーマンス向上のため<b>Safari</b>を推奨します。',
+    modelHeading: 'モデル',
+    recommended: '推奨',
+    modelStatusInit: '「モデルを読み込む」をクリックしてください',
+    opsHeading: '操作',
+    loadModelBtn: '📦 モデルを読み込む',
+    runBtn: '📁 HDR + .dat を選択して画像を読み込む',
+    inferROIBtn: '🎯 選択領域を推論',
+    inferAllBtn: '🖼️ 画像全体を推論',
+    previewHeading: 'RGB プレビュー (R:639.63 / G:551 / B:468.9 nm) — ROIを描画',
+    roiHint: '👆 画像上でROI領域を描画してください（複数領域可）',
+    clearROIBtn: '✕ すべてクリア',
+    undoROIBtn: '↩ 最後を元に戻す',
+    resultsHeading: '推論結果',
+    saveBtn: '💾 写真に保存',
+    legendBg: '背景',
+    legendEnamel: 'エナメル質',
+    legendEarly: '初期う蝕',
+    legendDeveloped: '進行う蝕',
+    legendCalculus: '歯石',
+    statTime: '推論時間',
+    statPixels: '推論ピクセル',
+    statTooth: '歯ピクセル',
+    statCaries: 'う蝕率',
+    ortReady: 'ONNX Runtime Web 準備完了 ✓',
+    ortLoading: 'ONNX Runtime 読み込み中...',
+    ortFailed: 'ONNX Runtime 読み込み失敗: ',
+    modelLoading: '{0} を読み込み中...',
+    modelLoaded: '✓ {0} 読み込み完了 ({1}チャンネル)',
+    modelFailed: '読み込み失敗: ',
+    readingHDR: 'HDRファイルを読み込み中...',
+    imageInfo: '画像: {0}×{1}×{2} バンド',
+    hdrError: 'HDRフォーマットエラー: samples/lines/bands がありません',
+    unsupportedBands: '未対応のバンド数: {0}（244 または 256 が必要）',
+    imageReady: '✓ 画像読み込み完了。RGBプレビュー上でROIを描画してください。',
+    preparingInfer: '推論準備中...',
+    inferring: '推論中... {0} ピクセル選択',
+    noPixelError: '推論可能なピクセルがありません',
+    doneROI: '✓ 完了！ROI {0} ピクセル、{1}秒',
+    doneFull: '✓ 完了！{0} ピクセル、{1}秒',
+    errorPrefix: 'エラー: ',
+    selectBoth: '.hdrファイルと.dat/.imgファイルの両方を選択してください',
+    noHDR: '.hdrファイルが見つかりません',
+    noDAT: '.dat/.imgバイナリファイルが見つかりません',
+    drawROIFirst: '最初にRGBプレビュー上でROIを描画してください',
+    emptyROI: '選択領域が空です。再描画してください',
+  },
+  'es': {
+    title: 'ToothClassifier',
+    subtitle1: 'Clasificación Hiperespectral de Tejido Dental',
+    subtitle2: 'Inferencia en el Borde',
+    safariWarning: '⚠️ Navegador no Safari detectado. Se recomienda <b>Safari</b> para mejor rendimiento WebAssembly.',
+    modelHeading: 'Modelo',
+    recommended: 'recomendado',
+    modelStatusInit: 'Haga clic en "Cargar Modelo" para comenzar',
+    opsHeading: 'Operaciones',
+    loadModelBtn: '📦 Cargar Modelo',
+    runBtn: '📁 Seleccionar HDR + .dat para Cargar',
+    inferROIBtn: '🎯 Inferir ROI Seleccionada',
+    inferAllBtn: '🖼️ Inferir Imagen Completa',
+    previewHeading: 'Vista RGB (R:639.63 / G:551 / B:468.9 nm) — Dibujar ROI',
+    roiHint: '👆 Dibuje en la imagen para seleccionar ROI (múltiples regiones)',
+    clearROIBtn: '✕ Borrar Todo',
+    undoROIBtn: '↩ Deshacer Último',
+    resultsHeading: 'Resultados',
+    saveBtn: '💾 Guardar en Fotos',
+    legendBg: 'Fondo',
+    legendEnamel: 'Esmalte',
+    legendEarly: 'Lesión Temprana',
+    legendDeveloped: 'Lesión Avanzada',
+    legendCalculus: 'Cálculo',
+    statTime: 'Tiempo',
+    statPixels: 'Píxeles Inferidos',
+    statTooth: 'Píxeles Dentales',
+    statCaries: 'Tasa de Caries',
+    ortReady: 'ONNX Runtime Web listo ✓',
+    ortLoading: 'Cargando ONNX Runtime...',
+    ortFailed: 'Error al cargar ONNX Runtime: ',
+    modelLoading: 'Cargando {0}...',
+    modelLoaded: '✓ {0} cargado ({1} canales)',
+    modelFailed: 'Error de carga: ',
+    readingHDR: 'Leyendo archivo HDR...',
+    imageInfo: 'Imagen: {0}×{1}×{2} bandas',
+    hdrError: 'Error de formato HDR: faltan samples/lines/bands',
+    unsupportedBands: 'Número de bandas no soportado: {0} (requiere 244 o 256)',
+    imageReady: '✓ Imagen cargada. Dibuje ROI en la vista previa RGB.',
+    preparingInfer: 'Preparando inferencia...',
+    inferring: 'Inferiendo... {0} píxeles seleccionados',
+    noPixelError: 'No hay píxeles para inferir',
+    doneROI: '✓ ¡Listo! ROI {0} píxeles en {1}s',
+    doneFull: '✓ ¡Listo! {0} píxeles en {1}s',
+    errorPrefix: 'Error: ',
+    selectBoth: 'Seleccione ambos archivos .hdr y .dat/.img',
+    noHDR: 'No se encontró archivo .hdr',
+    noDAT: 'No se encontró archivo .dat/.img',
+    drawROIFirst: 'Dibuje primero un ROI en la vista previa RGB',
+    emptyROI: 'La región seleccionada está vacía, vuelva a dibujar',
+  },
+  'ko': {
+    title: 'ToothClassifier',
+    subtitle1: '초분광 치아 조직 분류',
+    subtitle2: '엣지 추론',
+    safariWarning: '⚠️ Safari 이외의 브라우저가 감지되었습니다. WebAssembly 성능을 위해 <b>Safari</b>를 권장합니다.',
+    modelHeading: '모델',
+    recommended: '권장',
+    modelStatusInit: '"모델 로드"를 클릭하여 시작하세요',
+    opsHeading: '작업',
+    loadModelBtn: '📦 모델 로드',
+    runBtn: '📁 HDR + .dat 파일 선택',
+    inferROIBtn: '🎯 선택 영역 추론',
+    inferAllBtn: '🖼️ 전체 이미지 추론',
+    previewHeading: 'RGB 미리보기 (R:639.63 / G:551 / B:468.9 nm) — ROI 그리기',
+    roiHint: '👆 이미지 위에 ROI 영역을 그리세요 (여러 영역 가능)',
+    clearROIBtn: '✕ 모두 지우기',
+    undoROIBtn: '↩ 마지막 실행 취소',
+    resultsHeading: '추론 결과',
+    saveBtn: '💾 사진에 저장',
+    legendBg: '배경',
+    legendEnamel: '법랑질',
+    legendEarly: '초기 우식',
+    legendDeveloped: '진행 우식',
+    legendCalculus: '치석',
+    statTime: '추론 시간',
+    statPixels: '추론 픽셀',
+    statTooth: '치아 픽셀',
+    statCaries: '우식 비율',
+    ortReady: 'ONNX Runtime Web 준비 완료 ✓',
+    ortLoading: 'ONNX Runtime 로드 중...',
+    ortFailed: 'ONNX Runtime 로드 실패: ',
+    modelLoading: '{0} 로드 중...',
+    modelLoaded: '✓ {0} 로드 완료 ({1}채널)',
+    modelFailed: '로드 실패: ',
+    readingHDR: 'HDR 파일 읽는 중...',
+    imageInfo: '이미지: {0}×{1}×{2} 밴드',
+    hdrError: 'HDR 형식 오류: samples/lines/bands 누락',
+    unsupportedBands: '지원되지 않는 밴드 수: {0} (244 또는 256 필요)',
+    imageReady: '✓ 이미지 로드 완료. RGB 미리보기에서 ROI를 그리세요.',
+    preparingInfer: '추론 준비 중...',
+    inferring: '추론 중... {0} 픽셀 선택됨',
+    noPixelError: '추론할 픽셀이 없습니다',
+    doneROI: '✓ 완료! ROI {0} 픽셀, {1}초',
+    doneFull: '✓ 완료! {0} 픽셀, {1}초',
+    errorPrefix: '오류: ',
+    selectBoth: '.hdr 파일과 .dat/.img 파일을 모두 선택하세요',
+    noHDR: '.hdr 파일을 찾을 수 없습니다',
+    noDAT: '.dat/.img 바이너리 파일을 찾을 수 없습니다',
+    drawROIFirst: '먼저 RGB 미리보기에서 ROI를 그리세요',
+    emptyROI: '선택한 영역이 비어 있습니다. 다시 그리세요',
+  },
+  'fr': {
+    title: 'ToothClassifier',
+    subtitle1: 'Classification Hyper-spectrale des Tissus Dentaires',
+    subtitle2: 'Inférence en Périphérie',
+    safariWarning: '⚠️ Navigateur non-Safari détecté. <b>Safari</b> recommandé pour les performances WebAssembly.',
+    modelHeading: 'Modèle',
+    recommended: 'recommandé',
+    modelStatusInit: 'Cliquez sur "Charger le modèle"',
+    opsHeading: 'Opérations',
+    loadModelBtn: '📦 Charger le Modèle',
+    runBtn: '📁 Sélectionner HDR + .dat',
+    inferROIBtn: '🎯 Inférer la ROI',
+    inferAllBtn: '🖼️ Inférer l\'Image Entière',
+    previewHeading: 'Aperçu RGB (R:639.63 / G:551 / B:468.9 nm) — Dessiner ROI',
+    roiHint: '👆 Dessinez sur l\'image pour sélectionner la ROI',
+    clearROIBtn: '✕ Tout Effacer',
+    undoROIBtn: '↩ Annuler Dernier',
+    resultsHeading: 'Résultats',
+    saveBtn: '💾 Enregistrer',
+    legendBg: 'Fond',
+    legendEnamel: 'Émail',
+    legendEarly: 'Lésion Précoce',
+    legendDeveloped: 'Lésion Avancée',
+    legendCalculus: 'Tartre',
+    statTime: 'Temps',
+    statPixels: 'Pixels Inférés',
+    statTooth: 'Pixels Dentaires',
+    statCaries: 'Taux de Caries',
+    ortReady: 'ONNX Runtime Web prêt ✓',
+    ortLoading: 'Chargement ONNX Runtime...',
+    ortFailed: 'Échec ONNX Runtime: ',
+    modelLoading: 'Chargement de {0}...',
+    modelLoaded: '✓ {0} chargé ({1} canaux)',
+    modelFailed: 'Échec: ',
+    readingHDR: 'Lecture du fichier HDR...',
+    imageInfo: 'Image: {0}×{1}×{2} bandes',
+    hdrError: 'Erreur format HDR: samples/lines/bands manquants',
+    unsupportedBands: 'Nombre de bandes non supporté: {0} (244 ou 256 requis)',
+    imageReady: '✓ Image chargée. Dessinez la ROI sur l\'aperçu RGB.',
+    preparingInfer: 'Préparation de l\'inférence...',
+    inferring: 'Inférence... {0} pixels sélectionnés',
+    noPixelError: 'Aucun pixel à inférer',
+    doneROI: '✓ Terminé ! ROI {0} pixels en {1}s',
+    doneFull: '✓ Terminé ! {0} pixels en {1}s',
+    errorPrefix: 'Erreur: ',
+    selectBoth: 'Sélectionnez les fichiers .hdr et .dat/.img',
+    noHDR: 'Fichier .hdr introuvable',
+    noDAT: 'Fichier .dat/.img introuvable',
+    drawROIFirst: 'Dessinez d\'abord une ROI sur l\'aperçu RGB',
+    emptyROI: 'La région sélectionnée est vide',
+  },
+};
+
+let currentLang = 'zh-CN';
+
+function t(key, ...args) {
+  let text = (LANGS[currentLang] && LANGS[currentLang][key]) || (LANGS['en'] && LANGS['en'][key]) || key;
+  for (let i = 0; i < args.length; i++) {
+    text = text.replace('{' + i + '}', args[i]);
+  }
+  return text;
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLang;
+  // Update all [data-i18n] text elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  // Update [data-i18n-html] elements
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    el.innerHTML = t(key);
+  });
+  // Rebuild legend
+  const legend = document.getElementById('legend');
+  if (legend) {
+    legend.innerHTML = `
+      <div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>
+    `;
+  }
+  // Re-render results stats if visible (update labels only)
+  const statsEl = document.getElementById('stats');
+  if (statsEl && statsEl.children.length >= 4) {
+    statsEl.children[0].querySelector('.label').textContent = t('statTime');
+    statsEl.children[1].querySelector('.label').textContent = t('statPixels');
+    statsEl.children[2].querySelector('.label').textContent = t('statTooth');
+    statsEl.children[3].querySelector('.label').textContent = t('statCaries');
+  }
+  // Update model status if it's static (initial state)
+  const modelStatus = document.getElementById('modelStatus');
+  if (modelStatus && modelStatus.className === 'status') {
+    modelStatus.textContent = t('modelStatusInit');
+  }
+}
+
+function initLanguage() {
+  const saved = localStorage.getItem('toothclassifier-lang');
+  if (saved && LANGS[saved]) {
+    currentLang = saved;
+  } else {
+    const browserLang = (navigator.language || 'en').split('-')[0];
+    const map = { zh: 'zh-CN', ja: 'ja', ko: 'ko', es: 'es', fr: 'fr', en: 'en' };
+    currentLang = map[browserLang] || 'en';
+  }
+  // Build language selector buttons
+  const selector = document.getElementById('langSelector');
+  const flags = { 'zh-CN': '中', 'en': 'EN', 'ja': '日', 'es': 'ES', 'ko': '한', 'fr': 'FR' };
+  for (const [code, label] of Object.entries(flags)) {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.title = code;
+    btn.onclick = () => { currentLang = code; localStorage.setItem('toothclassifier-lang', code); applyLanguage(); updateLangBtns(); };
+    selector.appendChild(btn);
+  }
+  updateLangBtns();
+  applyLanguage();
+}
+
+function updateLangBtns() {
+  document.querySelectorAll('#langSelector button').forEach(b => {
+    const code = Object.entries({ '中': 'zh-CN', 'EN': 'en', '日': 'ja', 'ES': 'es', '한': 'ko', 'FR': 'fr' }).find(([k]) => k === b.textContent)?.[1];
+    b.className = (code === currentLang) ? 'active' : '';
+  });
+}
+
 // ═══════════════════════════════════════════════════════════
 //  全局状态
 // ═══════════════════════════════════════════════════════════
@@ -223,11 +689,11 @@ const TARGET_G = 551.00;
 const TARGET_B = 468.90;
 
 const COLOR_MAP = [
-  [0,   0,   0],   // background
-  [255, 0,   0],   // enamel
-  [0,   139, 0],   // early lesion
-  [0,   0,   255], // developed lesion
-  [255, 255, 0],   // calculus
+  [0,   0,   0],
+  [255, 0,   0],
+  [0,   139, 0],
+  [0,   0,   255],
+  [255, 255, 0],
 ];
 
 const MODEL_CONFIGS = {
@@ -241,26 +707,26 @@ const MODEL_CONFIGS = {
   vgg_original:       { channels: 1, deriv: false },
 };
 
-// 存储图像数据供后续推理使用
 let storedH = 0, storedW = 0, storedBands = 0;
-let storedRawData = null;      // 未归一化的原始数据（BSQ pixel-major）
-let storedNormalizedData = null; // 已归一化的数据
-let storedWavelengths = null;   // 波长数组（已裁剪至244）
+let storedRawData = null;
+let storedNormalizedData = null;
+let storedWavelengths = null;
 
-// ROI 状态
-let roiPolygons = [];     // 存储多个多边形 [{points: [{x,y},...]}]
-let currentPolygon = [];  // 当前正在绘制的多边形
+let roiPolygons = [];
+let currentPolygon = [];
 let isDrawing = false;
-let roiMask = null;       // Uint8Array [nPixels], 1=在ROI内
+let roiMask = null;
 
 
 // ═══════════════════════════════════════════════════════════
 //  初始化
 // ═══════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  initLanguage();
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (!isSafari) {
     document.getElementById('safariWarning').style.display = 'block';
+    document.getElementById('safariWarning').innerHTML = t('safariWarning');
   }
   checkORT();
   setupDrawCanvas();
@@ -270,10 +736,10 @@ async function checkORT() {
   const status = document.getElementById('modelStatus');
   try {
     const available = typeof ort !== 'undefined';
-    status.textContent = available ? 'ONNX Runtime Web 已就绪 ✓' : '正在加载 ONNX Runtime...';
+    status.textContent = available ? t('ortReady') : t('ortLoading');
     status.className = available ? 'status ok' : 'status';
   } catch(e) {
-    status.textContent = 'ONNX Runtime 加载失败: ' + e.message;
+    status.textContent = t('ortFailed') + e.message;
     status.className = 'status err';
   }
 }
@@ -289,7 +755,7 @@ async function loadModel() {
   const btn = document.getElementById('loadModelBtn');
 
   btn.disabled = true;
-  status.textContent = `正在加载 ${modelName}...`;
+  status.textContent = t('modelLoading', modelName);
   status.className = 'status';
 
   try {
@@ -304,11 +770,11 @@ async function loadModel() {
     });
     currentModel = modelName;
 
-    status.textContent = `✓ ${modelName} 已加载 (${MODEL_CONFIGS[modelName].channels}通道)`;
+    status.textContent = t('modelLoaded', modelName, MODEL_CONFIGS[modelName].channels);
     status.className = 'status ok';
     document.getElementById('runBtn').disabled = false;
   } catch(e) {
-    status.textContent = `加载失败: ${e.message}`;
+    status.textContent = t('modelFailed') + e.message;
     status.className = 'status err';
     console.error(e);
   } finally {
@@ -327,7 +793,7 @@ function selectFiles() {
 async function handleFiles(event) {
   const files = event.target.files;
   if (!files || files.length < 2) {
-    alert('请同时选择 .hdr 文件和对应的 .dat/.img 数据文件');
+    alert(t('selectBoth'));
     return;
   }
 
@@ -338,45 +804,36 @@ async function handleFiles(event) {
     else if (ext === 'dat' || ext === 'img') datFile = f;
   }
 
-  if (!hdrFile) { alert('未找到 .hdr 文件'); return; }
-  if (!datFile) { alert('未找到 .dat/.img 二进制数据文件'); return; }
+  if (!hdrFile) { alert(t('noHDR')); return; }
+  if (!datFile) { alert(t('noDAT')); return; }
 
   const status = document.getElementById('status');
   const progressBar = document.getElementById('progressBar');
   const progressFill = document.getElementById('progressFill');
 
-  status.textContent = '正在读取 HDR 文件...';
+  status.textContent = t('readingHDR');
   status.className = 'status';
   progressBar.style.display = 'block';
   progressFill.style.width = '0%';
 
-  // 隐藏之前的结果
   document.getElementById('resultsCard').style.display = 'none';
 
   try {
-    // 1. 解析 HDR
     const hdrText = await hdrFile.text();
     const hdr = parseHDRHeader(hdrText);
     const H = hdr.lines, W = hdr.samples, B = hdr.bands;
-    if (!H || !W || !B) throw new Error('HDR 文件格式错误：缺少 samples/lines/bands');
-    status.textContent = `图像: ${H}×${W}×${B} 波段`;
+    if (!H || !W || !B) throw new Error(t('hdrError'));
+    status.textContent = t('imageInfo', H, W, B);
 
-    // 2. 读取二进制并重排
     const datBuffer = await datFile.arrayBuffer();
     const totalElements = H * W * B;
     let rawData = parseBinaryData(datBuffer, hdr.dataType, hdr.byteOrder, totalElements);
     rawData = reorderToBSQ(rawData, H, W, B, hdr.interleave);
 
-    // 3. 保存原始数据（用于 RGB 预览，在裁剪/归一化前）
-    // 对原始数据做深拷贝
     let rawDataForRGB = new Float32Array(rawData);
-
-    // 4. 处理波长
     let wavelengthsRaw = hdr.wavelengths;
-    let fullBandCount = B;
-
-    // 5. 波段裁剪
     let bandsToUse = B;
+
     if (B === 256) {
       rawData = cropBands(rawData, H, W, B);
       rawDataForRGB = cropBands(rawDataForRGB, H, W, B);
@@ -385,40 +842,35 @@ async function handleFiles(event) {
       }
       bandsToUse = 244;
     } else if (B !== 244) {
-      throw new Error(`不支持的波段数: ${B}（需要 244 或 256）`);
+      throw new Error(t('unsupportedBands', B));
     }
 
-    // 保存全局状态
     storedH = H;
     storedW = W;
     storedBands = bandsToUse;
     storedWavelengths = wavelengthsRaw || null;
 
-    // 6. 显示 RGB 预览（使用原始数据）
     showRGBPreview(rawDataForRGB, H, W, bandsToUse, storedWavelengths);
 
-    // 7. 归一化原始数据（用于推理）
     normalize(rawData, GLOBAL_MEAN, GLOBAL_STD);
     storedNormalizedData = rawData;
     storedRawData = rawDataForRGB;
 
-    // 显示推理按钮
     document.getElementById('inferROIBtn').style.display = 'block';
     document.getElementById('inferAllBtn').style.display = 'block';
-    document.getElementById('inferROIBtn').disabled = false;
+    document.getElementById('inferROIBtn').disabled = true;
     document.getElementById('inferAllBtn').disabled = false;
 
-    // 重置 ROI
     roiPolygons = [];
     currentPolygon = [];
     roiMask = null;
     redrawAll();
 
-    status.textContent = `✓ 图像加载完毕。请在 RGB 预览图上圈画 ROI 区域。`;
+    status.textContent = t('imageReady');
     status.className = 'status ok';
 
   } catch(e) {
-    status.textContent = `错误: ${e.message}`;
+    status.textContent = t('errorPrefix') + e.message;
     status.className = 'status err';
     console.error(e);
   } finally {
@@ -431,23 +883,16 @@ async function handleFiles(event) {
 //  RGB 预览
 // ═══════════════════════════════════════════════════════════
 function showRGBPreview(rawData, H, W, bands, wavelengths) {
-  // 找到 RGB 波段索引
   let idxR, idxG, idxB;
-
   if (wavelengths && wavelengths.length === bands) {
     idxR = findClosestBand(wavelengths, TARGET_R);
     idxG = findClosestBand(wavelengths, TARGET_G);
     idxB = findClosestBand(wavelengths, TARGET_B);
   } else {
-    // 无波长信息时，用默认索引（256→244 裁剪后）
-    idxR = 114; // 639.63 nm
-    idxG = 77;  // 551.00 nm
-    idxB = 42;  // 468.90 nm
+    idxR = 114; idxG = 77; idxB = 42;
   }
 
   const nPixels = H * W;
-
-  // 提取 R, G, B 通道值
   const rChan = new Float32Array(nPixels);
   const gChan = new Float32Array(nPixels);
   const bChan = new Float32Array(nPixels);
@@ -459,11 +904,9 @@ function showRGBPreview(rawData, H, W, bands, wavelengths) {
     bChan[p] = rawData[base + idxB];
   }
 
-  // 计算各通道的 2% / 98% 百分位用于对比度拉伸
   function percentile(arr, pct) {
     const sorted = new Float32Array(arr).sort();
-    const idx = Math.floor(pct / 100 * (sorted.length - 1));
-    return sorted[idx];
+    return sorted[Math.floor(pct / 100 * (sorted.length - 1))];
   }
 
   const rMin = percentile(rChan, 2), rMax = percentile(rChan, 98);
@@ -475,11 +918,8 @@ function showRGBPreview(rawData, H, W, bands, wavelengths) {
     return Math.max(0, Math.min(255, (val - min) / (max - min) * 255));
   }
 
-  // 绘制 RGB
   const canvas = document.getElementById('rgbCanvas');
-  canvas.width = W;
-  canvas.height = H;
-
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   const imgData = ctx.createImageData(W, H);
 
@@ -492,22 +932,13 @@ function showRGBPreview(rawData, H, W, bands, wavelengths) {
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // 设置绘图 overlay canvas
   const drawCanvas = document.getElementById('drawCanvas');
-  drawCanvas.width = W;
-  drawCanvas.height = H;
+  drawCanvas.width = W; drawCanvas.height = H;
 
-  // 显示预览卡片
   document.getElementById('previewCard').style.display = 'block';
-
-  // 更新容器高度
   updateCanvasContainer();
 }
 
-
-// ═══════════════════════════════════════════════════════════
-//  Canvas 容器尺寸
-// ═══════════════════════════════════════════════════════════
 function updateCanvasContainer() {
   const rgbCanvas = document.getElementById('rgbCanvas');
   const container = document.getElementById('canvasContainer');
@@ -516,17 +947,12 @@ function updateCanvasContainer() {
   }
 }
 
-// 延迟更新（等图片渲染完成）
-window.addEventListener('load', () => {
-  setTimeout(updateCanvasContainer, 500);
-});
-window.addEventListener('resize', () => {
-  setTimeout(updateCanvasContainer, 500);
-});
+window.addEventListener('load', () => setTimeout(updateCanvasContainer, 500));
+window.addEventListener('resize', () => setTimeout(updateCanvasContainer, 500));
 
 
 // ═══════════════════════════════════════════════════════════
-//  ROI 圈画（绘图 Canvas 事件）
+//  ROI 圈画
 // ═══════════════════════════════════════════════════════════
 function setupDrawCanvas() {
   const canvas = document.getElementById('drawCanvas');
@@ -552,8 +978,7 @@ function setupDrawCanvas() {
 
   function onStart(e) {
     e.preventDefault();
-    const pos = getPos(e);
-    if (!pos) return;
+    const pos = getPos(e); if (!pos) return;
     isDrawing = true;
     currentPolygon = [pos];
     redrawAll();
@@ -562,9 +987,7 @@ function setupDrawCanvas() {
   function onMove(e) {
     e.preventDefault();
     if (!isDrawing) return;
-    const pos = getPos(e);
-    if (!pos) return;
-    // 避免重复点（简单去重）
+    const pos = getPos(e); if (!pos) return;
     const last = currentPolygon[currentPolygon.length - 1];
     if (last && Math.abs(pos.x - last.x) + Math.abs(pos.y - last.y) < 3) return;
     currentPolygon.push(pos);
@@ -580,7 +1003,6 @@ function setupDrawCanvas() {
       currentPolygon = [];
       redrawAll();
     } else {
-      // 点数太少，丢弃
       currentPolygon = [];
       redrawAll();
     }
@@ -591,19 +1013,16 @@ function setupDrawCanvas() {
   canvas.addEventListener('mousemove', onMove);
   canvas.addEventListener('mouseup', onEnd);
   canvas.addEventListener('mouseleave', onEnd);
-
   canvas.addEventListener('touchstart', onStart, { passive: false });
   canvas.addEventListener('touchmove', onMove, { passive: false });
   canvas.addEventListener('touchend', onEnd, { passive: false });
 }
 
 function drawCurrentPolygon() {
-  const canvas = document.getElementById('drawCanvas');
-  const ctx = canvas.getContext('2d');
-  // 只 redraw 已完成的多边形 + 当前正在画的
   redrawAll();
   if (currentPolygon.length >= 1) {
-    drawPolygon(ctx, currentPolygon, 'rgba(88,166,255,0.4)', 'rgba(88,166,255,0.9)', true);
+    const ctx = document.getElementById('drawCanvas').getContext('2d');
+    drawPolygon(ctx, currentPolygon, 'rgba(56,189,248,0.4)', 'rgba(56,189,248,0.9)', true);
   }
 }
 
@@ -611,13 +1030,11 @@ function redrawAll() {
   const canvas = document.getElementById('drawCanvas');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   for (const poly of roiPolygons) {
-    drawPolygon(ctx, poly.points, 'rgba(88,166,255,0.3)', 'rgba(88,166,255,0.85)', false);
+    drawPolygon(ctx, poly.points, 'rgba(56,189,248,0.25)', 'rgba(56,189,248,0.8)', false);
   }
-
   if (currentPolygon.length >= 1) {
-    drawPolygon(ctx, currentPolygon, 'rgba(88,166,255,0.4)', 'rgba(88,166,255,0.9)', true);
+    drawPolygon(ctx, currentPolygon, 'rgba(56,189,248,0.4)', 'rgba(56,189,248,0.9)', true);
   }
 }
 
@@ -625,15 +1042,11 @@ function drawPolygon(ctx, points, fillColor, strokeColor, isCurrent) {
   if (points.length < 1) return;
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-  if (!isCurrent && points.length >= 3) {
-    ctx.closePath();
-  }
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+  if (!isCurrent && points.length >= 3) ctx.closePath();
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 2;
-  ctx.setLineDash(isCurrent ? [4, 4] : []);
+  ctx.setLineDash(isCurrent ? [5, 5] : []);
   ctx.stroke();
   if (!isCurrent && points.length >= 3) {
     ctx.fillStyle = fillColor;
@@ -642,56 +1055,40 @@ function drawPolygon(ctx, points, fillColor, strokeColor, isCurrent) {
 }
 
 function clearROI() {
-  roiPolygons = [];
-  currentPolygon = [];
-  roiMask = null;
+  roiPolygons = []; currentPolygon = []; roiMask = null;
   redrawAll();
   document.getElementById('inferROIBtn').disabled = true;
 }
 
 function undoLastROI() {
   if (roiPolygons.length > 0) {
-    roiPolygons.pop();
-    redrawAll();
+    roiPolygons.pop(); redrawAll();
     document.getElementById('inferROIBtn').disabled = (roiPolygons.length === 0);
   }
 }
 
 
 // ═══════════════════════════════════════════════════════════
-//  ROI 掩码构建
+//  ROI 掩码
 // ═══════════════════════════════════════════════════════════
 function buildROIMask() {
   if (roiPolygons.length === 0) return null;
   const nPixels = storedH * storedW;
   const mask = new Uint8Array(nPixels);
-
   for (const poly of roiPolygons) {
     const pts = poly.points;
     if (pts.length < 3) continue;
-
-    // 多边形包围盒
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (const p of pts) {
-      if (p.x < minX) minX = p.x;
-      if (p.x > maxX) maxX = p.x;
-      if (p.y < minY) minY = p.y;
-      if (p.y > maxY) maxY = p.y;
+      if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+      if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
     }
-    minX = Math.max(0, Math.floor(minX));
-    maxX = Math.min(storedW - 1, Math.ceil(maxX));
-    minY = Math.max(0, Math.floor(minY));
-    maxY = Math.min(storedH - 1, Math.ceil(maxY));
-
-    for (let y = minY; y <= maxY; y++) {
-      for (let x = minX; x <= maxX; x++) {
-        if (pointInPolygon(x, y, pts)) {
-          mask[y * storedW + x] = 1;
-        }
-      }
-    }
+    minX = Math.max(0, Math.floor(minX)); maxX = Math.min(storedW - 1, Math.ceil(maxX));
+    minY = Math.max(0, Math.floor(minY)); maxY = Math.min(storedH - 1, Math.ceil(maxY));
+    for (let y = minY; y <= maxY; y++)
+      for (let x = minX; x <= maxX; x++)
+        if (pointInPolygon(x, y, pts)) mask[y * storedW + x] = 1;
   }
-
   return mask;
 }
 
@@ -701,29 +1098,20 @@ function pointInPolygon(px, py, polygon) {
   for (let i = 0, j = n - 1; i < n; j = i++) {
     const xi = polygon[i].x, yi = polygon[i].y;
     const xj = polygon[j].x, yj = polygon[j].y;
-    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
-      inside = !inside;
-    }
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
   }
   return inside;
 }
 
 
 // ═══════════════════════════════════════════════════════════
-//  推理：仅 ROI 区域
+//  推理
 // ═══════════════════════════════════════════════════════════
 async function runROIInference() {
   const mask = buildROIMask();
-  if (!mask) {
-    alert('请先在 RGB 预览图上圈画需要推理的区域');
-    return;
-  }
+  if (!mask) { alert(t('drawROIFirst')); return; }
   const nSelected = mask.reduce((s, v) => s + v, 0);
-  if (nSelected === 0) {
-    alert('选中的区域为空，请重新圈画');
-    return;
-  }
-
+  if (nSelected === 0) { alert(t('emptyROI')); return; }
   roiMask = mask;
   await runMaskedInference(mask);
 }
@@ -736,46 +1124,39 @@ async function runFullInference() {
 async function runMaskedInference(mask) {
   const H = storedH, W = storedW, bands = storedBands;
   const nPixels = H * W;
-
   const status = document.getElementById('status');
   const progressBar = document.getElementById('progressBar');
   const progressFill = document.getElementById('progressFill');
 
-  status.textContent = '准备推理...';
+  status.textContent = t('preparingInfer');
   status.className = 'status';
   progressBar.style.display = 'block';
   progressFill.style.width = '0%';
 
   try {
     const tStart = performance.now();
-
-    // 收集有效像素（masked）
     let validIndices;
     if (mask) {
       validIndices = [];
-      for (let i = 0; i < nPixels; i++) {
-        if (mask[i]) validIndices.push(i);
-      }
+      for (let i = 0; i < nPixels; i++) if (mask[i]) validIndices.push(i);
     } else {
       validIndices = new Array(nPixels);
       for (let i = 0; i < nPixels; i++) validIndices[i] = i;
     }
 
     const nValid = validIndices.length;
-    if (nValid === 0) throw new Error('没有可推理的像素');
+    if (nValid === 0) throw new Error(t('noPixelError'));
 
     const config = MODEL_CONFIGS[currentModel];
     const channels = config.channels;
     const featureSize = channels * bands;
 
-    // 构建选中像素的特征
     const features = new Float32Array(nValid * featureSize);
     for (let i = 0; i < nValid; i++) {
       const pIdx = validIndices[i];
       const srcBase = pIdx * bands;
       const dstBase = i * featureSize;
       const spec = storedNormalizedData.slice(srcBase, srcBase + bands);
-
       if (config.deriv) {
         const d1 = sgDerivative1D(spec, SG_COEFFS_1ST);
         const d2 = sgDerivative1D(spec, SG_COEFFS_2ND);
@@ -785,66 +1166,50 @@ async function runMaskedInference(mask) {
           features[(i * 3 + 2) * bands + b] = d2[b];
         }
       } else {
-        for (let b = 0; b < bands; b++) {
-          features[dstBase + b] = spec[b];
-        }
+        for (let b = 0; b < bands; b++) features[dstBase + b] = spec[b];
       }
     }
 
-    status.textContent = `推理中... 选中 ${nValid.toLocaleString()} 像素`;
+    status.textContent = t('inferring', nValid.toLocaleString());
     progressFill.style.width = '0%';
 
-    // 推理
     const validPredictions = new Int32Array(nValid);
     const session = ortSession;
 
     for (let start = 0; start < nValid; start += BATCH_SIZE) {
       const end = Math.min(start + BATCH_SIZE, nValid);
       const count = end - start;
-
       const batchData = new Float32Array(count * featureSize);
       for (let p = 0; p < count; p++) {
         const srcOff = (start + p) * featureSize;
-        for (let j = 0; j < featureSize; j++) {
-          batchData[p * featureSize + j] = features[srcOff + j];
-        }
+        for (let j = 0; j < featureSize; j++) batchData[p * featureSize + j] = features[srcOff + j];
       }
-
       const tensor = new ort.Tensor('float32', batchData, [count, channels, bands]);
-      const feeds = { spectrum: tensor };
-      const results = await session.run(feeds);
+      const results = await session.run({ spectrum: tensor });
       const logits = results.logits.data;
-
       for (let p = 0; p < count; p++) {
         let maxVal = -Infinity, maxIdx = 0;
         for (let c = 0; c < NUM_CLASSES; c++) {
-          const val = logits[p * NUM_CLASSES + c];
-          if (val > maxVal) { maxVal = val; maxIdx = c; }
+          if (logits[p * NUM_CLASSES + c] > maxVal) { maxVal = logits[p * NUM_CLASSES + c]; maxIdx = c; }
         }
         validPredictions[start + p] = maxIdx;
       }
-
-      const progress = (end / nValid) * 100;
-      progressFill.style.width = progress + '%';
+      progressFill.style.width = (end / nValid * 100) + '%';
     }
 
-    // 构建全图预测（非 ROI 区域 = 背景 0）
     const fullPredictions = new Int32Array(nPixels);
-    for (let i = 0; i < nValid; i++) {
-      fullPredictions[validIndices[i]] = validPredictions[i];
-    }
+    for (let i = 0; i < nValid; i++) fullPredictions[validIndices[i]] = validPredictions[i];
 
     const elapsed = (performance.now() - tStart) / 1000;
     const totalROI = nValid;
-
-    // 渲染
     renderResult(fullPredictions, H, W, elapsed, totalROI);
 
-    status.textContent = `✓ 完成！ROI ${totalROI.toLocaleString()} 像素，耗时 ${elapsed.toFixed(2)} 秒`;
+    const doneMsg = mask ? t('doneROI', totalROI.toLocaleString(), elapsed.toFixed(2)) : t('doneFull', totalROI.toLocaleString(), elapsed.toFixed(2));
+    status.textContent = doneMsg;
     status.className = 'status ok';
 
   } catch(e) {
-    status.textContent = `错误: ${e.message}`;
+    status.textContent = t('errorPrefix') + e.message;
     status.className = 'status err';
     console.error(e);
   } finally {
@@ -854,7 +1219,7 @@ async function runMaskedInference(mask) {
 
 
 // ═══════════════════════════════════════════════════════════
-//  HDR 解析（增加 wavelength 字段）
+//  HDR 解析
 // ═══════════════════════════════════════════════════════════
 function parseHDRHeader(text) {
   const info = {};
@@ -867,39 +1232,26 @@ function parseHDRHeader(text) {
     const val = trimmed.substring(eq + 1).trim();
     info[key] = val;
   }
-
-  // 解析 wavelength 数组
   let wavelengths = null;
   if (info['wavelength']) {
-    // 波长值可能跨多行，从原始文本中提取
     const wlMatch = text.match(/wavelength\s*=\s*\{([^}]+)\}/s);
-    if (wlMatch) {
-      wavelengths = wlMatch[1]
-        .split(/[\s,]+/)
-        .map(v => parseFloat(v))
-        .filter(v => !isNaN(v));
-    }
+    if (wlMatch) wavelengths = wlMatch[1].split(/[\s,]+/).map(v => parseFloat(v)).filter(v => !isNaN(v));
   }
-
   return {
-    samples:   parseInt(info['samples']) || 0,
-    lines:     parseInt(info['lines']) || 0,
-    bands:     parseInt(info['bands']) || 0,
-    dataType:  parseInt(info['data type'] || '4'),
+    samples: parseInt(info['samples']) || 0,
+    lines: parseInt(info['lines']) || 0,
+    bands: parseInt(info['bands']) || 0,
+    dataType: parseInt(info['data type'] || '4'),
     byteOrder: parseInt(info['byte order'] || '0'),
     interleave: (info['interleave'] || 'bsq').toLowerCase(),
-    wavelengths: wavelengths,
+    wavelengths,
   };
 }
 
 function findClosestBand(wavelengths, target) {
   let bestIdx = 0, bestDiff = Infinity;
   for (let i = 0; i < wavelengths.length; i++) {
-    const diff = Math.abs(wavelengths[i] - target);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      bestIdx = i;
-    }
+    if (Math.abs(wavelengths[i] - target) < bestDiff) { bestDiff = Math.abs(wavelengths[i] - target); bestIdx = i; }
   }
   return bestIdx;
 }
@@ -908,39 +1260,14 @@ function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
   const isBE = (byteOrder === 1);
   const dv = new DataView(buffer);
   const result = new Float32Array(totalElements);
-
   switch (dataType) {
-    case 1:
-      const u8 = new Uint8Array(buffer);
-      for (let i = 0; i < totalElements; i++) result[i] = u8[i];
-      break;
-    case 2:
-      for (let i = 0; i < totalElements; i++) {
-        result[i] = dv.getInt16(i * 2, !isBE);
-      }
-      break;
-    case 3:
-      for (let i = 0; i < totalElements; i++) {
-        result[i] = dv.getInt32(i * 4, !isBE);
-      }
-      break;
-    case 4:
-      for (let i = 0; i < totalElements; i++) {
-        result[i] = dv.getFloat32(i * 4, !isBE);
-      }
-      break;
-    case 5:
-      for (let i = 0; i < totalElements; i++) {
-        result[i] = dv.getFloat64(i * 8, !isBE);
-      }
-      break;
-    case 12:
-      for (let i = 0; i < totalElements; i++) {
-        result[i] = dv.getUint16(i * 2, !isBE);
-      }
-      break;
-    default:
-      throw new Error(`不支持的数据类型: ${dataType}`);
+    case 1: { const u8 = new Uint8Array(buffer); for (let i=0;i<totalElements;i++) result[i]=u8[i]; break; }
+    case 2: for (let i=0;i<totalElements;i++) result[i]=dv.getInt16(i*2,!isBE); break;
+    case 3: for (let i=0;i<totalElements;i++) result[i]=dv.getInt32(i*4,!isBE); break;
+    case 4: for (let i=0;i<totalElements;i++) result[i]=dv.getFloat32(i*4,!isBE); break;
+    case 5: for (let i=0;i<totalElements;i++) result[i]=dv.getFloat64(i*8,!isBE); break;
+    case 12: for (let i=0;i<totalElements;i++) result[i]=dv.getUint16(i*2,!isBE); break;
+    default: throw new Error(`Unsupported data type: ${dataType}`);
   }
   return result;
 }
@@ -948,34 +1275,16 @@ function parseBinaryData(buffer, dataType, byteOrder, totalElements) {
 function reorderToBSQ(data, h, w, bands, interleave) {
   switch (interleave) {
     case 'bil': {
-      const reordered = new Float32Array(h * w * bands);
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          for (let b = 0; b < bands; b++) {
-            const srcIdx = y * bands * w + b * w + x;
-            const dstIdx = (y * w + x) * bands + b;
-            reordered[dstIdx] = data[srcIdx];
-          }
-        }
-      }
-      return reordered;
+      const re = new Float32Array(h*w*bands);
+      for (let y=0;y<h;y++) for (let x=0;x<w;x++) for (let b=0;b<bands;b++) re[(y*w+x)*bands+b]=data[y*bands*w+b*w+x];
+      return re;
     }
     case 'bip': {
-      const reordered2 = new Float32Array(h * w * bands);
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          for (let b = 0; b < bands; b++) {
-            const srcIdx = y * w * bands + x * bands + b;
-            const dstIdx = (y * w + x) * bands + b;
-            reordered2[dstIdx] = data[srcIdx];
-          }
-        }
-      }
-      return reordered2;
+      const re = new Float32Array(h*w*bands);
+      for (let y=0;y<h;y++) for (let x=0;x<w;x++) for (let b=0;b<bands;b++) re[(y*w+x)*bands+b]=data[y*w*bands+x*bands+b];
+      return re;
     }
-    case 'bsq':
-    default:
-      return data;
+    default: return data;
   }
 }
 
@@ -990,34 +1299,28 @@ function cropBands(data, h, w, bands) {
   for (let p = 0; p < totalPixels; p++) {
     const srcBase = p * bands + NOISE_START;
     const dstBase = p * keep;
-    for (let b = 0; b < keep; b++) {
-      result[dstBase + b] = data[srcBase + b];
-    }
+    for (let b = 0; b < keep; b++) result[dstBase + b] = data[srcBase + b];
   }
   return result;
 }
 
 function normalize(data, mean, std) {
   const invStd = 1.0 / std;
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (data[i] - mean) * invStd;
-  }
+  for (let i = 0; i < data.length; i++) data[i] = (data[i] - mean) * invStd;
 }
 
-const SG_COEFFS_1ST = [ 0.2,  0.1,  0.0, -0.1, -0.2];
-const SG_COEFFS_2ND = [ 0.285714, -0.142857, -0.285714, -0.142857,  0.285714];
+const SG_COEFFS_1ST = [0.2, 0.1, 0.0, -0.1, -0.2];
+const SG_COEFFS_2ND = [0.285714, -0.142857, -0.285714, -0.142857, 0.285714];
 
 function sgDerivative1D(spectrum, coeffs) {
   const n = spectrum.length;
   const result = new Float32Array(n);
-  const w = coeffs.length;
-  const half = (w - 1) / 2;
+  const w = coeffs.length, half = (w-1)/2;
   for (let i = 0; i < n; i++) {
     let sum = 0;
     for (let j = 0; j < w; j++) {
       let idx = i + j - half;
-      if (idx < 0) idx = 0;
-      if (idx >= n) idx = n - 1;
+      if (idx < 0) idx = 0; else if (idx >= n) idx = n - 1;
       sum += spectrum[idx] * coeffs[j];
     }
     result[i] = sum;
@@ -1031,38 +1334,38 @@ function sgDerivative1D(spectrum, coeffs) {
 // ═══════════════════════════════════════════════════════════
 function renderResult(predictions, H, W, elapsed, totalROI) {
   const canvas = document.getElementById('resultCanvas');
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
   const imgData = ctx.createImageData(W, H);
-
   const nPixels = H * W;
   for (let i = 0; i < nPixels; i++) {
-    const label = predictions[i];
-    const [r, g, b] = COLOR_MAP[label] || [0,0,0];
+    const [r, g, b] = COLOR_MAP[predictions[i]] || [0,0,0];
     const off = i * 4;
-    imgData.data[off] = r;
-    imgData.data[off+1] = g;
-    imgData.data[off+2] = b;
-    imgData.data[off+3] = 255;
+    imgData.data[off]=r; imgData.data[off+1]=g; imgData.data[off+2]=b; imgData.data[off+3]=255;
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // 统计
   const counts = new Array(5).fill(0);
   for (let i = 0; i < nPixels; i++) counts[predictions[i]]++;
   const toothPixels = counts[1]+counts[2]+counts[3]+counts[4];
 
   document.getElementById('stats').innerHTML = `
-    <div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">推理耗时</div></div>
-    <div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">推理像素</div></div>
-    <div class="stat"><div class="value">${toothPixels.toLocaleString()}</div><div class="label">牙体像素</div></div>
-    <div class="stat"><div class="value">${toothPixels>0?((counts[2]+counts[3])/toothPixels*100).toFixed(1):'0'}%</div><div class="label">龋坏比例</div></div>
+    <div class="stat"><div class="value">${elapsed.toFixed(2)}s</div><div class="label">${t('statTime')}</div></div>
+    <div class="stat"><div class="value">${totalROI.toLocaleString()}</div><div class="label">${t('statPixels')}</div></div>
+    <div class="stat"><div class="value">${toothPixels.toLocaleString()}</div><div class="label">${t('statTooth')}</div></div>
+    <div class="stat"><div class="value">${toothPixels>0?((counts[2]+counts[3])/toothPixels*100).toFixed(1):'0'}%</div><div class="label">${t('statCaries')}</div></div>
+  `;
+
+  // Ensure legend is updated
+  document.getElementById('legend').innerHTML = `
+    <div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>
   `;
 
   document.getElementById('resultsCard').style.display = 'block';
-
-  // 滚动到结果
   document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
 }
 
