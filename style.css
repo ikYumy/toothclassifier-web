@@ -203,6 +203,7 @@ body {
 .lang-selector button {
   width: 32px;
   height: 28px;
+  margin-top: 0;
   border-radius: var(--radius-pill);
   border: none;
   background: transparent;
@@ -555,11 +556,22 @@ canvas {
 
 /* ═══════════ Utility ═══════════ */
 .hint {
-  font-size: 0.72rem;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px 12px 6px;
+  font-size: 0.68rem;
   font-weight: 450;
-  color: var(--muted);
-  margin-top: 6px;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   text-align: center;
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  letter-spacing: 0.02em;
 }
 
 .info-tag {

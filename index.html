@@ -74,8 +74,11 @@
   <!-- Preview + ROI -->
   <div class="card fade-in" id="previewCard" style="display:none">
     <h2><span class="dot"></span> <span data-i18n="previewHeading">RGB Preview</span></h2>
-    <div class="canvas-container" id="canvasContainer"><canvas id="rgbCanvas"></canvas><canvas id="drawCanvas"></canvas></div>
-    <div class="hint" data-i18n="roiHint">Draw on the image to select ROI</div>
+    <div class="canvas-container" id="canvasContainer">
+      <canvas id="rgbCanvas"></canvas>
+      <canvas id="drawCanvas"></canvas>
+      <div class="hint" data-i18n="roiHint">Draw on the image to select ROI</div>
+    </div>
     <div class="btn-row"><button class="btn-outline btn-sm" onclick="clearROI()" data-i18n="clearROIBtn">Clear</button><button class="btn-outline btn-sm" onclick="undoLastROI()" data-i18n="undoROIBtn">Undo</button></div>
   </div>
 

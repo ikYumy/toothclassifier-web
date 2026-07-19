@@ -9,7 +9,7 @@ const LANG = {
 };
 let curLang='zh';
 function t(k,...a){let x=(LANG[curLang]&&LANG[curLang][k])||(LANG.en&&LANG.en[k])||k;for(let i=0;i<a.length;i++)x=x.replace('{'+i+'}',a[i]);return x}
-function applyLang(){document.documentElement.lang=curLang;document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.getAttribute('data-i18n')));document.querySelectorAll('[data-i18n-html]').forEach(e=>e.innerHTML=t(e.getAttribute('data-i18n-html')));const ms=document.getElementById('modelStatus');if(ms&&ms.className==='status')ms.textContent=t('modelStatusInit');const lg=document.getElementById('legend');if(lg)lg.innerHTML=buildLegend()}
+function applyLang(){document.documentElement.lang=curLang;document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=t(e.getAttribute('data-i18n')));document.querySelectorAll('[data-i18n-html]').forEach(e=>e.innerHTML=t(e.getAttribute('data-i18n-html')));const ms=document.getElementById('modelStatus');if(ms&&ms.className==='status')ms.textContent=t('modelStatusInit');const lg=document.getElementById('legend');if(lg)lg.innerHTML=buildLegend();showDeviceInfo()}
 function buildLegend(){return `<div class="legend-item"><div class="legend-dot" style="background:#000"></div>${t('legendBg')}</div><div class="legend-item"><div class="legend-dot" style="background:#f00"></div>${t('legendEnamel')}</div><div class="legend-item"><div class="legend-dot" style="background:#008b00"></div>${t('legendEarly')}</div><div class="legend-item"><div class="legend-dot" style="background:#00f"></div>${t('legendDeveloped')}</div><div class="legend-item"><div class="legend-dot" style="background:#ff0"></div>${t('legendCalculus')}</div>`}
 function initLang(){const sv=localStorage.getItem('tcl');if(sv&&LANG[sv])curLang=sv;else{const m={zh:'zh',ja:'ja',ko:'ko',es:'es',fr:'fr'};curLang=m[(navigator.language||'en').split('-')[0]]||'en'}const sl=document.getElementById('langSelector');const fl={zh:'中',en:'EN',ja:'日',es:'ES',ko:'한',fr:'FR'};for(const[c,l]of Object.entries(fl)){const b=document.createElement('button');b.textContent=l;b.title=c;b.onclick=()=>{curLang=c;localStorage.setItem('tcl',c);applyLang();updateLangBtns()};sl.appendChild(b)}updateLangBtns();applyLang()}
 function updateLangBtns(){const m={中:'zh',EN:'en',日:'ja',ES:'es',한:'ko',FR:'fr'};document.querySelectorAll('#langSelector button').forEach(b=>b.className=(m[b.textContent]===curLang)?'active':'')}
@@ -44,7 +44,7 @@ function detectDevice(){
 detectDevice();
 
 function showDeviceInfo(){const label=document.getElementById('deviceLabel'),card=document.getElementById('deviceCard');
-  label.textContent=device.hasWebGL?'Device compatible · WebGL available':'Device not compatible · No WebGL';
+  label.textContent=device.hasWebGL?t('deviceOK'):t('deviceFail');
   card.style.borderColor=device.hasWebGL?'rgba(62,207,142,0.3)':'rgba(248,113,113,0.3)'}
 
 window.addEventListener('DOMContentLoaded',()=>{initTheme();initLang();checkORT();setupDrawCanvas();loadManifest();applyDeviceTweaks();showDeviceInfo()});
